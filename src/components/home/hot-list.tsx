@@ -26,17 +26,20 @@ const trendIcons = {
 };
 
 const trendColors = {
-  up: 'text-success',
-  down: 'text-destructive',
-  stable: 'text-muted-foreground',
+  up: 'text-emerald-400',
+  down: 'text-red-400',
+  stable: 'text-slate-500',
 };
 
 export function HotList() {
   return (
-    <Card className="bg-card/50 border-border/50 glow-primary">
+    <Card className="glass border-indigo-500/20 overflow-hidden">
+      <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 font-heading text-lg">
-          <Flame className="h-5 w-5 text-primary" />
+        <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500/30 to-red-500/30">
+            <Flame className="h-5 w-5 text-orange-400" />
+          </div>
           AI 热榜
         </CardTitle>
       </CardHeader>
@@ -49,15 +52,15 @@ export function HotList() {
           return (
             <div
               key={item.id}
-              className="group flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
+              className="group flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-transparent transition-all cursor-pointer border border-transparent hover:border-indigo-500/20"
             >
               {/* Rank */}
               <span className={cn(
-                'w-6 text-center font-heading font-bold',
-                index < 3 ? 'text-primary' : 'text-muted-foreground',
-                index === 0 && 'text-xl',
-                index === 1 && 'text-lg',
-                index === 2 && 'text-base',
+                'w-7 text-center font-heading font-bold',
+                index === 0 && 'text-2xl text-amber-400',
+                index === 1 && 'text-xl text-slate-400',
+                index === 2 && 'text-lg text-orange-400',
+                index >= 3 && 'text-base text-slate-500',
               )}>
                 {index + 1}
               </span>
@@ -65,22 +68,22 @@ export function HotList() {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium truncate group-hover:text-foreground transition-colors">
+                  <span className="font-medium text-slate-300 truncate group-hover:text-white transition-colors">
                     {item.name}
                   </span>
-                  <TrendIcon className={cn('h-3.5 w-3.5 shrink-0', trendColors[item.trend])} />
+                  <TrendIcon className={cn('h-4 w-4 shrink-0', trendColors[item.trend])} />
                 </div>
                 {/* Heat Bar */}
-                <div className="mt-1 h-1 bg-secondary rounded-full overflow-hidden">
+                <div className="mt-1.5 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
               </div>
 
               {/* Score */}
-              <span className="text-sm text-muted-foreground tabular-nums">
+              <span className="text-sm text-slate-500 tabular-nums font-mono">
                 {(item.heat_score / 1000).toFixed(1)}k
               </span>
             </div>

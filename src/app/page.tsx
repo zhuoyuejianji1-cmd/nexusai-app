@@ -49,18 +49,32 @@ const mockPosts: Post[] = [
 ];
 
 const quickActions = [
-  { icon: BookOpen, label: '今日任务', href: '/learn', color: 'text-primary' },
-  { icon: TrendingUp, label: '热榜', href: '/resources', color: 'text-accent' },
-  { icon: Users, label: '社区', href: '/', color: 'text-success' },
-  { icon: Zap, label: '新资源', href: '/resources', color: 'text-warning' },
+  { icon: BookOpen, label: '今日任务', href: '/learn', color: 'text-indigo-400' },
+  { icon: TrendingUp, label: '热榜', href: '/resources', color: 'text-cyan-400' },
+  { icon: Users, label: '社区', href: '/', color: 'text-emerald-400' },
+  { icon: Zap, label: '新资源', href: '/resources', color: 'text-amber-400' },
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen gradient-bg tech-grid relative">
+      {/* 动态光效背景 */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl aurora-glow" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl aurora-glow-delay" />
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl aurora-glow" />
+        
+        {/* 漂浮光点 */}
+        <div className="star" style={{ top: '15%', left: '10%', animationDelay: '0s' }} />
+        <div className="star" style={{ top: '25%', left: '85%', animationDelay: '1s' }} />
+        <div className="star" style={{ top: '60%', left: '5%', animationDelay: '2s' }} />
+        <div className="star" style={{ top: '75%', left: '90%', animationDelay: '0.5s' }} />
+        <div className="star" style={{ top: '40%', left: '95%', animationDelay: '1.5s' }} />
+      </div>
+      
       <Navbar />
       
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <section className="mb-8 animate-fade-in-up">
           <div className="flex flex-col md:flex-row gap-6">
@@ -74,10 +88,12 @@ export default function HomePage() {
               <div className="grid grid-cols-2 gap-3">
                 {quickActions.map((action) => (
                   <Link key={action.label} href={action.href}>
-                    <Card className="bg-card/50 border-border/50 hover-lift cursor-pointer h-full">
+                    <Card className="glass hover-lift cursor-pointer h-full group">
                       <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                        <action.icon className={`h-6 w-6 ${action.color}`} />
-                        <span className="text-sm font-medium">{action.label}</span>
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all">
+                          <action.icon className={`h-6 w-6 ${action.color}`} />
+                        </div>
+                        <span className="text-sm font-medium text-slate-300">{action.label}</span>
                       </CardContent>
                     </Card>
                   </Link>
@@ -85,19 +101,19 @@ export default function HomePage() {
               </div>
 
               {/* Stats */}
-              <Card className="bg-card/50 border-border/50">
+              <Card className="glass-strong border-indigo-500/20">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">在线学习者</span>
-                    <span className="font-heading font-bold text-success">1,284</span>
+                    <span className="text-sm text-slate-400">在线学习者</span>
+                    <span className="font-heading font-bold text-emerald-400">1,284</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">今日完成任务</span>
-                    <span className="font-heading font-bold text-primary">356</span>
+                    <span className="text-sm text-slate-400">今日完成任务</span>
+                    <span className="font-heading font-bold text-indigo-400">356</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">社区动态</span>
-                    <span className="font-heading font-bold text-accent">892</span>
+                    <span className="text-sm text-slate-400">社区动态</span>
+                    <span className="font-heading font-bold text-cyan-400">892</span>
                   </div>
                 </CardContent>
               </Card>
@@ -118,8 +134,8 @@ export default function HomePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-heading text-lg font-bold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  社区动态
+                  <Sparkles className="h-5 w-5 text-indigo-400" />
+                  <span className="gradient-text-v2">社区动态</span>
                 </h2>
               </div>
               
@@ -131,7 +147,7 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <Button variant="outline" className="w-full" asChild>
+              <Button variant="outline" className="w-full glass border-indigo-500/30 hover:bg-indigo-500/10" asChild>
                 <Link href="/">
                   查看更多
                   <ChevronRight className="h-4 w-4 ml-1" />
@@ -148,15 +164,15 @@ export default function HomePage() {
             </div>
 
             {/* Articles */}
-            <Card className="bg-card/50 border-border/50 glow-accent">
+            <Card className="glass border-cyan-500/20">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center justify-between font-heading text-lg">
                   <span className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-accent" />
-                    精选文章
+                    <BookOpen className="h-5 w-5 text-cyan-400" />
+                    <span className="gradient-text-v2">精选文章</span>
                   </span>
                   <Link href="/resources">
-                    <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2">
+                    <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2 text-slate-400 hover:text-slate-200">
                       查看全部
                     </Button>
                   </Link>
@@ -169,11 +185,11 @@ export default function HomePage() {
                   { title: 'Prompt Engineering 进阶技巧', views: 21000 },
                 ].map((article, index) => (
                   <Link key={index} href="/resources">
-                    <div className="group p-2 -mx-2 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
-                      <p className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
+                    <div className="group p-3 -mx-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-transparent transition-all cursor-pointer border border-transparent hover:border-indigo-500/20">
+                      <p className="text-sm font-medium text-slate-300 line-clamp-2 group-hover:text-white transition-colors">
                         {article.title}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         {article.views.toLocaleString()} 阅读
                       </p>
                     </div>
@@ -183,17 +199,18 @@ export default function HomePage() {
             </Card>
 
             {/* Daily Task CTA */}
-            <Card className="bg-gradient-to-br from-primary/20 to-accent/10 border-primary/30 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
+            <Card className="border-gradient overflow-hidden relative group hover:shadow-2xl transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-cyan-600/20" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500" />
               <CardContent className="relative p-6 text-center">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 mb-4 group-hover:scale-110 transition-transform">
+                  <Zap className="h-7 w-7 text-indigo-400" />
                 </div>
-                <h3 className="font-heading text-lg font-bold mb-2">今日任务</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="font-heading text-xl font-bold mb-2 text-white">今日任务</h3>
+                <p className="text-sm text-slate-400 mb-4">
                   完成今日 AI 学习任务，获得积分奖励
                 </p>
-                <Button className="w-full bg-primary hover:bg-primary-dark" asChild>
+                <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-0 shadow-lg shadow-indigo-500/25" asChild>
                   <Link href="/learn">
                     开始学习
                     <ChevronRight className="h-4 w-4 ml-1" />

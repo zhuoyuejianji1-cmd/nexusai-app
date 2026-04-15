@@ -69,10 +69,10 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
   };
 
   return (
-    <Card className="bg-card/50 border-border/50 hover-lift">
-      <CardContent className="p-4">
+    <Card className="glass border-indigo-500/20 hover-lift card-glow">
+      <CardContent className="p-5">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <UserAvatar
               name={post.user?.nickname || 'Anonymous'}
@@ -80,21 +80,21 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
               size="md"
             />
             <div>
-              <span className="font-medium">
+              <span className="font-medium text-white">
                 {post.user?.nickname || 'Anonymous'}
               </span>
-              <span className="text-muted-foreground text-sm ml-2">
+              <span className="text-slate-500 text-sm ml-2">
                 {formatTimeAgo(post.created_at)}
               </span>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-white">
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Content */}
-        <p className="text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+        <p className="text-sm leading-relaxed mb-4 whitespace-pre-wrap text-slate-300">
           {post.content}
         </p>
 
@@ -110,7 +110,7 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
               <div
                 key={index}
                 className={cn(
-                  'relative aspect-square rounded-lg overflow-hidden bg-secondary',
+                  'relative aspect-square rounded-xl overflow-hidden bg-slate-800',
                   post.images!.length === 1 && 'aspect-video',
                 )}
               >
@@ -125,20 +125,20 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-1 pt-2 border-t border-border/50">
+        <div className="flex items-center gap-1 pt-3 border-t border-indigo-500/10">
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              'gap-2 text-muted-foreground hover:text-primary',
-              isLiked && 'text-primary'
+              'gap-2 text-slate-400 hover:text-pink-400',
+              isLiked && 'text-pink-400'
             )}
             onClick={handleLike}
           >
             <Heart
               className={cn(
-                'h-4 w-4 transition-transform',
-                isLiked && 'fill-current',
+                'h-4 w-4 transition-all',
+                isLiked && 'fill-current scale-110',
                 isAnimating && 'scale-125'
               )}
             />
@@ -148,34 +148,34 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
+            className="gap-2 text-slate-400 hover:text-indigo-400"
             onClick={() => setShowComments(!showComments)}
           >
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs">{comments.length}</span>
           </Button>
 
-          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" className="gap-2 text-slate-400 hover:text-cyan-400">
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
 
         {/* Comments Section */}
         {showComments && (
-          <div className="mt-4 pt-4 border-t border-border/50 space-y-4">
+          <div className="mt-4 pt-4 border-t border-indigo-500/10 space-y-4">
             {/* Comment Input */}
             <div className="flex gap-2">
               <Textarea
                 placeholder="写下你的评论..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="min-h-[60px] resize-none bg-secondary/50"
+                className="min-h-[60px] resize-none glass border-indigo-500/20 bg-slate-900/50"
               />
               <Button
                 size="sm"
                 onClick={handleComment}
                 disabled={!commentText.trim()}
-                className="self-end"
+                className="self-end bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
               >
                 发送
               </Button>
@@ -192,14 +192,14 @@ export function PostCard({ post, onLike, onComment }: PostCardProps) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-medium text-sm">
+                      <span className="font-medium text-sm text-white">
                         {comment.user?.nickname || 'Anonymous'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-slate-500">
                         {formatTimeAgo(comment.created_at)}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-0.5">
+                    <p className="text-sm text-slate-400 mt-0.5">
                       {comment.content}
                     </p>
                   </div>

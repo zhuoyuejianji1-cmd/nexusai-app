@@ -81,48 +81,49 @@ export function NewsCarousel() {
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
       {/* Gradient Border */}
-      <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-r from-primary via-accent to-primary opacity-50" />
+      <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 opacity-60" />
       
       {/* Content */}
-      <div className="relative bg-card rounded-2xl overflow-hidden">
+      <div className="relative bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-900 rounded-2xl overflow-hidden">
+        {/* Glow Effects */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/20 to-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-500/20 to-indigo-500/10 rounded-full blur-3xl" />
+        
         {/* News Item */}
         <div className="relative p-6 md:p-8">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <Badge variant="outline" className="gap-1.5 border-primary/50 text-primary">
+                <Badge variant="outline" className="gap-1.5 border-indigo-500/50 text-indigo-400 bg-indigo-500/10">
                   <Calendar className="h-3 w-3" />
                   第{current + 1}条
                 </Badge>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-slate-500">
                   {mockNews[current].source}
                 </span>
               </div>
               
-              <h3 className="font-heading text-xl md:text-2xl font-bold mb-3 leading-tight">
+              <h3 className="font-heading text-xl md:text-2xl font-bold mb-3 leading-tight text-white group-hover:text-indigo-300 transition-colors">
                 {mockNews[current].title}
               </h3>
               
-              <p className="text-muted-foreground leading-relaxed line-clamp-2">
+              <p className="text-slate-400 leading-relaxed line-clamp-2">
                 {mockNews[current].summary}
               </p>
               
               <a
                 href={mockNews[current].url}
-                className="inline-flex items-center gap-2 mt-4 text-primary hover:text-primary-light transition-colors"
+                className="inline-flex items-center gap-2 mt-4 text-indigo-400 hover:text-indigo-300 transition-colors group/link"
               >
                 <span className="text-sm font-medium">阅读全文</span>
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="h-4 w-4 group-hover/link:translate-x-0.5 transition-transform" />
               </a>
             </div>
           </div>
-
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between p-4 border-t border-border/50">
+        <div className="relative flex items-center justify-between p-4 border-t border-indigo-500/10 bg-slate-900/50">
           {/* Dots */}
           <div className="flex items-center gap-2">
             {mockNews.map((_, index) => (
@@ -132,8 +133,8 @@ export function NewsCarousel() {
                 className={cn(
                   'h-1.5 rounded-full transition-all duration-300',
                   index === current
-                    ? 'w-8 bg-primary'
-                    : 'w-1.5 bg-muted hover:bg-muted-foreground/50'
+                    ? 'w-8 bg-gradient-to-r from-indigo-500 to-purple-500'
+                    : 'w-1.5 bg-slate-700 hover:bg-slate-600'
                 )}
               />
             ))}
@@ -143,15 +144,15 @@ export function NewsCarousel() {
           <div className="flex items-center gap-2">
             <button
               onClick={prev}
-              className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+              className="p-2 rounded-lg glass border border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 text-slate-400" />
             </button>
             <button
               onClick={next}
-              className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+              className="p-2 rounded-lg glass border border-indigo-500/20 hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-slate-400" />
             </button>
           </div>
         </div>

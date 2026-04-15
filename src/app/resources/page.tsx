@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, Grid, List, SlidersHorizontal, Star, Eye, ExternalLink } from 'lucide-react';
+import { Search, Grid, List, Star, Eye, ExternalLink } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -15,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserAvatar } from '@/components/common/user-avatar';
 import { cn, categoryLabels, formatNumber } from '@/lib/utils';
 import type { Resource } from '@/lib/types';
 
@@ -154,16 +152,22 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen gradient-bg tech-grid relative">
+      {/* 动态光效 */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl aurora-glow" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl aurora-glow-delay" />
+      </div>
+      
       <Navbar />
       
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 animate-fade-in-up">
           <h1 className="font-heading text-3xl font-bold mb-2">
             <span className="gradient-text">AI 资源库</span>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-slate-400">
             发现和探索最优质的 AI 工具、教程、论文和开源项目
           </p>
         </div>
@@ -173,34 +177,34 @@ export default function ResourcesPage() {
           {/* Search & Controls */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
               <Input
                 type="search"
                 placeholder="搜索资源..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-secondary/50 border-border/50"
+                className="pl-9 glass border-indigo-500/20 focus:border-indigo-500/50 bg-slate-900/50"
               />
             </div>
             
             <div className="flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[140px] bg-secondary/50 border-border/50">
+                <SelectTrigger className="w-[140px] glass border-indigo-500/20 bg-slate-900/50">
                   <SelectValue placeholder="排序" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass border-indigo-500/20">
                   <SelectItem value="popular">最受欢迎</SelectItem>
                   <SelectItem value="recent">最新最热</SelectItem>
                 </SelectContent>
               </Select>
 
-              <div className="flex items-center border border-border/50 rounded-lg overflow-hidden">
+              <div className="flex items-center border border-indigo-500/20 rounded-lg overflow-hidden glass">
                 <Button
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    'rounded-none h-9 w-9',
-                    viewMode === 'grid' && 'bg-secondary'
+                    'rounded-none h-9 w-9 text-slate-400',
+                    viewMode === 'grid' && 'bg-indigo-500/20 text-indigo-400'
                   )}
                   onClick={() => setViewMode('grid')}
                 >
@@ -210,8 +214,8 @@ export default function ResourcesPage() {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    'rounded-none h-9 w-9',
-                    viewMode === 'list' && 'bg-secondary'
+                    'rounded-none h-9 w-9 text-slate-400',
+                    viewMode === 'list' && 'bg-indigo-500/20 text-indigo-400'
                   )}
                   onClick={() => setViewMode('list')}
                 >
@@ -230,8 +234,10 @@ export default function ResourcesPage() {
                 size="sm"
                 onClick={() => setActiveCategory(cat.value)}
                 className={cn(
-                  'shrink-0',
-                  activeCategory === cat.value && 'bg-primary'
+                  'shrink-0 glass',
+                  activeCategory === cat.value 
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 border-0' 
+                    : 'border-indigo-500/30 text-slate-400 hover:text-white hover:border-indigo-500/50'
                 )}
               >
                 {cat.label}
@@ -242,10 +248,10 @@ export default function ResourcesPage() {
 
         {/* Results */}
         <div className={cn(
-          'mb-6 text-sm text-muted-foreground',
+          'mb-6 text-sm text-slate-400',
           'animate-fade-in-up delay-200'
         )}>
-          找到 <span className="font-semibold text-foreground">{filteredResources.length}</span> 个资源
+          找到 <span className="font-semibold text-white">{filteredResources.length}</span> 个资源
         </div>
 
         {/* Resource Grid/List */}
@@ -270,11 +276,11 @@ export default function ResourcesPage() {
         {/* Empty State */}
         {filteredResources.length === 0 && (
           <div className="text-center py-16">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-secondary mb-4">
-              <Search className="h-8 w-8 text-muted-foreground" />
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl glass mb-4">
+              <Search className="h-8 w-8 text-slate-500" />
             </div>
-            <h3 className="font-heading text-lg font-bold mb-2">未找到资源</h3>
-            <p className="text-muted-foreground">
+            <h3 className="font-heading text-lg font-bold mb-2 text-white">未找到资源</h3>
+            <p className="text-slate-400">
               尝试调整搜索词或切换分类
             </p>
           </div>
@@ -294,11 +300,11 @@ interface ResourceCardProps {
 function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: ResourceCardProps) {
   if (viewMode === 'list') {
     return (
-      <Card className="bg-card/50 border-border/50 hover-lift">
+      <Card className="glass border-indigo-500/20 hover-lift card-glow">
         <CardContent className="p-4">
           <div className="flex gap-4">
             {resource.cover_url && (
-              <div className="relative w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-secondary">
+              <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-slate-800">
                 <img
                   src={resource.cover_url}
                   alt={resource.title}
@@ -309,10 +315,10 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-heading font-bold mb-1 line-clamp-1">
+                  <h3 className="font-heading font-bold mb-1 line-clamp-1 text-white">
                     {resource.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-slate-400 line-clamp-2">
                     {resource.description}
                   </p>
                 </div>
@@ -322,21 +328,21 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
                   onClick={onToggleFavorite}
                   className={cn(
                     'shrink-0',
-                    isFavorite && 'text-primary'
+                    isFavorite ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'
                   )}
                 >
                   <Star className={cn('h-4 w-4', isFavorite && 'fill-current')} />
                 </Button>
               </div>
               <div className="flex items-center gap-4 mt-3">
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-indigo-500/30 text-indigo-400">
                   {categoryLabels[resource.category]}
                 </Badge>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs text-slate-500">
                   <Star className="h-3 w-3" />
                   {formatNumber(resource.likes_count)}
                 </span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs text-slate-500">
                   <Eye className="h-3 w-3" />
                   {formatNumber(resource.views_count)}
                 </span>
@@ -346,7 +352,7 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
                   rel="noopener noreferrer"
                   className="ml-auto"
                 >
-                  <Button size="sm" variant="outline" className="gap-1">
+                  <Button size="sm" variant="outline" className="gap-1 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10">
                     <ExternalLink className="h-3 w-3" />
                     访问
                   </Button>
@@ -360,22 +366,27 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
   }
 
   return (
-    <Card className="bg-card/50 border-border/50 hover-lift overflow-hidden group">
+    <Card className="glass border-indigo-500/20 hover-lift overflow-hidden group card-glow">
       {resource.cover_url && (
         <div className="relative aspect-video overflow-hidden">
           <img
             src={resource.cover_url}
             alt={resource.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-indigo-500/80 hover:bg-indigo-500 backdrop-blur-sm">
+              {categoryLabels[resource.category]}
+            </Badge>
+          </div>
           <a
             href={resource.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
           >
-            <Button size="sm" className="gap-1 bg-primary hover:bg-primary-dark">
+            <Button size="sm" className="gap-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25">
               <ExternalLink className="h-3 w-3" />
               访问
             </Button>
@@ -384,7 +395,7 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
       )}
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-heading font-bold line-clamp-1 flex-1">
+          <h3 className="font-heading font-bold line-clamp-1 flex-1 text-white group-hover:text-indigo-300 transition-colors">
             {resource.title}
           </h3>
           <Button
@@ -393,22 +404,19 @@ function ResourceCard({ resource, viewMode, isFavorite, onToggleFavorite }: Reso
             onClick={onToggleFavorite}
             className={cn(
               'shrink-0 h-8 w-8',
-              isFavorite && 'text-primary'
+              isFavorite ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'
             )}
           >
             <Star className={cn('h-4 w-4', isFavorite && 'fill-current')} />
           </Button>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+        <p className="text-sm text-slate-400 line-clamp-2">
           {resource.description}
         </p>
-        <Badge variant="outline" className="text-xs">
-          {categoryLabels[resource.category]}
-        </Badge>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex items-center gap-4 text-muted-foreground">
+      <CardFooter className="p-4 pt-0 flex items-center gap-4 text-slate-500">
         <span className="flex items-center gap-1 text-xs">
-          <Star className="h-3 w-3" />
+          <Star className="h-3 w-3 text-amber-400" />
           {formatNumber(resource.likes_count)}
         </span>
         <span className="flex items-center gap-1 text-xs">
