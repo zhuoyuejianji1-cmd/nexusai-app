@@ -142,30 +142,30 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 第三行：AI 热榜（竖排排名）+ 最新动态 */}
-        <section className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-3">
-          {/* AI 热榜 - 竖排排名列表 - 7/12 */}
-          <Card className="xl:col-span-7 border-gradient overflow-hidden relative">
+        {/* 第三行：AI 热榜 + 最新动态（紧凑并排） */}
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3">
+          {/* AI 热榜 - 竖排排名列表 */}
+          <Card className="border-gradient overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-900/30 via-slate-900/90 to-orange-900/30" />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
-            <CardHeader className="relative pb-2">
+            <CardHeader className="relative pb-1">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-amber-400" />
-                  <span className="font-heading text-sm font-bold text-white">🏆 AI 热榜</span>
+                  <TrendingUp className="h-3 w-3 text-amber-400" />
+                  <span className="font-heading text-xs font-bold text-white">🏆 AI 热榜</span>
                 </div>
                 <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border-0">
-                  <Flame className="h-2.5 w-2.5 mr-0.5" /> 实时
+                  <Flame className="h-2 w-2 mr-0.5" /> 实时
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="relative">
+            <CardContent className="relative pt-0">
               <div className="space-y-0">
                 {hotListItems.map((item) => (
                   <Link key={item.rank} href="/resources">
-                    <div className="group flex items-center gap-3 py-2 px-1 -mx-1 rounded-lg hover:bg-slate-800/50 transition-colors cursor-pointer border-b border-slate-800/50 last:border-0">
+                    <div className="group flex items-center gap-2 py-1.5 px-1 -mx-1 rounded hover:bg-slate-800/50 transition-colors cursor-pointer">
                       <span className={cn(
-                        'flex items-center justify-center h-7 w-7 rounded-lg text-xs font-bold shrink-0',
+                        'flex items-center justify-center h-5 w-5 rounded text-[10px] font-bold shrink-0',
                         item.rank === 1 && 'bg-gradient-to-br from-amber-500 to-orange-500 text-white',
                         item.rank === 2 && 'bg-gradient-to-br from-slate-400 to-slate-500 text-white',
                         item.rank === 3 && 'bg-gradient-to-br from-orange-600 to-orange-700 text-white',
@@ -174,30 +174,13 @@ export default function HomePage() {
                         {item.rank}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="text-sm font-medium text-slate-200 group-hover:text-white truncate">
-                            {item.title}
-                          </h4>
-                          {item.isHot && (
-                            <Badge className="shrink-0 text-[8px] px-1 py-0 bg-red-500/20 text-red-400 border-0">
-                              🔥
-                            </Badge>
-                          )}
-                          {item.isNew && (
-                            <Badge className="shrink-0 text-[8px] px-1 py-0 bg-green-500/20 text-green-400 border-0">
-                              NEW
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Badge variant="outline" className="text-[10px] px-1 py-0 border-indigo-500/30 text-indigo-400">
-                            {item.category}
-                          </Badge>
-                        </div>
+                        <h4 className="text-xs font-medium text-slate-200 group-hover:text-white truncate">
+                          {item.title}
+                        </h4>
                       </div>
-                      <div className="flex items-center gap-1 text-[12px] text-orange-400 shrink-0">
-                        <Flame className="h-3 w-3" />
-                        {(item.heat / 1000).toFixed(1)}k
+                      <div className="flex items-center gap-0.5 text-[10px] text-orange-400 shrink-0">
+                        <Flame className="h-2.5 w-2.5" />
+                        {(item.heat / 1000).toFixed(0)}k
                       </div>
                     </div>
                   </Link>
@@ -206,30 +189,26 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 最新动态 - 5/12 */}
-          <Card className="xl:col-span-5 glass border-indigo-500/20">
-            <CardHeader className="pb-2">
+          {/* 最新动态 */}
+          <Card className="glass border-indigo-500/20">
+            <CardHeader className="relative pb-1">
               <CardTitle className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-indigo-400" />
-                <span className="font-heading text-sm font-bold text-white">📢 最新动态</span>
+                <Hash className="h-3 w-3 text-indigo-400" />
+                <span className="font-heading text-xs font-bold text-white">📢 最新动态</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="pt-0 space-y-1">
               {latestPosts.map((post, index) => (
-                <div key={index} className="flex gap-2 p-2 rounded-lg hover:bg-indigo-500/5 transition-colors cursor-pointer">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-xs font-semibold shrink-0">
+                <div key={index} className="flex items-start gap-2 py-1">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-[10px] font-semibold shrink-0">
                     {post.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-medium text-white">{post.name}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-medium text-white">{post.name}</span>
                       <span className="text-[10px] text-slate-500">{post.time}</span>
                     </div>
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-tight mt-0.5">{post.content}</p>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] text-slate-500">
-                      <Flame className="h-2.5 w-2.5 text-orange-400" />
-                      {post.likes}
-                    </div>
+                    <p className="text-[10px] text-slate-400 line-clamp-1 leading-tight">{post.content}</p>
                   </div>
                 </div>
               ))}
