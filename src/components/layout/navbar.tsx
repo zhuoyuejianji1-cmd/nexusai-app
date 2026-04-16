@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Menu, Zap, LogOut, User, Crown } from 'lucide-react';
+import { Search, Menu, Zap, LogOut, User, Crown, Sun, Moon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,8 @@ interface UserData {
   points: number;
 }
 
+type Theme = 'light' | 'dark';
+
 const navLinks = [
   { href: '/', label: '首页' },
   { href: '/resources', label: '资源' },
@@ -44,6 +46,22 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [theme, setTheme] = useState<Theme>('light');
+
+  // 初始化主题
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as Theme;
+    setTheme(saved || 'light');
+  }, []);
+
+  // 切换主题
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   // 只在展开菜单时才请求用户信息
   useEffect(() => {
@@ -82,21 +100,38 @@ export function Navbar() {
     }
   };
 
+  const isDark = theme === 'dark';
+
   return (
-    <header className="sticky top-0 z-50 w-full">
-      {/* 毛玻璃背景 */}
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl border-b border-indigo-500/10" />
+    <header className={cn(
+      "sticky top-0 z-50 w-full",
+      isDark ? "" : "bg-white/80 backdrop-blur-xl border-b border-slate-200"
+    )}>
+      {/* 深色模式毛玻璃背景 */}
+      {isDark && (
+        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl border-b border-indigo-500/10" />
+      )}
       
       <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <div className="relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-lg shadow-indigo-500/30">
+            <div className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-xl shadow-lg",
+              isDark 
+                ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-indigo-500/30"
+                : "bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-indigo-500/20"
+            )}>
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 opacity-30 blur-md -z-10" />
+            {isDark && (
+              <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 opacity-30 blur-md -z-10" />
+            )}
           </div>
-          <span className="font-heading text-xl font-bold gradient-text hidden sm:block">
+          <span className={cn(
+            "font-heading text-xl font-bold hidden sm:block",
+            isDark ? "gradient-text" : "text-indigo-600"
+          )}>
             NexusAI
           </span>
         </Link>
@@ -107,12 +142,15 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              
               className={cn(
                 'relative px-4 py-2 text-sm font-medium transition-all rounded-lg',
-                pathname === link.href
-                  ? 'text-white bg-indigo-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-indigo-500/10'
+                isDark
+                  ? pathname === link.href
+                    ? 'text-white bg-indigo-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-indigo-500/10'
+                  : pathname === link.href
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
               )}
             >
               {link.label}
@@ -128,30 +166,106 @@ export function Navbar() {
             isSearchOpen && 'absolute left-0 right-0 px-4 sm:relative sm:px-0'
           )}>
             <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 type="search"
                 placeholder="搜索资源、话题..."
-                className="pl-10 glass border-indigo-500/20 focus:border-indigo-500/50 bg-slate-900/50"
+                className={cn(
+                  "pl-10 border focus:border-indigo-500",
+                  isDark 
+                    ? "glass border-indigo-500/20 focus:border-indigo-500/50 bg-slate-900/50 text-white placeholder:text-slate-500"
+                    : "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400"
+                )}
               />
             </div>
           </div>
+
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className={cn(
+              "rounded-xl",
+              isDark 
+                ? "hover:bg-indigo-500/20 text-slate-400 hover:text-white"
+                : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+            )}
+          >
+            {isDark ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
 
           {/* Mobile Search Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-400 hover:text-white"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
+            className={cn(
+              "rounded-xl",
+              isDark 
+                ? "hover:bg-indigo-500/20 text-slate-400 hover:text-white"
+                : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+            )}
           >
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Mobile Menu */}
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "rounded-xl md:hidden",
+                  isDark 
+                    ? "hover:bg-indigo-500/20 text-slate-400 hover:text-white"
+                    : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+                )}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className={cn(
+              "w-72",
+              isDark ? "bg-slate-900 border-slate-800" : "bg-white"
+            )}>
+              <div className="flex flex-col gap-4 mt-8">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      'px-4 py-3 text-base font-medium transition-all rounded-xl',
+                      pathname === link.href
+                        ? isDark
+                          ? 'text-white bg-indigo-500/20'
+                          : 'text-indigo-600 bg-indigo-50'
+                        : isDark
+                          ? 'text-slate-400 hover:text-white'
+                          : 'text-slate-600 hover:text-indigo-600'
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
 
           {/* User Section */}
           {user ? (
             <DropdownMenu open={showUserMenu} onOpenChange={setShowUserMenu}>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl hover:bg-indigo-500/20">
+                <Button variant="ghost" size="icon" className={cn(
+                  "relative h-10 w-10 rounded-xl",
+                  isDark ? "hover:bg-indigo-500/20" : "hover:bg-slate-100"
+                )}>
                   {user.avatar ? (
                     <img
                       src={user.avatar}
@@ -159,7 +273,12 @@ export function Navbar() {
                       className="h-10 w-10 rounded-xl object-cover"
                     />
                   ) : (
-                    <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20">
+                    <div className={cn(
+                      "flex items-center justify-center rounded-xl text-sm font-semibold shadow-lg",
+                      isDark 
+                        ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-indigo-500/20"
+                        : "bg-gradient-to-br from-indigo-500 to-purple-500 text-white"
+                    )}>
                       {user.nickname?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
@@ -170,7 +289,10 @@ export function Navbar() {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 glass border-indigo-500/20 bg-slate-950/95">
+              <DropdownMenuContent align="end" className={cn(
+                "w-56",
+                isDark ? "glass border-indigo-500/20 bg-slate-950/95" : "bg-white border-slate-200"
+              )}>
                 <div className="px-3 py-2">
                   <p className="text-sm font-medium text-white">{user.nickname}</p>
                   <p className="text-xs text-slate-400">{user.email}</p>
@@ -183,79 +305,43 @@ export function Navbar() {
                     )}
                   </div>
                 </div>
-                <DropdownMenuSeparator className="bg-indigo-500/20" />
-                <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-indigo-500/10 cursor-pointer">
-                  <Link href="/profile" >
-                    <User className="h-4 w-4 mr-2" />
+                <DropdownMenuSeparator className={isDark ? "bg-slate-800" : "bg-slate-200"} />
+                <DropdownMenuItem asChild className={cn(
+                  "cursor-pointer",
+                  isDark ? "text-slate-300 focus:bg-slate-800" : "text-slate-700 focus:bg-slate-50"
+                )}>
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
                     个人中心
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-indigo-500/20" />
+                <DropdownMenuSeparator className={isDark ? "bg-slate-800" : "bg-slate-200"} />
                 <DropdownMenuItem 
                   onClick={handleLogout}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                  className={cn(
+                    "cursor-pointer text-red-400",
+                    isDark ? "focus:bg-slate-800" : "focus:bg-slate-50"
+                  )}
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
+                  <LogOut className="mr-2 h-4 w-4" />
                   退出登录
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Link href="/login">
-              <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+              <Button className={cn(
+                "rounded-xl font-medium",
+                isDark 
+                  ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                  : "bg-indigo-500 hover:bg-indigo-600 text-white"
+              )}>
                 登录
               </Button>
             </Link>
           )}
-
-          {/* Mobile Menu */}
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 glass border-indigo-500/20 bg-slate-950/95">
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'px-4 py-3 text-lg font-medium rounded-xl transition-all',
-                      pathname === link.href
-                        ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white border border-indigo-500/30'
-                        : 'text-slate-400 hover:bg-indigo-500/10 hover:text-white'
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
-
-      {/* Mobile Search Bar */}
-      {isSearchOpen && (
-        <div className="sm:hidden px-4 pb-4">
-          <div className="glass border border-indigo-500/20 rounded-xl p-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              <Input
-                type="search"
-                placeholder="搜索资源、话题..."
-                className="pl-10 glass border-0 bg-transparent"
-                autoFocus
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }

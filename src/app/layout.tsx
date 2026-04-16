@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   },
 };
 
+// 主题脚本 - 防止闪烁
+const themeScript = `
+  (function() {
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.classList.add(theme);
+  })();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,7 +32,10 @@ export default function RootLayout({
   const isDev = process.env.COZE_PROJECT_ENV === 'DEV';
 
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="antialiased">
         {isDev && <Inspector />}
         {children}
