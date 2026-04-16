@@ -13,11 +13,41 @@ export const users = pgTable(
     avatar_url: text("avatar_url"),
     bio: text("bio"),
     points: integer("points").default(0).notNull(),
+    // 会员相关
+    is_vip: boolean("is_vip").default(false).notNull(),
+    vip_expire_at: timestamp("vip_expire_at", { withTimezone: true }),
+    // 登录方式
+    login_type: varchar("login_type", { length: 32 }).default('email').notNull(), // email, google, github
+    // 安全相关
+    password_hash: text("password_hash"),
+    phone: varchar("phone", { length: 20 }),
+    // 状态
+    is_active: boolean("is_active").default(true).notNull(),
     created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index("users_email_idx").on(table.email),
+    index("users_phone_idx").on(table.phone),
     index("users_created_at_idx").on(table.created_at),
+  ]
+);
+
+// 验证码表（用于邮箱/手机验证码）
+export const verification_codes = pgTable(
+  "verification_codes",
+  {
+    id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+    email: varchar("email", { length: 255 }).notNull(),
+    code: varchar("code", { length: 6 }).notNull(),
+    type: varchar("type", { length: 32 }).notNull(), // register, login, reset_password
+    expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
+    used: boolean("used").default(false).notNull(),
+    created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("verification_codes_email_idx").on(table.email),
+    index("verification_codes_code_idx").on(table.code),
   ]
 );
 
@@ -84,10 +114,14 @@ export const resources = pgTable(
     cover_url: text("cover_url"),
     likes_count: integer("likes_count").default(0).notNull(),
     views_count: integer("views_count").default(0).notNull(),
+    // 付费相关
+    is_premium: boolean("is_premium").default(false).notNull(), // 是否付费/精品
+    price: integer("price").default(0), // 价格（积分）
     created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index("resources_category_idx").on(table.category),
+    index("resources_is_premium_idx").on(table.is_premium),
     index("resources_created_at_idx").on(table.created_at),
     index("resources_likes_count_idx").on(table.likes_count),
   ]
