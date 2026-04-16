@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, BookOpen, TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Clock, Star, Eye, Play } from 'lucide-react';
+import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Star, Eye, Play } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { NewsCarousel } from '@/components/home/news-carousel';
@@ -293,10 +293,10 @@ export default function HomePage() {
           </Card>
         </section>
 
-        {/* 第四行：社区动态 + 学习小贴士 + 社区数据 */}
+        {/* 第四行：社区动态 */}
         <section className="grid grid-cols-1 xl:grid-cols-12 gap-3">
-          {/* 社区动态 - 7/12 */}
-          <Card className="xl:col-span-7 glass border-indigo-500/20">
+          {/* 社区动态 - 居中显示 */}
+          <Card className="xl:col-span-8 xl:col-start-3 glass border-indigo-500/20">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -315,74 +315,6 @@ export default function HomePage() {
               ))}
             </CardContent>
           </Card>
-
-          {/* 右侧：学习小贴士 + 社区数据 - 5/12 */}
-          <div className="xl:col-span-5 space-y-3">
-            {/* 学习小贴士 */}
-            <Card className="glass border-amber-500/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-400" />
-                  <span className="font-heading text-sm font-bold text-white">💡 学习小贴士</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1.5">
-                {[
-                  { icon: '💡', text: '使用 CoT 提示词可以让 AI 的推理更准确' },
-                  { icon: '⚡', text: 'Few-shot 示例能显著提升输出质量' },
-                  { icon: '🎯', text: '明确的任务描述可以获得更好的结果' },
-                ].map((tip, index) => (
-                  <div key={index} className="flex gap-2 p-2 rounded-lg bg-slate-900/50 border border-amber-500/10">
-                    <span className="text-sm shrink-0">{tip.icon}</span>
-                    <p className="text-xs text-slate-400 leading-relaxed">{tip.text}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* 社区数据 */}
-            <Card className="glass border-indigo-500/20">
-              <CardContent className="p-3">
-                <h4 className="text-xs font-medium text-white mb-2 flex items-center gap-2">
-                  <TrendingUp className="h-3 w-3 text-indigo-400" />
-                  社区数据
-                </h4>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: '1,284', label: '在线', color: 'text-indigo-400' },
-                    { value: '8.9k', label: '任务', color: 'text-emerald-400' },
-                    { value: '3.4k', label: '资源', color: 'text-cyan-400' },
-                    { value: '12.5k', label: '动态', color: 'text-amber-400' },
-                  ].map((stat, index) => (
-                    <div key={index} className="text-center p-1.5 rounded-lg bg-slate-900/50 border border-slate-800">
-                      <div className={cn('font-heading text-sm font-bold', stat.color)}>{stat.value}</div>
-                      <div className="text-[10px] text-slate-500">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 快速入口 */}
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/resources">
-                <Card className="glass border-cyan-500/20 hover:border-cyan-500/50 transition-colors cursor-pointer">
-                  <CardContent className="p-2 text-center">
-                    <BookOpen className="h-4 w-4 text-cyan-400 mx-auto mb-0.5" />
-                    <span className="text-[11px] text-white">资源库</span>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link href="/profile">
-                <Card className="glass border-purple-500/20 hover:border-purple-500/50 transition-colors cursor-pointer">
-                  <CardContent className="p-2 text-center">
-                    <Users className="h-4 w-4 text-purple-400 mx-auto mb-0.5" />
-                    <span className="text-[11px] text-white">个人中心</span>
-                  </CardContent>
-                </Card>
-              </Link>
-            </div>
-          </div>
         </section>
       </main>
     </div>
