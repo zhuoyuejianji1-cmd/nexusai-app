@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, Mail, Lock, User, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 
 type LoginStep = 'select' | 'email' | 'register' | 'verify' | 'success';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
   const [step, setStep] = useState<LoginStep>('select');
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
@@ -86,7 +88,8 @@ export default function LoginPage() {
       // 登录成功，跳转
       setStep('success');
       setTimeout(() => {
-        router.push('/');
+        router.push(redirect);
+        router.refresh();
       }, 1500);
     } catch (err: any) {
       setError(err.message);
@@ -347,5 +350,18 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 包装器组件处理 useSearchParams
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen gradient-bg relative flex items-center justify-center p-4">
+        <div className="text-white">加载中...</div>
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   );
 }

@@ -1,17 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Search, Menu, X, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, Menu, X, Zap, LogOut, User, Crown } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetHeader,
+  SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+
+interface User {
+  id: string;
+  email: string;
+  nickname: string;
+  avatar: string | null;
+  is_vip: boolean;
+  points: number;
+}
 
 const navLinks = [
   { href: '/', label: '首页' },
@@ -22,8 +40,39 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 获取用户信息
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // 登出
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('登出失败:', error);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -89,14 +138,76 @@ export function Navbar() {
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* User Avatar */}
-          <Link href="/profile">
-            <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl hover:bg-indigo-500/20">
-              <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20">
-                U
-              </div>
-            </Button>
-          </Link>
+          {/* User Section */}
+          {isLoading ? (
+            <div className="h-10 w-10 rounded-xl bg-slate-800 animate-pulse" />
+          ) : user ? (
+            // 已登录 - 显示下拉菜单
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl hover:bg-indigo-500/20">
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.nickname}
+                      className="h-10 w-10 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20">
+                      {user.nickname?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                  )}
+                  {user.is_vip && (
+                    <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center">
+                      <Crown className="h-2.5 w-2.5 text-white" />
+                    </div>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 glass border-indigo-500/20 bg-slate-950/95">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-white">{user.nickname}</p>
+                  <p className="text-xs text-slate-400">{user.email}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-cyan-400">{user.points} 积分</span>
+                    {user.is_vip && (
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400">
+                        VIP
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="bg-indigo-500/20" />
+                <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-indigo-500/10 cursor-pointer">
+                  <Link href="/profile">
+                    <User className="h-4 w-4 mr-2" />
+                    个人中心
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-indigo-500/10 cursor-pointer">
+                  <Link href="/profile/posts">
+                    <User className="h-4 w-4 mr-2" />
+                    我的动态
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-indigo-500/20" />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            // 未登录 - 显示登录按钮
+            <Link href="/login">
+              <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                登录
+              </Button>
+            </Link>
+          )}
 
           {/* Mobile Menu */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
