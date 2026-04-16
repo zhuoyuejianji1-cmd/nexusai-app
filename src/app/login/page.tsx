@@ -18,6 +18,7 @@ function LoginPageContent() {
   const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [devCode, setDevCode] = useState(''); // 开发环境显示的验证码
 
   // 发送验证码
   const sendVerifyCode = async () => {
@@ -40,6 +41,11 @@ function LoginPageContent() {
       
       if (!res.ok) {
         throw new Error(data.error || '发送失败');
+      }
+      
+      // 开发环境：保存返回的验证码
+      if (data.code) {
+        setDevCode(data.code);
       }
       
       setCountdown(60);
@@ -158,6 +164,16 @@ function LoginPageContent() {
                 和
                 <Link href="/privacy" className="text-indigo-400 hover:underline">隐私政策</Link>
               </p>
+              
+              {/* 跳过按钮 - 不登录直接返回 */}
+              <div className="pt-4 border-t border-slate-700/50">
+                <Link 
+                  href={redirect !== '/login' ? redirect : '/'}
+                  className="block w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
+                >
+                  跳过，暂不登录 →
+                </Link>
+              </div>
             </div>
           )}
 
@@ -196,6 +212,14 @@ function LoginPageContent() {
                   {loading ? '发送中...' : '发送验证码'}
                   <ArrowRight className="h-4 w-4" />
                 </button>
+                
+                {/* 跳过按钮 */}
+                <Link 
+                  href={redirect !== '/login' ? redirect : '/'}
+                  className="block w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
+                >
+                  跳过，暂不登录 →
+                </Link>
               </div>
               
               <button 
@@ -302,6 +326,14 @@ function LoginPageContent() {
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors text-center text-lg tracking-widest"
                   />
                 </div>
+                
+                {/* 开发环境显示验证码 */}
+                {devCode && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-center">
+                    <p className="text-xs text-emerald-400 mb-1">开发环境验证码</p>
+                    <p className="text-2xl font-bold text-emerald-400 tracking-widest">{devCode}</p>
+                  </div>
+                )}
                 
                 {error && (
                   <div className="flex items-center gap-2 text-red-400 text-sm">
