@@ -167,12 +167,12 @@ function LoginPageContent() {
               
               {/* 跳过按钮 - 不登录直接返回 */}
               <div className="pt-4 border-t border-slate-700/50">
-                <Link 
-                  href={redirect !== '/login' ? redirect : '/'}
-                  className="block w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
+                <button 
+                  onClick={() => router.push(redirect !== '/login' ? redirect : '/')}
+                  className="w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
                 >
                   跳过，暂不登录 →
-                </Link>
+                </button>
               </div>
             </div>
           )}
@@ -214,12 +214,12 @@ function LoginPageContent() {
                 </button>
                 
                 {/* 跳过按钮 */}
-                <Link 
-                  href={redirect !== '/login' ? redirect : '/'}
-                  className="block w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
+                <button 
+                  onClick={() => router.push(redirect !== '/login' ? redirect : '/')}
+                  className="w-full text-center text-sm text-slate-500 hover:text-white transition-colors"
                 >
                   跳过，暂不登录 →
-                </Link>
+                </button>
               </div>
               
               <button 
