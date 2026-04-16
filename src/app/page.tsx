@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { TrendingUp, Users, Flame, Hash, Sparkles, Wrench, GraduationCap, Compass } from 'lucide-react';
+import { TrendingUp, Users, Flame, Hash, Sparkles, Wrench, GraduationCap, Code, Image, Video, FileText, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,13 +34,19 @@ const mockPosts: Post[] = [
   },
 ];
 
-// 首页分类导航
+// 首页分类导航 - 完整版
 const categories = [
-  { icon: Sparkles, label: '精品资源', desc: '最全的AI资源库', color: 'from-cyan-500 to-blue-500', href: '/resources' },
-  { icon: Wrench, label: 'AI工具', desc: 'ChatGPT、Claude...', color: 'from-indigo-500 to-blue-500', href: '/resources' },
-  { icon: GraduationCap, label: 'AI课程', desc: '入门到进阶', color: 'from-emerald-500 to-teal-500', href: '/learn' },
-  { icon: Compass, label: '学习路径', desc: '按目标规划', color: 'from-amber-500 to-orange-500', href: '/learn' },
-  { icon: Users, label: '社区', desc: '分享讨论', color: 'from-pink-500 to-purple-500', href: '/' },
+  // 左侧：大分类入口
+  { icon: Sparkles, label: 'AI工具', desc: 'ChatGPT/Claude/Midjourney', color: 'from-indigo-500 to-purple-500', href: '/resources' },
+  { icon: GraduationCap, label: 'AI课程', desc: '从入门到精通', color: 'from-emerald-500 to-teal-500', href: '/resources' },
+  { icon: FileText, label: 'AI论文', desc: '最新学术研究', color: 'from-blue-500 to-cyan-500', href: '/resources' },
+  { icon: Video, label: '视频教程', desc: 'B站/YouTube精选', color: 'from-red-500 to-pink-500', href: '/resources' },
+  
+  // 右侧：细分导航
+  { icon: Code, label: 'AI编程', desc: 'Copilot/Cursor', color: 'from-slate-500 to-slate-600', href: '/resources' },
+  { icon: Image, label: 'AI绘画', desc: 'SD/MJ教程', color: 'from-amber-500 to-orange-500', href: '/resources' },
+  { icon: BookOpen, label: '提示词', desc: 'Prompts集合', color: 'from-cyan-500 to-blue-500', href: '/resources' },
+  { icon: Wrench, label: '开源项目', desc: 'GitHub精选', color: 'from-purple-500 to-pink-500', href: '/resources' },
 ];
 
 // AI 热榜
@@ -120,20 +126,20 @@ export default function HomePage() {
                 </div>
               </div>
               
-              {/* 分类导航 */}
-              <div className="w-full max-w-3xl grid grid-cols-4 gap-3">
+              {/* 分类导航 - 完整资源分类 */}
+              <div className="w-full grid grid-cols-4 gap-3">
                 {categories.map((cat, index) => (
                   <Link key={index} href={cat.href}>
                     <div className={cn(
-                      'group flex flex-col items-center p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer',
+                      'group flex flex-col items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer',
                     )}>
                       <div className={cn(
-                        'flex items-center justify-center h-12 w-12 rounded-xl mb-2 bg-gradient-to-br text-white',
+                        'flex items-center justify-center h-10 w-10 rounded-xl mb-2 bg-gradient-to-br text-white',
                         cat.color
                       )}>
-                        <cat.icon className="h-6 w-6" />
+                        <cat.icon className="h-5 w-5" />
                       </div>
-                      <span className="text-sm font-semibold text-white mb-0.5">{cat.label}</span>
+                      <span className="text-sm font-semibold text-white">{cat.label}</span>
                       <span className="text-[10px] text-slate-400">{cat.desc}</span>
                     </div>
                   </Link>
