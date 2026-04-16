@@ -1,14 +1,24 @@
 'use client';
 
-import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Sparkles, BookOpen, Compass, Gamepad2, Wrench, GraduationCap, Layers } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { TrendingUp, Users, Flame, Hash, Sparkles, Wrench, GraduationCap, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
-import { PostCard } from '@/components/home/post-card';
-import { CreatePost } from '@/components/home/create-post';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
+
+// 动态导入重型组件，避免阻塞首屏
+const PostCard = dynamic(() => import('@/components/home/post-card').then(mod => ({ default: mod.PostCard })), {
+  loading: () => <div className="h-24 bg-slate-800/50 rounded-xl animate-pulse" />,
+  ssr: false,
+});
+
+const CreatePost = dynamic(() => import('@/components/home/create-post').then(mod => ({ default: mod.CreatePost })), {
+  loading: () => <div className="h-16 bg-slate-800/50 rounded-xl animate-pulse" />,
+  ssr: false,
+});
 
 // 模拟动态数据
 const mockPosts: Post[] = [

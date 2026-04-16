@@ -88,6 +88,8 @@ function LoginPageContent() {
       // 登录成功，跳转
       setStep('success');
       setTimeout(() => {
+        // 通知 Navbar 刷新用户状态
+        window.dispatchEvent(new Event('user:login'));
         router.push(redirect);
         router.refresh();
       }, 1500);
