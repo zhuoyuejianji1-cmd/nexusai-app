@@ -66,15 +66,15 @@ export default function HomePage() {
       <Navbar />
       
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
-        {/* 第一行：Hero + 今日任务 - 紧凑布局 */}
-        <section className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-3">
-          {/* Hero 轮播 - 9/12 宽度 */}
-          <div className="xl:col-span-9">
+        {/* 第一行：Hero + 今日任务（紧凑并排） */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
+          {/* Hero 轮播 - 2/3 宽度 */}
+          <div className="lg:col-span-2">
             <NewsCarousel />
           </div>
           
-          {/* 今日任务卡片 - 3/12 宽度，更紧凑 */}
-          <Card className="xl:col-span-3 border-gradient overflow-hidden relative">
+          {/* 今日任务卡片 - 1/3 宽度 */}
+          <Card className="border-gradient overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900/80 to-purple-900/50" />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500" />
             <CardContent className="relative p-3">
@@ -106,45 +106,42 @@ export default function HomePage() {
         </section>
 
         {/* 第二行：工具分类 */}
-        <section className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-3">
-          {/* 工具分类 - 9/12 宽度 */}
-          <div className="xl:col-span-9">
-            <Card className="glass border-indigo-500/20">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 rounded bg-gradient-to-br from-indigo-500/30 to-purple-500/30">
-                    <Zap className="h-3 w-3 text-indigo-400" />
-                  </div>
-                  <h2 className="font-heading text-xs font-bold text-white">AI 工具分类</h2>
+        <section className="mb-3">
+          <Card className="glass border-indigo-500/20">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1 rounded bg-gradient-to-br from-indigo-500/30 to-purple-500/30">
+                  <Zap className="h-3 w-3 text-indigo-400" />
                 </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {toolCategories.map((cat, index) => (
-                    <Link key={index} href="/resources">
-                      <div className="group flex items-center gap-2 p-2 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-indigo-500/50 transition-all cursor-pointer">
-                        <div className={cn(
-                          'flex items-center justify-center h-8 w-8 rounded-md bg-gradient-to-br text-white shrink-0',
-                          cat.color
-                        )}>
-                          <cat.icon className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-medium text-white text-xs group-hover:text-indigo-400 transition-colors truncate">
-                            {cat.label}
-                          </h3>
-                          <p className="text-[10px] text-slate-500">{cat.count}</p>
-                        </div>
+                <h2 className="font-heading text-xs font-bold text-white">AI 工具分类</h2>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {toolCategories.map((cat, index) => (
+                  <Link key={index} href="/resources">
+                    <div className="group flex items-center gap-2 p-2 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-indigo-500/50 transition-all cursor-pointer">
+                      <div className={cn(
+                        'flex items-center justify-center h-8 w-8 rounded-md bg-gradient-to-br text-white shrink-0',
+                        cat.color
+                      )}>
+                        <cat.icon className="h-4 w-4" />
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                      <div className="min-w-0">
+                        <h3 className="font-medium text-white text-xs group-hover:text-indigo-400 transition-colors truncate">
+                          {cat.label}
+                        </h3>
+                        <p className="text-[10px] text-slate-500">{cat.count}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* 第三行：AI 热榜 + 最新动态（紧凑并排） */}
-        <section className="grid grid-cols-1 xl:grid-cols-2 gap-3 mb-3">
-          {/* AI 热榜 - 竖排排名列表 */}
+        {/* 第三行：AI 热榜 + 最新动态（左右并排，始终左右排列） */}
+        <section className="grid grid-cols-2 gap-3 mb-3">
+          {/* AI 热榜 */}
           <Card className="border-gradient overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-900/30 via-slate-900/90 to-orange-900/30" />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
