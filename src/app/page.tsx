@@ -1,13 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { TrendingUp, Users, Flame, Hash, Sparkles, Wrench, GraduationCap, Code, Image, Video, FileText, BookOpen } from 'lucide-react';
+import { TrendingUp, Users, Flame, Hash, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
+import { resourceCategories, iconMap } from '@/lib/resources';
 
 // 动态导入重型组件，避免阻塞首屏
 const PostCard = dynamic(() => import('@/components/home/post-card').then(mod => ({ default: mod.PostCard })), {
@@ -34,20 +35,14 @@ const mockPosts: Post[] = [
   },
 ];
 
-// 首页分类导航 - 完整版
-const categories = [
-  // 左侧：大分类入口
-  { icon: Sparkles, label: 'AI工具', desc: 'ChatGPT/Claude/Midjourney', color: 'from-indigo-500 to-purple-500', href: '/resources' },
-  { icon: GraduationCap, label: 'AI课程', desc: '从入门到精通', color: 'from-emerald-500 to-teal-500', href: '/resources' },
-  { icon: FileText, label: 'AI论文', desc: '最新学术研究', color: 'from-blue-500 to-cyan-500', href: '/resources' },
-  { icon: Video, label: '视频教程', desc: 'B站/YouTube精选', color: 'from-red-500 to-pink-500', href: '/resources' },
-  
-  // 右侧：细分导航
-  { icon: Code, label: 'AI编程', desc: 'Copilot/Cursor', color: 'from-slate-500 to-slate-600', href: '/resources' },
-  { icon: Image, label: 'AI绘画', desc: 'SD/MJ教程', color: 'from-amber-500 to-orange-500', href: '/resources' },
-  { icon: BookOpen, label: '提示词', desc: 'Prompts集合', color: 'from-cyan-500 to-blue-500', href: '/resources' },
-  { icon: Wrench, label: '开源项目', desc: 'GitHub精选', color: 'from-purple-500 to-pink-500', href: '/resources' },
-];
+// 首页分类导航 - 使用真实数据
+const categories = resourceCategories.slice(0, 8).map(cat => ({
+  icon: iconMap[cat.icon] || Sparkles,
+  label: cat.name,
+  desc: cat.description,
+  color: cat.color,
+  href: '/resources'
+}));
 
 // AI 热榜
 const hotListItems = [
