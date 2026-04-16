@@ -72,40 +72,40 @@ export default function HomePage() {
               <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
             </div>
             
-            <div className="relative px-6 py-10 flex flex-col items-center text-center">
+            <div className="relative px-6 py-12 flex flex-col items-center text-center">
               {/* Logo */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-lg shadow-indigo-500/50">
-                  <Sparkles className="h-8 w-8 text-white" />
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-lg shadow-indigo-500/50">
+                  <Sparkles className="h-11 w-11 text-white" />
                 </div>
-                <h1 className="font-heading text-3xl font-black bg-gradient-to-r from-white via-indigo-200 to-cyan-200 bg-clip-text text-transparent">
+                <h1 className="font-heading text-5xl font-black bg-gradient-to-r from-white via-indigo-200 to-cyan-200 bg-clip-text text-transparent">
                   NexusAI
                 </h1>
               </div>
               
               {/* 标语 */}
-              <h2 className="text-lg font-bold text-white mb-1">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 探索AI · 分享知识 · 连接未来
               </h2>
-              <p className="text-sm text-indigo-200/80 mb-4 max-w-lg">
+              <p className="text-base text-indigo-200/80 mb-6 max-w-xl">
                 加入最大的AI学习社区，与千万学习者一起掌握最前沿的人工智能技术
               </p>
               
               {/* 数据指标 */}
-              <div className="flex items-center gap-6 mb-5">
+              <div className="flex items-center gap-10 mb-8">
                 <div className="text-center">
-                  <div className="text-xl font-bold text-white">1,000,000+</div>
-                  <div className="text-[10px] text-indigo-300/60">学习者</div>
+                  <div className="text-3xl font-bold text-white">1,000,000+</div>
+                  <div className="text-xs text-indigo-300/60">学习者</div>
                 </div>
-                <div className="w-px h-8 bg-indigo-500/30" />
+                <div className="w-px h-12 bg-indigo-500/30" />
                 <div className="text-center">
-                  <div className="text-xl font-bold text-white">10,000+</div>
-                  <div className="text-[10px] text-indigo-300/60">精选资源</div>
+                  <div className="text-3xl font-bold text-white">10,000+</div>
+                  <div className="text-xs text-indigo-300/60">精选资源</div>
                 </div>
-                <div className="w-px h-8 bg-indigo-500/30" />
+                <div className="w-px h-12 bg-indigo-500/30" />
                 <div className="text-center">
-                  <div className="text-xl font-bold text-white">500+</div>
-                  <div className="text-[10px] text-indigo-300/60">AI工具</div>
+                  <div className="text-3xl font-bold text-white">500+</div>
+                  <div className="text-xs text-indigo-300/60">AI工具</div>
                 </div>
               </div>
               
@@ -114,13 +114,13 @@ export default function HomePage() {
                 {categories.map((cat, index) => (
                   <Link key={index} href={cat.href}>
                     <div className={cn(
-                      'group flex flex-col items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer',
+                      'group flex flex-col items-center p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all cursor-pointer',
                     )}>
                       <div className={cn(
-                        'flex items-center justify-center h-10 w-10 rounded-xl mb-2 bg-gradient-to-br text-white',
+                        'flex items-center justify-center h-12 w-12 rounded-xl mb-2 bg-gradient-to-br text-white',
                         cat.color
                       )}>
-                        <cat.icon className="h-5 w-5" />
+                        <cat.icon className="h-6 w-6" />
                       </div>
                       <span className="text-sm font-semibold text-white mb-0.5">{cat.label}</span>
                       <span className="text-[10px] text-slate-400">{cat.desc}</span>
@@ -215,9 +215,9 @@ export default function HomePage() {
                   <Users className="h-4 w-4 text-indigo-400" />
                   <span className="font-heading text-sm font-bold text-white">💬 社区动态</span>
                 </div>
-                <button className="text-xs text-slate-400 hover:text-white transition-colors">
+                <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
                   查看全部 →
-                </button>
+                </Link>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
