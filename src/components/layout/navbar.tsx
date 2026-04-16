@@ -3,15 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, Menu, Zap, LogOut, User, Crown } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetHeader,
-  SheetTitle,
 } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -22,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-interface User {
+interface UserData {
   id: string;
   email: string;
   nickname: string;
@@ -38,79 +36,46 @@ const navLinks = [
   { href: '/profile', label: '我的' },
 ];
 
-// 客户端缓存用户状态
-let cachedUser: User | null = null;
-let userResolve: ((u: User | null) => void) | null = null;
-let isFetching = false;
-
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(cachedUser);
-  const [isLoading, setIsLoading] = useState(!cachedUser);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // 获取用户信息 - 使用单例模式避免重复请求
-  const fetchUser = useCallback(async () => {
-    if (cachedUser) {
-      setUser(cachedUser);
-      setIsLoading(false);
-      return;
-    }
-
-    if (isFetching && userResolve) {
-      userResolve = (u: User | null) => {
-        cachedUser = u;
-        setUser(u);
-        setIsLoading(false);
-      };
-      return;
-    }
-
-    isFetching = true;
-
-    try {
-      const res = await fetch('/api/auth/me');
-      const data = await res.json();
-      cachedUser = data.user;
-      setUser(data.user);
-    } catch (error) {
-      console.error('获取用户信息失败:', error);
-      cachedUser = null;
-      setUser(null);
-    } finally {
-      isFetching = false;
-      if (userResolve) {
-        userResolve(cachedUser);
-        userResolve = null;
-      }
-      setIsLoading(false);
-    }
-  }, []);
-
+  // 只在展开菜单时才请求用户信息
   useEffect(() => {
+    if (!showUserMenu) return;
+    
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        setUser(data.user);
+      } catch (error) {
+        console.error('获取用户信息失败:', error);
+      }
+    };
     fetchUser();
-  }, [fetchUser]);
+  }, [showUserMenu]);
 
   // 监听登录成功事件
   useEffect(() => {
     const handleLogin = () => {
-      cachedUser = null; // 清除缓存
-      fetchUser(); // 重新获取
+      setUser(null);
+      setShowUserMenu(true);
     };
     window.addEventListener('user:login', handleLogin);
     return () => window.removeEventListener('user:login', handleLogin);
-  }, [fetchUser]);
+  }, []);
 
   // 登出
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      cachedUser = null;
       setUser(null);
       router.push('/');
-      router.refresh();
     } catch (error) {
       console.error('登出失败:', error);
     }
@@ -182,11 +147,8 @@ export function Navbar() {
           </Button>
 
           {/* User Section */}
-          {isLoading ? (
-            <div className="h-10 w-10 rounded-xl bg-slate-800 animate-pulse" />
-          ) : user ? (
-            // 已登录 - 显示下拉菜单
-            <DropdownMenu>
+          {user ? (
+            <DropdownMenu open={showUserMenu} onOpenChange={setShowUserMenu}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-xl hover:bg-indigo-500/20">
                   {user.avatar ? (
@@ -227,12 +189,6 @@ export function Navbar() {
                     个人中心
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-indigo-500/10 cursor-pointer">
-                  <Link href="/profile/posts" prefetch>
-                    <User className="h-4 w-4 mr-2" />
-                    我的动态
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-indigo-500/20" />
                 <DropdownMenuItem 
                   onClick={handleLogout}
@@ -244,7 +200,6 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            // 未登录 - 显示登录按钮
             <Link href="/login">
               <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/30">
                 登录

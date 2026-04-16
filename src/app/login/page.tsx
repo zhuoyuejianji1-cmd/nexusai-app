@@ -91,14 +91,14 @@ function LoginPageContent() {
         throw new Error(data.error || '验证失败');
       }
       
-      // 登录成功，跳转
+      // 登录成功，立即跳转
       setStep('success');
+      // 通知 Navbar 刷新用户状态
+      window.dispatchEvent(new Event('user:login'));
+      // 延迟一点跳转，让用户看到成功提示
       setTimeout(() => {
-        // 通知 Navbar 刷新用户状态
-        window.dispatchEvent(new Event('user:login'));
         router.push(redirect);
-        router.refresh();
-      }, 1500);
+      }, 300);
     } catch (err: any) {
       setError(err.message);
     } finally {
