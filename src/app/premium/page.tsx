@@ -1,0 +1,355 @@
+'use client';
+
+import { useState } from 'react';
+import { Search, Clock, Eye, Heart, Crown, Zap, Star, BookOpen } from 'lucide-react';
+import { Navbar } from '@/components/layout/navbar';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  price: number;
+  isMemberFree: boolean;
+  publishTime: string;
+  views: number;
+  likes: number;
+  tags: string[];
+  author: string;
+}
+
+// 虚拟课程数据
+const courses: Course[] = [
+  {
+    id: '1',
+    title: 'AI大模型应用开发实战',
+    description: '从零开始学习如何使用GPT、Claude等大模型构建应用',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
+    price: 99,
+    isMemberFree: true,
+    publishTime: '2024-01-15',
+    views: 12580,
+    likes: 892,
+    tags: ['AI', 'Python', '实战'],
+    author: '张老师',
+  },
+  {
+    id: '2',
+    title: 'Midjourney商业设计从入门到精通',
+    description: '掌握AI绘画技巧，接单变现的全流程指南',
+    image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&h=250&fit=crop',
+    price: 69,
+    isMemberFree: true,
+    publishTime: '2024-01-12',
+    views: 9870,
+    likes: 654,
+    tags: ['设计', 'AI绘画', '变现'],
+    author: '李设计师',
+  },
+  {
+    id: '3',
+    title: '小红书IP打造变现课',
+    description: '从0到1打造百万粉账号，实现内容变现',
+    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop',
+    price: 199,
+    isMemberFree: true,
+    publishTime: '2024-01-10',
+    views: 15620,
+    likes: 1203,
+    tags: ['自媒体', '变现', '小红书'],
+    author: '小红老师',
+  },
+  {
+    id: '4',
+    title: '独立开发者产品设计与营销',
+    description: '如何从0开始做产品、获客、月入过万',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
+    price: 149,
+    isMemberFree: false,
+    publishTime: '2024-01-08',
+    views: 7650,
+    likes: 421,
+    tags: ['独立开发', '产品', '营销'],
+    author: '王老板',
+  },
+  {
+    id: '5',
+    title: '短视频剪辑与账号运营',
+    description: '剪映/PR教程，抖音快手运营技巧大公开',
+    image: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=250&fit=crop',
+    price: 79,
+    isMemberFree: true,
+    publishTime: '2024-01-05',
+    views: 18930,
+    likes: 1567,
+    tags: ['视频剪辑', '抖音', '运营'],
+    author: '剪辑师小王',
+  },
+  {
+    id: '6',
+    title: 'ChatGPT提示词工程大师课',
+    description: '成为AI时代最值钱的人，学会写出高效提示词',
+    image: 'https://images.unsplash.com/photo-1684391729462-63ef8c3f7f5e?w=400&h=250&fit=crop',
+    price: 59,
+    isMemberFree: true,
+    publishTime: '2024-01-03',
+    views: 23450,
+    likes: 2156,
+    tags: ['AI', '提示词', '效率'],
+    author: 'AI学院',
+  },
+  {
+    id: '7',
+    title: '知识付费项目实战营',
+    description: '30天搭建你的知识付费副业，月入5000+',
+    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop',
+    price: 299,
+    isMemberFree: false,
+    publishTime: '2024-01-01',
+    views: 6780,
+    likes: 389,
+    tags: ['知识付费', '副业', '变现'],
+    author: '创业导师',
+  },
+  {
+    id: '8',
+    title: '跨境电商选品与运营',
+    description: '亚马逊/TikTok Shop从0到1完整攻略',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop',
+    price: 159,
+    isMemberFree: true,
+    publishTime: '2023-12-28',
+    views: 11200,
+    likes: 876,
+    tags: ['跨境电商', '亚马逊', '选品'],
+    author: '跨境老王',
+  },
+  {
+    id: '9',
+    title: 'Notion打造个人知识管理系统',
+    description: '用Notion管理知识、项目、生活的完整方案',
+    image: 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=400&h=250&fit=crop',
+    price: 39,
+    isMemberFree: true,
+    publishTime: '2023-12-25',
+    views: 15680,
+    likes: 1432,
+    tags: ['Notion', '知识管理', '效率'],
+    author: '效率达人',
+  },
+];
+
+export default function PremiumPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // 获取所有标签
+  const allTags = [...new Set(courses.flatMap(c => c.tags))];
+
+  // 过滤课程
+  const filteredCourses = courses.filter(course => {
+    const matchSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       course.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchTag = !selectedTag || course.tags.includes(selectedTag);
+    return matchSearch && matchTag;
+  });
+
+  // 格式化数字
+  const formatNumber = (num: number) => {
+    if (num >= 10000) return (num / 10000).toFixed(1) + 'w';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num.toString();
+  };
+
+  return (
+    <div className="min-h-screen gradient-bg relative">
+      {/* 背景光效 */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
+      </div>
+      
+      <Navbar />
+      
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* 顶部Banner */}
+        <div className="mb-6 rounded-2xl overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center">
+                <Crown className="w-8 h-8 text-yellow-300" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">精品课程</h1>
+                <p className="text-sm text-white/70">高质量付费课程，助力快速成长</p>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white text-sm">
+                <Zap className="w-4 h-4 text-yellow-300" />
+                <span>365天持续更新</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 搜索和筛选 */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Input
+              type="search"
+              placeholder="搜索课程..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 py-5 rounded-xl bg-slate-900/80 border-slate-700/50 text-white text-sm"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={cn(
+                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                !selectedTag
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
+              )}
+            >
+              全部
+            </button>
+            {allTags.slice(0, 6).map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag === selectedTag ? null : tag)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                  tag === selectedTag
+                    ? 'bg-indigo-500 text-white'
+                    : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                )}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 课程统计 */}
+        <div className="mb-4 flex items-center gap-4 text-xs text-slate-400">
+          <span>共 {filteredCourses.length} 个课程</span>
+          <span className="text-amber-400">{courses.filter(c => !c.isMemberFree).length} 个付费</span>
+          <span className="text-emerald-400">{courses.filter(c => c.isMemberFree).length} 个会员免费</span>
+        </div>
+
+        {/* 课程网格 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredCourses.map((course) => (
+            <div
+              key={course.id}
+              className="group rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-all hover:shadow-lg hover:shadow-indigo-500/10"
+            >
+              {/* 封面图 */}
+              <div className="relative h-40 overflow-hidden">
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                
+                {/* 价格标签 */}
+                <div className="absolute top-3 right-3 flex gap-2">
+                  <span className="px-2 py-1 rounded-md bg-orange-500 text-white text-xs font-medium">
+                    云币 {course.price}
+                  </span>
+                  {course.isMemberFree && (
+                    <span className="px-2 py-1 rounded-md bg-blue-500 text-white text-xs font-medium flex items-center gap-1">
+                      <Crown className="w-3 h-3" />
+                      会员免费
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* 内容区 */}
+              <div className="p-4">
+                <h3 className="text-sm font-medium text-white mb-1 line-clamp-1 group-hover:text-indigo-400 transition-colors">
+                  {course.title}
+                </h3>
+                <p className="text-xs text-slate-500 mb-3 line-clamp-2">
+                  {course.description}
+                </p>
+
+                {/* 标签 */}
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {course.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* 底部信息 */}
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {course.publishTime}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      {formatNumber(course.views)}
+                    </span>
+                    <span className="flex items-center gap-1 text-red-400">
+                      <Heart className="w-3 h-3" />
+                      {formatNumber(course.likes)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 作者 */}
+                <div className="mt-3 pt-3 border-t border-slate-700/50 flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px]">
+                    {course.author[0]}
+                  </div>
+                  <span className="text-xs text-slate-400">{course.author}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 空状态 */}
+        {filteredCourses.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="h-10 w-10 text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-400">未找到相关课程</p>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedTag(null); }}
+              className="mt-2 text-sm text-indigo-400 hover:text-indigo-300"
+            >
+              清除筛选
+            </button>
+          </div>
+        )}
+
+        {/* 加载更多 */}
+        {filteredCourses.length > 0 && (
+          <div className="mt-8 text-center">
+            <button className="px-6 py-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all text-sm">
+              加载更多
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
