@@ -21,7 +21,7 @@ interface Course {
   author: string;
 }
 
-// 虚拟课程数据
+// 虚拟课程数据 - 更多示例课程
 const courses: Course[] = [
   {
     id: '1',
@@ -140,6 +140,45 @@ const courses: Course[] = [
     tags: ['Notion', '知识管理', '效率'],
     author: '效率达人',
   },
+  {
+    id: '10',
+    title: 'Python爬虫与数据采集实战',
+    description: '学会爬虫技术，轻松获取全网数据',
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=250&fit=crop',
+    price: 89,
+    isMemberFree: true,
+    publishTime: '2023-12-22',
+    views: 9870,
+    likes: 567,
+    tags: ['Python', '爬虫', '数据'],
+    author: '数据老张',
+  },
+  {
+    id: '11',
+    title: 'Stable Diffusion零基础到接单',
+    description: 'AI绘画商业变现，从入门到月入过万',
+    image: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400&h=250&fit=crop',
+    price: 129,
+    isMemberFree: true,
+    publishTime: '2023-12-20',
+    views: 14560,
+    likes: 1089,
+    tags: ['AI绘画', 'SD', '变现'],
+    author: 'AI画师',
+  },
+  {
+    id: '12',
+    title: 'Affiliate营销月入过万指南',
+    description: '通过联盟营销实现被动收入的全流程',
+    image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=250&fit=crop',
+    price: 199,
+    isMemberFree: false,
+    publishTime: '2023-12-18',
+    views: 7890,
+    likes: 432,
+    tags: ['营销', 'Affiliate', '被动收入'],
+    author: '营销达人',
+  },
 ];
 
 export default function PremiumPage() {
@@ -244,15 +283,15 @@ export default function PremiumPage() {
           <span className="text-emerald-400">{courses.filter(c => c.isMemberFree).length} 个会员免费</span>
         </div>
 
-        {/* 课程网格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* 课程网格 - 一排3个 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredCourses.map((course) => (
             <div
               key={course.id}
               className="group rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-all hover:shadow-lg hover:shadow-indigo-500/10"
             >
               {/* 封面图 */}
-              <div className="relative h-40 overflow-hidden">
+              <div className="relative h-36 overflow-hidden">
                 <img
                   src={course.image}
                   alt={course.title}
@@ -261,34 +300,34 @@ export default function PremiumPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
                 
                 {/* 价格标签 */}
-                <div className="absolute top-3 right-3 flex gap-2">
-                  <span className="px-2 py-1 rounded-md bg-orange-500 text-white text-xs font-medium">
+                <div className="absolute top-2 right-2 flex gap-1.5">
+                  <span className="px-2 py-0.5 rounded bg-orange-500 text-white text-xs font-medium">
                     云币 {course.price}
                   </span>
                   {course.isMemberFree && (
-                    <span className="px-2 py-1 rounded-md bg-blue-500 text-white text-xs font-medium flex items-center gap-1">
-                      <Crown className="w-3 h-3" />
-                      会员免费
+                    <span className="px-2 py-0.5 rounded bg-blue-500 text-white text-xs font-medium flex items-center gap-0.5">
+                      <Crown className="w-2.5 h-2.5" />
+                      会员
                     </span>
                   )}
                 </div>
               </div>
 
               {/* 内容区 */}
-              <div className="p-4">
+              <div className="p-3">
                 <h3 className="text-sm font-medium text-white mb-1 line-clamp-1 group-hover:text-indigo-400 transition-colors">
                   {course.title}
                 </h3>
-                <p className="text-xs text-slate-500 mb-3 line-clamp-2">
+                <p className="text-xs text-slate-500 mb-2 line-clamp-1">
                   {course.description}
                 </p>
 
                 {/* 标签 */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {course.tags.map((tag) => (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {course.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px]"
+                      className="px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px]"
                     >
                       {tag}
                     </span>
@@ -296,31 +335,29 @@ export default function PremiumPage() {
                 </div>
 
                 {/* 底部信息 */}
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {course.publishTime}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
+                <div className="flex items-center justify-between text-[10px] text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-2.5 h-2.5" />
+                    {course.publishTime}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-0.5">
+                      <Eye className="w-2.5 h-2.5" />
                       {formatNumber(course.views)}
                     </span>
-                    <span className="flex items-center gap-1 text-red-400">
-                      <Heart className="w-3 h-3" />
+                    <span className="flex items-center gap-0.5 text-red-400">
+                      <Heart className="w-2.5 h-2.5" />
                       {formatNumber(course.likes)}
                     </span>
                   </div>
                 </div>
 
                 {/* 作者 */}
-                <div className="mt-3 pt-3 border-t border-slate-700/50 flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px]">
+                <div className="mt-2 pt-2 border-t border-slate-700/50 flex items-center gap-1.5">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[8px]">
                     {course.author[0]}
                   </div>
-                  <span className="text-xs text-slate-400">{course.author}</span>
+                  <span className="text-[10px] text-slate-400 truncate">{course.author}</span>
                 </div>
               </div>
             </div>
