@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/storage/database/supabase-client';
+import { resources, resourceCategories, getResourcesByCategory, searchResources } from '@/lib/resources';
 
 // GET /api/resources - 获取资源列表
 export async function GET(request: NextRequest) {
@@ -10,32 +10,38 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'popular';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
-    const offset = (page - 1) * limit;
 
-    const client = getSupabaseClient();
-    
-    let query = client.from('resources').select('*');
+    let result = resources;
 
     // 分类筛选
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      result = getResourcesByCategory(category);
+    }
+
+    // 搜索
+    if (search) {
+      result = searchResources(search);
     }
 
     // 排序
     if (sort === 'popular') {
-      query = query.order('likes_count', { ascending: false });
+      result = [...result].sort((a, b) => b.rating - a.rating);
     } else if (sort === 'recent') {
-      query = query.order('views_count', { ascending: false });
+      result = [...result].sort((a, b) => (b.hot ? 1 : 0) - (a.hot ? 1 : 0));
     }
 
-    const { data, error } = await query.range(offset, offset + limit - 1);
+    // 分页
+    const total = result.length;
+    const offset = (page - 1) * limit;
+    const paginatedData = result.slice(offset, offset + limit);
 
-    if (error) {
-      console.error('获取资源列表失败:', error);
-      return NextResponse.json({ error: '获取资源列表失败' }, { status: 500 });
-    }
-
-    return NextResponse.json({ data: data || [], page, limit });
+    return NextResponse.json({ 
+      data: paginatedData,
+      categories: resourceCategories,
+      total,
+      page,
+      limit 
+    });
   } catch (err) {
     console.error('API 错误:', err);
     return NextResponse.json({ error: '服务器错误' }, { status: 500 });

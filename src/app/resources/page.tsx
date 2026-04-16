@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Sparkles, Globe } from 'lucide-react';
+import { Search, Sparkles, Globe, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { resourceCategories, resources, type Resource } from '@/lib/resources';
 
-// 预定义的图标组件映射（按需加载）
+// 预定义的图标组件映射
 const IconComponents: Record<string, any> = {
   Sparkles, Globe
 };
@@ -18,7 +18,7 @@ const IconComponents: Record<string, any> = {
 export default function ResourcesPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   // 使用 useMemo 缓存过滤结果
   const filteredResources = useMemo(() => {
@@ -36,8 +36,12 @@ export default function ResourcesPage() {
 
   // 获取分类信息
   const getCategoryInfo = (categoryId: string) => {
-    return resourceCategories.find(c => c.id === categoryId) || 
-      resourceCategories.find(c => c.name === categoryId);
+    return resourceCategories.find(c => c.id === categoryId);
+  };
+
+  // 获取该分类实际资源数
+  const getActualCount = (categoryId: string) => {
+    return resources.filter(r => r.category === categoryId).length;
   };
 
   return (
@@ -71,53 +75,66 @@ export default function ResourcesPage() {
           </div>
         </div>
 
-        {/* 分类导航 - 简化版 */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          <button
-            onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-              activeCategory === 'all' && !searchQuery
-                ? 'bg-indigo-500 text-white'
-                : 'bg-slate-800/50 text-slate-400 hover:text-white'
-            )}
-          >
-            全部 ({resources.length})
-          </button>
-          {resourceCategories.slice(0, 10).map((cat) => (
+        {/* 分类导航 - 全部分类显示 */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-slate-400">分类筛选</span>
             <button
-              key={cat.id}
-              onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
+              onClick={() => setShowAllCategories(!showAllCategories)}
+              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+            >
+              {showAllCategories ? (
+                <>收起 <ChevronUp className="h-3 w-3" /></>
+              ) : (
+                <>展开全部 <ChevronDown className="h-3 w-3" /></>
+              )}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
               className={cn(
                 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-                activeCategory === cat.id && !searchQuery
+                activeCategory === 'all' && !searchQuery
                   ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                  : 'bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50'
               )}
             >
-              {cat.name} ({cat.count})
+              全部 ({resources.length})
             </button>
-          ))}
-          {activeCategory !== 'all' && !searchQuery && (
-            <span className="px-3 py-1.5 text-xs text-slate-500">
-              已选: {getCategoryInfo(activeCategory)?.name}
-            </span>
-          )}
+            {resourceCategories.map((cat) => {
+              const actualCount = getActualCount(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                    activeCategory === cat.id && !searchQuery
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50'
+                  )}
+                  title={cat.description}
+                >
+                  {cat.name} ({actualCount})
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 资源统计 */}
         <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
           <span>共 {filteredResources.length} 个资源</span>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <span className="text-emerald-400">{resources.filter(r => r.type === 'free').length} 免费</span>
-            <span className="text-amber-400">{resources.filter(r => r.type === 'premium').length} 付费</span>
             <span className="text-red-400">{resources.filter(r => r.hot).length} 热门</span>
           </div>
         </div>
 
-        {/* 资源列表 - 初始只显示热门资源 */}
+        {/* 资源列表 - 全部显示 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {(searchQuery ? filteredResources : filteredResources.filter(r => r.hot).slice(0, 16)).map((resource) => {
+          {filteredResources.map((resource) => {
             const catInfo = getCategoryInfo(resource.category);
             return (
               <a
@@ -146,28 +163,29 @@ export default function ResourcesPage() {
                     </span>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-white mb-1 truncate group-hover:text-indigo-400 transition-colors">
+                <h3 className="text-sm font-medium text-white mb-1 truncate group-hover:text-indigo-400 transition-colors flex items-center gap-1">
                   {resource.title}
+                  <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>
-                <p className="text-[11px] text-slate-500 line-clamp-2">
+                <p className="text-[11px] text-slate-500 line-clamp-2 mb-2">
                   {resource.description}
                 </p>
+                <div className="flex flex-wrap gap-1">
+                  <span className={cn(
+                    'text-[9px] px-1.5 py-0.5 rounded-full bg-slate-700/50 text-slate-400',
+                  )}>
+                    {catInfo?.name}
+                  </span>
+                  {resource.tags.slice(0, 2).map((tag) => (
+                    <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </a>
             );
           })}
         </div>
-
-        {/* 加载更多提示 */}
-        {filteredResources.length > 24 && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500">
-              显示前 24 个资源，共 {filteredResources.length} 个
-            </p>
-            <p className="text-xs text-slate-600 mt-1">
-              点击资源卡片可直接访问原网站
-            </p>
-          </div>
-        )}
 
         {/* 空状态 */}
         {filteredResources.length === 0 && (
@@ -184,20 +202,30 @@ export default function ResourcesPage() {
           </div>
         )}
 
-        {/* 更多分类 */}
+        {/* 分类概览卡片 */}
         {activeCategory === 'all' && !searchQuery && (
           <div className="mt-8">
-            <h3 className="text-sm font-medium text-white mb-3">更多分类</h3>
-            <div className="flex flex-wrap gap-2">
-              {resourceCategories.slice(10).map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className="px-3 py-1.5 rounded-lg text-xs bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
-                >
-                  {cat.name} ({cat.count})
-                </button>
-              ))}
+            <h3 className="text-sm font-medium text-white mb-3">分类概览</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+              {resourceCategories.map((cat) => {
+                const actualCount = getActualCount(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-indigo-500/30 text-left transition-all"
+                  >
+                    <div className={cn(
+                      'h-6 w-6 rounded-md bg-gradient-to-br mb-1 flex items-center justify-center',
+                      cat.color || 'from-indigo-500 to-purple-500'
+                    )}>
+                      <Sparkles className="h-3 w-3 text-white" />
+                    </div>
+                    <p className="text-xs text-white truncate">{cat.name}</p>
+                    <p className="text-[10px] text-slate-500">{actualCount} 个资源</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
