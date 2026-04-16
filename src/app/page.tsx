@@ -26,10 +26,11 @@ const mockPosts: Post[] = [
 
 // 首页分类导航
 const categories = [
-  { icon: Wrench, label: 'AI工具', desc: 'ChatGPT、Claude、Midjourney...', color: 'from-indigo-500 to-blue-500', href: '/resources' },
-  { icon: GraduationCap, label: 'AI课程', desc: '入门到进阶系统学习', color: 'from-emerald-500 to-teal-500', href: '/learn' },
-  { icon: Compass, label: '学习路径', desc: '按照目标规划路线', color: 'from-amber-500 to-orange-500', href: '/learn' },
-  { icon: Users, label: '社区', desc: '分享心得讨论问题', color: 'from-pink-500 to-purple-500', href: '/' },
+  { icon: Sparkles, label: '精品资源', desc: '最全的AI资源库', color: 'from-cyan-500 to-blue-500', href: '/resources' },
+  { icon: Wrench, label: 'AI工具', desc: 'ChatGPT、Claude...', color: 'from-indigo-500 to-blue-500', href: '/resources' },
+  { icon: GraduationCap, label: 'AI课程', desc: '入门到进阶', color: 'from-emerald-500 to-teal-500', href: '/learn' },
+  { icon: Compass, label: '学习路径', desc: '按目标规划', color: 'from-amber-500 to-orange-500', href: '/learn' },
+  { icon: Users, label: '社区', desc: '分享讨论', color: 'from-pink-500 to-purple-500', href: '/' },
 ];
 
 // AI 热榜
@@ -94,18 +95,18 @@ export default function HomePage() {
               {/* 数据指标 */}
               <div className="flex items-center gap-10 mb-8">
                 <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">10,000+</div>
+                  <div className="text-xs text-indigo-300/60">精品资源</div>
+                </div>
+                <div className="w-px h-12 bg-indigo-500/30" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">500+</div>
+                  <div className="text-xs text-indigo-300/60">AI工具</div>
+                </div>
+                <div className="w-px h-12 bg-indigo-500/30" />
+                <div className="text-center">
                   <div className="text-3xl font-bold text-white">1,000,000+</div>
                   <div className="text-xs text-indigo-300/60">学习者</div>
-                </div>
-                <div className="w-px h-12 bg-indigo-500/30" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">10,000+</div>
-                  <div className="text-xs text-indigo-300/60">精选资源</div>
-                </div>
-                <div className="w-px h-12 bg-indigo-500/30" />
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white">500+</div>
-                  <div className="text-xs text-indigo-300/60">AI工具</div>
                 </div>
               </div>
               
