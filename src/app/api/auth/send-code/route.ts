@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// 初始化 Resend
-const resend = new Resend(process.env.RESEND_API_KEY || 're_PJhhNMKW_EMkmJwBDva3dGyaQ6e6Uhq7X');
+// 初始化 Resend - 使用环境变量或用户提供的新 API Key
+const resend = new Resend(process.env.RESEND_API_KEY || 're_KRJcQQk9_EhQ5J3W1W2DcYGUBvXbNo15Q');
 
 // 生成6位验证码
 function generateCode(): string {
