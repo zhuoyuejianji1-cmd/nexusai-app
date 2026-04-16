@@ -2,36 +2,46 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { TrendingUp, Users, Flame, Hash, Sparkles, Sun, Moon, ChevronRight, Zap, ArrowRight } from 'lucide-react';
+import { 
+  TrendingUp, 
+  Users, 
+  Flame, 
+  Hash, 
+  Sparkles, 
+  Sun, 
+  Moon, 
+  ChevronRight, 
+  Zap, 
+  ArrowRight,
+  Layers,
+  Star,
+  Heart,
+  Crown,
+  Bookmark,
+  Share2,
+  Image,
+  MessageCircle
+} from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
-import { resourceCategories, iconMap } from '@/lib/resources';
+import { resourceCategories, resources, iconMap } from '@/lib/resources';
 
-import { PostCard } from '@/components/home/post-card';
-import { CreatePost } from '@/components/home/create-post';
-
-// 分类导航
-const categories = resourceCategories.slice(0, 8).map(cat => ({
-  icon: iconMap[cat.icon] || Sparkles,
-  label: cat.name,
-  desc: cat.description,
-  color: cat.color,
-  href: '/resources',
-  gradient: {
-    'ai-tools': 'from-violet-500 to-purple-500',
-    'ai-chat': 'from-blue-500 to-cyan-500',
-    'ai-image': 'from-pink-500 to-rose-500',
-    'ai-video': 'from-red-500 to-orange-500',
-    'ai-music': 'from-purple-500 to-fuchsia-500',
-    'ai-coding': 'from-emerald-500 to-green-500',
-    'ai-prompts': 'from-amber-500 to-yellow-500',
-    'video-streaming': 'from-red-500 to-pink-500',
-  }[cat.id] || 'from-indigo-500 to-purple-500',
-}));
+// 分类颜色映射
+const colorMap: Record<string, { gradient: string; text: string }> = {
+  'ai-tools': { gradient: 'from-violet-500 to-purple-500', text: 'text-violet-500' },
+  'ai-chat': { gradient: 'from-blue-500 to-cyan-500', text: 'text-blue-500' },
+  'ai-image': { gradient: 'from-pink-500 to-rose-500', text: 'text-pink-500' },
+  'ai-video': { gradient: 'from-red-500 to-orange-500', text: 'text-red-500' },
+  'ai-music': { gradient: 'from-purple-500 to-fuchsia-500', text: 'text-purple-500' },
+  'ai-coding': { gradient: 'from-emerald-500 to-green-500', text: 'text-emerald-500' },
+  'ai-prompts': { gradient: 'from-amber-500 to-yellow-500', text: 'text-amber-500' },
+  'default': { gradient: 'from-indigo-500 to-purple-500', text: 'text-indigo-500' },
+};
 
 // AI 热榜
 const hotListItems = [
@@ -49,6 +59,23 @@ const latestPosts = [
   { name: '效率达人', content: '分享一个超好用的 AI 工具：Notion AI...', time: '45分钟前', likes: 128 },
   { name: 'AI学习者', content: 'Day 3/30：今天开始学习 Prompt Engineering...', time: '2小时前', likes: 35 },
   { name: '技术大牛', content: '用 Claude 3.5 写代码一周了...', time: '3小时前', likes: 89 },
+];
+
+// 精选资源（从全部资源中筛选热门的前8个）
+const featuredResources = resources.filter(r => r.hot || r.type === 'premium').slice(0, 8);
+
+// 模拟动态数据
+const mockPosts: Post[] = [
+  {
+    id: '1',
+    user_id: '1',
+    content: '完成了今天的 AI 学习任务，感觉收获满满！特别是关于 Prompt Engineering 的部分，对工作效率提升很大。',
+    images: [],
+    likes_count: 42,
+    comments_count: 8,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    user: { id: '1', email: 'a@test.com', nickname: '设计小能手', points: 150, is_vip: false, created_at: '' },
+  },
 ];
 
 export default function HomePage() {
@@ -87,7 +114,6 @@ export default function HomePage() {
           <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-transparent rounded-full blur-[120px]" />
           <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-cyan-500/15 via-blue-500/10 to-transparent rounded-full blur-[100px]" />
           <div className="absolute bottom-1/4 left-1/3 w-[350px] h-[350px] bg-gradient-to-br from-purple-500/15 via-pink-500/10 to-transparent rounded-full blur-[100px]" />
-          {/* 网格背景 */}
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
         </div>
       )}
@@ -96,7 +122,7 @@ export default function HomePage() {
       
       <main className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
         {/* Hero 区域 */}
-        <section className="mb-12">
+        <section className="mb-10">
           <div className={cn(
             "relative overflow-hidden rounded-3xl",
             isDark 
@@ -115,7 +141,7 @@ export default function HomePage() {
               )} />
             </div>
             
-            <div className="relative px-10 py-16 flex flex-col items-center text-center">
+            <div className="relative px-10 py-14 flex flex-col items-center text-center">
               {/* Logo */}
               <div className="flex items-center gap-5 mb-8">
                 <div className={cn(
@@ -125,10 +151,7 @@ export default function HomePage() {
                     : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-indigo-500/20"
                 )}>
                   <Sparkles className="h-10 w-10 text-white" />
-                  <div className={cn(
-                    "absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent",
-                    isDark ? "" : ""
-                  )} />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent" />
                 </div>
                 <div>
                   <h1 className={cn(
@@ -170,9 +193,9 @@ export default function HomePage() {
                   : "bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg"
               )}>
                 {[
-                  { value: '10,000+', label: '精品资源', border: isDark ? 'border-white/10' : 'border-slate-200' },
-                  { value: '500+', label: 'AI工具', border: isDark ? 'border-white/10' : 'border-slate-200' },
-                  { value: '1M+', label: '学习者', border: '' },
+                  { value: '10,000+', label: '精品资源' },
+                  { value: '500+', label: 'AI工具' },
+                  { value: '1M+', label: '学习者' },
                 ].map((stat, i) => (
                   <div key={i} className={cn(
                     "text-center px-8",
@@ -196,47 +219,147 @@ export default function HomePage() {
               
               {/* 分类导航 */}
               <div className="w-full grid grid-cols-4 gap-4">
-                {categories.map((cat, index) => (
-                  <Link 
-                    key={index} 
-                    href={cat.href}
-                    className="group"
-                  >
-                    <div className={cn(
-                      "relative p-5 rounded-2xl transition-all duration-300 h-full",
-                      isDark
-                        ? "bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 backdrop-blur-sm"
-                        : "bg-white hover:bg-white border border-slate-200/50 hover:border-indigo-200/50 shadow-sm hover:shadow-md"
-                    )}>
+                {resourceCategories.slice(0, 8).map((cat, index) => {
+                  const colors = colorMap[cat.id] || colorMap['default'];
+                  const Icon = iconMap[cat.icon] || Sparkles;
+                  return (
+                    <Link 
+                      key={cat.id} 
+                      href="/"
+                      className="group"
+                    >
                       <div className={cn(
-                        "flex items-center justify-center h-12 w-12 rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110",
-                        `bg-gradient-to-br ${cat.gradient}`
+                        "relative p-5 rounded-2xl transition-all duration-300 h-full",
+                        isDark
+                          ? "bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 backdrop-blur-sm"
+                          : "bg-white hover:bg-white border border-slate-200/50 hover:border-indigo-200/50 shadow-sm hover:shadow-md"
                       )}>
-                        <cat.icon className="h-6 w-6 text-white" />
+                        <div className={cn(
+                          "flex items-center justify-center h-12 w-12 rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110",
+                          `bg-gradient-to-br ${colors.gradient}`
+                        )}>
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className={cn(
+                          "text-sm font-semibold mb-1 transition-colors",
+                          isDark ? "text-white group-hover:text-white" : "text-slate-800 group-hover:text-indigo-600"
+                        )}>
+                          {cat.name}
+                        </h3>
+                        <p className={cn(
+                          "text-xs line-clamp-1",
+                          isDark ? "text-slate-500" : "text-slate-400"
+                        )}>
+                          {cat.description}
+                        </p>
+                        <div className={cn(
+                          "absolute top-3 right-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                          isDark ? "text-white/50" : "text-indigo-400"
+                        )}>
+                          <ChevronRight className="h-4 w-4" />
+                        </div>
                       </div>
-                      <h3 className={cn(
-                        "text-sm font-semibold mb-1 transition-colors",
-                        isDark ? "text-white group-hover:text-white" : "text-slate-800 group-hover:text-indigo-600"
-                      )}>
-                        {cat.label}
-                      </h3>
-                      <p className={cn(
-                        "text-xs line-clamp-1",
-                        isDark ? "text-slate-500" : "text-slate-400"
-                      )}>
-                        {cat.desc}
-                      </p>
-                      <div className={cn(
-                        "absolute top-3 right-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-                        isDark ? "text-white/50" : "text-indigo-400"
-                      )}>
-                        <ChevronRight className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* 精选资源区域 */}
+        <section className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={cn(
+              "font-heading text-xl font-bold flex items-center gap-2",
+              isDark ? "text-white" : "text-slate-900"
+            )}>
+              <Layers className={cn("h-5 w-5", isDark ? "text-indigo-400" : "text-indigo-600")} />
+              精选资源
+            </h2>
+            <Link 
+              href="/premium"
+              className={cn(
+                "flex items-center gap-1 text-sm font-medium transition-colors group",
+                isDark 
+                  ? "text-slate-400 hover:text-white" 
+                  : "text-slate-500 hover:text-indigo-600"
+              )}
+            >
+              查看全部
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            {featuredResources.map((resource) => {
+              const category = resourceCategories.find(c => c.id === resource.category);
+              const colors = colorMap[resource.category] || colorMap['default'];
+              const Icon = iconMap[category?.icon || 'sparkles'] || Sparkles;
+              
+              return (
+                <div 
+                  key={resource.id}
+                  className="group"
+                >
+                  <Card className={cn(
+                    "overflow-hidden transition-all duration-300 h-full cursor-pointer",
+                    isDark
+                      ? "bg-[#12121a] border-white/5 hover:bg-[#1a1a2e] hover:border-indigo-500/30"
+                      : "bg-white border-slate-200/80 hover:shadow-lg hover:-translate-y-1"
+                  )}>
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <div className={cn(
+                        "w-full h-full flex items-center justify-center",
+                        isDark 
+                          ? "bg-gradient-to-br from-slate-800 to-slate-900" 
+                          : "bg-gradient-to-br from-slate-100 to-slate-200"
+                      )}>
+                        <Icon className={cn(
+                          "h-10 w-10 transition-transform duration-300",
+                          colors.text,
+                          "group-hover:scale-110"
+                        )} />
+                      </div>
+                      {resource.type === 'premium' && (
+                        <div className="absolute top-2 right-2">
+                          <Badge className={cn(
+                            "px-2 py-0.5 rounded-lg text-[10px] font-bold border-0",
+                            isDark 
+                              ? "bg-gradient-to-r from-amber-400 to-orange-500 text-white" 
+                              : "bg-gradient-to-r from-amber-400 to-orange-500 text-white"
+                          )}>
+                            <Crown className="h-3 w-3 mr-1" />
+                            精品
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-3">
+                      <h3 className={cn(
+                        "font-heading text-sm font-semibold line-clamp-1 mb-1 transition-colors",
+                        isDark ? "text-white" : "text-slate-800"
+                      )}>
+                        {resource.title}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Star className={cn("h-3 w-3", isDark ? "text-amber-400" : "text-amber-500")} />
+                        <span className={isDark ? "text-slate-400" : "text-slate-500"}>{resource.rating}</span>
+                        {resource.hot && (
+                          <Badge className={cn(
+                            "px-1.5 py-0.5 rounded text-[10px]",
+                            isDark ? "bg-red-500/20 text-red-400 border-0" : "bg-red-100 text-red-500 border-0"
+                          )}>
+                            <Flame className="h-3 w-3 mr-0.5" />
+                            热门
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -288,46 +411,37 @@ export default function HomePage() {
             <CardContent className="pt-0">
               <div className="space-y-1">
                 {hotListItems.map((item) => (
-                  <Link key={item.rank} href="/resources">
-                    <div className={cn(
-                      "group flex items-center gap-4 py-3 px-3 -mx-3 rounded-xl transition-all cursor-pointer",
-                      isDark
-                        ? "hover:bg-white/5"
-                        : "hover:bg-slate-50"
-                    )}>
-                      <span className={cn(
-                        'flex items-center justify-center h-7 w-7 rounded-lg text-sm font-bold shrink-0',
-                        item.rank === 1 
-                          ? isDark 
-                            ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/20'
-                            : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-200'
-                          : item.rank === 2 
+                  <div key={item.rank} className="group flex items-center gap-4 py-3 px-3 -mx-3 rounded-xl transition-all cursor-pointer hover:bg-white/5">
+                    <span className={cn(
+                      'flex items-center justify-center h-7 w-7 rounded-lg text-sm font-bold shrink-0',
+                      item.rank === 1 
+                        ? isDark 
+                          ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/20'
+                          : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-200'
+                        : item.rank === 2 
+                          ? isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
+                          : item.rank === 3 
                             ? isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
-                            : item.rank === 3 
-                              ? isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
-                              : isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-100 text-slate-400'
+                            : isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-100 text-slate-400'
+                    )}>
+                      {item.rank}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className={cn(
+                        "text-sm font-medium truncate transition-colors",
+                        isDark ? "text-slate-200 group-hover:text-white" : "text-slate-700 group-hover:text-slate-900"
                       )}>
-                        {item.rank}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <h4 className={cn(
-                          "text-sm font-medium truncate transition-colors",
-                          isDark 
-                            ? "text-slate-200 group-hover:text-white" 
-                            : "text-slate-700 group-hover:text-slate-900"
-                        )}>
-                          {item.title}
-                        </h4>
-                      </div>
-                      <div className={cn(
-                        "flex items-center gap-1 text-xs shrink-0 px-2 py-1 rounded-full",
-                        isDark ? "bg-red-500/10 text-red-400" : "bg-red-50 text-red-500"
-                      )}>
-                        <Flame className="h-3 w-3" />
-                        {(item.heat / 1000).toFixed(0)}k
-                      </div>
+                        {item.title}
+                      </h4>
                     </div>
-                  </Link>
+                    <div className={cn(
+                      "flex items-center gap-1 text-xs shrink-0 px-2 py-1 rounded-full",
+                      isDark ? "bg-red-500/10 text-red-400" : "bg-red-50 text-red-500"
+                    )}>
+                      <Flame className="h-3 w-3" />
+                      {(item.heat / 1000).toFixed(0)}k
+                    </div>
+                  </div>
                 ))}
               </div>
             </CardContent>
@@ -371,8 +485,7 @@ export default function HomePage() {
                 <div 
                   key={index} 
                   className={cn(
-                    "flex items-start gap-3 py-3 px-3 -mx-3 rounded-xl transition-all",
-                    isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                    "flex items-start gap-3 py-3 px-3 -mx-3 rounded-xl transition-all hover:bg-white/5"
                   )}
                 >
                   <div className={cn(
@@ -446,34 +559,138 @@ export default function HomePage() {
                     isDark ? "text-white" : "text-slate-800"
                   )}>社区动态</span>
                 </div>
-                <Link 
-                  href="/" 
-                  className={cn(
-                    "flex items-center gap-1 text-sm font-medium transition-colors group",
-                    isDark 
-                      ? "text-slate-400 hover:text-white" 
-                      : "text-slate-500 hover:text-indigo-600"
-                  )}
-                >
-                  查看全部
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <CreatePost />
-              <PostCard 
-                post={{
-                  id: '1',
-                  user_id: '1',
-                  content: '完成了今天的 AI 学习任务，感觉收获满满！',
-                  images: [],
-                  likes_count: 42,
-                  comments_count: 8,
-                  created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-                  user: { id: '1', email: 'a@test.com', nickname: '设计小能手', points: 150, created_at: '' },
-                }} 
-              />
+              {/* 发布框 */}
+              <div className={cn(
+                "relative rounded-2xl p-4 transition-all duration-300",
+                isDark
+                  ? "bg-[#18181b] border border-white/5 hover:border-white/10"
+                  : "bg-slate-50 border border-slate-200/50 hover:border-slate-200"
+              )}>
+                <div className="flex items-start gap-3">
+                  <div className={cn(
+                    "flex h-11 w-11 items-center justify-center rounded-xl text-sm font-semibold shrink-0 shadow-md",
+                    isDark 
+                      ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
+                      : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
+                  )}>
+                    你
+                  </div>
+                  <div className="flex-1">
+                    <textarea
+                      placeholder="分享你的 AI 学习心得..."
+                      className={cn(
+                        "w-full min-h-[44px] resize-none rounded-xl border-0 p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20",
+                        isDark
+                          ? "bg-transparent text-white placeholder:text-slate-500"
+                          : "bg-white text-slate-800 placeholder:text-slate-400"
+                      )}
+                    />
+                    <div className="flex items-center justify-end mt-2">
+                      <Button className={cn(
+                        "h-9 px-5 rounded-xl font-medium",
+                        isDark
+                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                          : "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                      )}>
+                        发布
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 动态卡片 */}
+              {mockPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className={cn(
+                    "rounded-2xl p-5 transition-all duration-300",
+                    isDark
+                      ? "bg-[#18181b] border border-white/5 hover:bg-[#1f1f23]"
+                      : "bg-slate-50 border border-slate-200/50 hover:bg-slate-100/80"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={cn(
+                      "flex h-11 w-11 items-center justify-center rounded-xl text-sm font-semibold shrink-0 shadow-md",
+                      isDark 
+                        ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
+                        : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
+                    )}>
+                      {post.user?.nickname?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={cn(
+                          "text-sm font-semibold",
+                          isDark ? "text-white" : "text-slate-900"
+                        )}>
+                          {post.user?.nickname || '匿名用户'}
+                        </span>
+                        <span className={cn(
+                          "text-xs",
+                          isDark ? "text-slate-500" : "text-slate-400"
+                        )}>
+                          2小时前
+                        </span>
+                      </div>
+                      <p className={cn(
+                        "text-sm leading-relaxed mb-3",
+                        isDark ? "text-slate-200" : "text-slate-700"
+                      )}>
+                        {post.content}
+                      </p>
+                      <div className="flex items-center gap-1 pt-3 border-t">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "flex-1 gap-1.5 h-8 rounded-lg transition-colors",
+                            isDark ? "text-slate-400 hover:text-pink-400 hover:bg-pink-500/10" : "text-slate-500 hover:text-pink-500 hover:bg-pink-50"
+                          )}
+                        >
+                          <Heart className="h-4 w-4" />
+                          <span className="text-xs">{post.likes_count}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "flex-1 gap-1.5 h-8 rounded-lg transition-colors",
+                            isDark ? "text-slate-400 hover:text-blue-400 hover:bg-blue-500/10" : "text-slate-500 hover:text-blue-500 hover:bg-blue-50"
+                          )}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          <span className="text-xs">{post.comments_count}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "h-8 w-8 rounded-lg transition-colors",
+                            isDark ? "text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10" : "text-slate-500 hover:text-indigo-500 hover:bg-indigo-50"
+                          )}
+                        >
+                          <Bookmark className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "h-8 w-8 rounded-lg transition-colors",
+                            isDark ? "text-slate-400 hover:text-white hover:bg-white/10" : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                          )}
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </section>

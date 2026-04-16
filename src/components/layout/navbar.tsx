@@ -31,7 +31,6 @@ interface UserData {
 
 const navLinks = [
   { href: '/', label: '首页' },
-  { href: '/resources', label: '资源' },
   { href: '/premium', label: '精品课程' },
   { href: '/learn', label: '学习' },
   { href: '/profile', label: '我的' },
