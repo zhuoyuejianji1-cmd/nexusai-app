@@ -1,19 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Edit3, Heart, MessageSquare, Bookmark, 
-  Trophy, Calendar, Flame, TrendingUp, ChevronRight,
-  Star, FileText, Award
-} from 'lucide-react';
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/navbar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Edit3, 
+  Heart, 
+  MessageSquare, 
+  Bookmark, 
+  Trophy, 
+  Calendar, 
+  Flame, 
+  TrendingUp, 
+  ChevronRight,
+  Star, 
+  FileText, 
+  Award,
+  Sun,
+  Moon,
+  ArrowLeft,
+  Crown,
+  Settings,
+  LogOut,
+  Zap,
+  Target,
+  BookOpen
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { UserAvatar } from '@/components/common/user-avatar';
 import { PostCard } from '@/components/home/post-card';
 import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
@@ -23,502 +38,495 @@ const mockUser = {
   id: '1',
   nickname: 'AI探索者',
   email: 'user@example.com',
-  avatar_url: '',
+  avatar: null as string | null,
+  is_vip: true,
   bio: '热爱 AI，专注学习新技术。希望用 AI 提升工作效率，探索无限可能。',
   points: 1250,
   joinedDays: 23,
+  level: 8,
+  exp: 750,
+  expToNext: 1000,
 };
 
-// 模拟用户动态
-const mockUserPosts: Post[] = [
+// 统计数据
+const stats = [
+  { label: '动态', value: '42', icon: FileText, color: 'text-blue-500', bgDark: 'bg-blue-500/20', bgLight: 'bg-blue-100' },
+  { label: '获赞', value: '328', icon: Heart, color: 'text-pink-500', bgDark: 'bg-pink-500/20', bgLight: 'bg-pink-100' },
+  { label: '收藏', value: '15', icon: Bookmark, color: 'text-amber-500', bgDark: 'bg-amber-500/20', bgLight: 'bg-amber-100' },
+  { label: '评论', value: '89', icon: MessageSquare, color: 'text-emerald-500', bgDark: 'bg-emerald-500/20', bgLight: 'bg-emerald-100' },
+];
+
+// 最近动态
+const recentPosts: Post[] = [
   {
     id: '1',
-    user_id: mockUser.id,
-    content: '完成了今天的 AI 学习任务，感觉收获满满！',
+    user_id: '1',
+    content: '完成了今天的 AI 学习任务，感觉收获满满！特别是关于 Prompt Engineering 的部分，对工作效率提升很大。',
     images: [],
     likes_count: 42,
     comments_count: 8,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    user: { id: mockUser.id, email: mockUser.email, nickname: mockUser.nickname, points: 0, created_at: '' },
+    user: { id: '1', email: 'a@test.com', nickname: 'AI探索者', points: 1250, is_vip: true, created_at: '' },
   },
   {
     id: '2',
-    user_id: mockUser.id,
-    content: '分享一个最近在用的 AI 写作工具，真的太好用了！',
-    images: ['https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&auto=format'],
+    user_id: '1',
+    content: '尝试用 Midjourney 生成了一套品牌视觉设计，效果超出预期！设计师们要开始学习 AI 工具了',
+    images: [],
     likes_count: 128,
     comments_count: 23,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    user: { id: mockUser.id, email: mockUser.email, nickname: mockUser.nickname, points: 0, created_at: '' },
+    user: { id: '1', email: 'a@test.com', nickname: 'AI探索者', points: 1250, is_vip: true, created_at: '' },
   },
 ];
 
-// 模拟收藏
-const mockFavorites = [
-  { id: '1', title: 'ChatGPT 提示词工程指南', category: 'tutorial' },
-  { id: '2', title: 'Claude 3.5 深度测评', category: 'paper' },
-  { id: '3', title: 'Midjourney 进阶教程', category: 'video' },
+// 任务记录
+const taskHistory = [
+  { id: 1, title: '完成 AI 基础课程第 3 章', date: '2024-01-15', xp: 50, completed: true },
+  { id: 2, title: '使用 ChatGPT 写一篇文章', date: '2024-01-15', xp: 30, completed: true },
+  { id: 3, title: '阅读 AI 最新资讯', date: '2024-01-14', xp: 20, completed: true },
+  { id: 4, title: '分享一个 AI 工具', date: '2024-01-14', xp: 40, completed: true },
 ];
 
-// 模拟任务历史
-const mockTaskHistory = [
-  { title: '了解 AI 基本概念', date: '2024-01-15', points: 10, status: 'completed' },
-  { title: '注册并体验 ChatGPT', date: '2024-01-15', points: 15, status: 'completed' },
-  { title: '学习有效提问技巧', date: '2024-01-16', points: 20, status: 'completed' },
-  { title: '掌握 ChatGPT 提示词工程基础', date: '2024-01-17', points: 50, status: 'completed' },
-];
-
-// 徽章
-const mockBadges = [
-  { name: '初学者', icon: Star, earned: true, date: '2024-01-15' },
-  { name: '活跃用户', icon: Flame, earned: true, date: '2024-01-16' },
-  { name: '连续7天', icon: Calendar, earned: true, date: '2024-01-22' },
-  { name: '文章作者', icon: FileText, earned: true, date: '2024-01-18' },
-  { name: '进阶者', icon: TrendingUp, earned: true, date: '2024-01-20' },
-  { name: '专家', icon: Award, earned: false, date: null },
+// 已获徽章
+const earnedBadges = [
+  { name: '初学者', icon: Star, gradient: 'from-amber-400 to-orange-400' },
+  { name: '连续7天', icon: Flame, gradient: 'from-red-400 to-pink-400' },
+  { name: 'Prompt 大师', icon: Zap, gradient: 'from-yellow-400 to-amber-400' },
+  { name: '分享达人', icon: Award, gradient: 'from-purple-400 to-pink-400' },
 ];
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editNickname, setEditNickname] = useState(mockUser.nickname);
-  const [editBio, setEditBio] = useState(mockUser.bio);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // 监听主题变化
   useEffect(() => {
-    const checkTheme = () => {
-      setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-    };
-    checkTheme();
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    setTheme(savedTheme || 'light');
+    setIsLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(theme);
+    }
+  }, [theme, isLoaded]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const isDark = theme === 'dark';
 
-  const handleSave = () => {
-    setIsEditing(false);
-  };
-
   return (
     <div className={cn(
-      "min-h-screen relative",
-      isDark ? "gradient-bg tech-grid" : "bg-gradient-to-br from-slate-50 via-white to-indigo-50"
+      "min-h-screen transition-colors duration-500",
+      isDark 
+        ? "bg-[#0a0a0f] text-white" 
+        : "bg-[#fafbfc] text-slate-900"
     )}>
-      {/* 背景光效 */}
+      {/* 背景装饰 */}
       {isDark && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/3 left-1/4 w-[400px] h-[400px] bg-gradient-to-br from-pink-500/10 via-rose-500/8 to-transparent rounded-full blur-[100px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
         </div>
       )}
-      
-      <Navbar />
-      
-      <main className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Profile Header */}
-        <section className="mb-8">
+
+      {/* 导航栏 */}
+      <header className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isDark 
+          ? "bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5" 
+          : "bg-white/80 backdrop-blur-xl border-b border-slate-200/80"
+      )}>
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300",
+              isDark 
+                ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20" 
+                : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/10"
+            )}>
+              <Trophy className="h-5 w-5 text-white" />
+            </div>
+            <span className={cn(
+              "font-heading text-xl font-bold tracking-tight",
+              isDark 
+                ? "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" 
+                : "bg-gradient-to-r from-slate-900 via-indigo-600 to-purple-600 bg-clip-text text-transparent"
+            )}>
+              NexusAI
+            </span>
+          </Link>
+          
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className={cn(
+                "h-10 w-10 rounded-xl transition-all duration-200",
+                isDark ? "hover:bg-white/10 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+              )}
+            >
+              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-10 w-10 rounded-xl transition-all duration-200",
+                isDark ? "hover:bg-white/10 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+              )}
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Link href="/">
+              <Button variant="ghost" size="sm" className={cn(
+                "gap-2 h-10 px-4 rounded-xl font-medium",
+                isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-600 hover:text-indigo-600 hover:bg-slate-50"
+              )}>
+                <ArrowLeft className="h-4 w-4" />
+                返回首页
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+        {/* 用户信息卡片 */}
+        <section className="mb-10">
           <Card className={cn(
             "overflow-hidden",
             isDark 
-              ? "border-gradient bg-slate-900/80" 
-              : "bg-white border-slate-200 shadow-sm"
+              ? "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] border border-white/5" 
+              : "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 border border-indigo-200/50"
           )}>
-            <div className={cn(
-              "h-2",
-              isDark 
-                ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500" 
-                : "bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400"
-            )} />
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                {/* Avatar */}
+            {/* 装饰 */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+            </div>
+            
+            <CardContent className="relative px-10 py-10">
+              <div className="flex items-start gap-8">
+                {/* 头像 */}
                 <div className="relative">
                   <div className={cn(
-                    "h-28 w-28 rounded-2xl overflow-hidden ring-2 ring-offset-2",
+                    "flex items-center justify-center h-28 w-28 rounded-2xl text-3xl font-bold shadow-2xl",
                     isDark 
-                      ? "ring-indigo-500/50 ring-offset-slate-900" 
-                      : "ring-indigo-300 ring-offset-white"
+                      ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
+                      : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
                   )}>
-                    <UserAvatar name={mockUser.nickname} size="lg" className="h-full w-full" />
+                    {mockUser.nickname[0].toUpperCase()}
                   </div>
-                  <button className={cn(
-                    "absolute bottom-1 right-1 p-2 rounded-xl transition-all shadow-lg",
-                    isDark
-                      ? "bg-gradient-to-br from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white"
-                      : "bg-gradient-to-br from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white"
-                  )}>
-                    <Edit3 className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 text-center sm:text-left">
-                  {isEditing ? (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        value={editNickname}
-                        onChange={(e) => setEditNickname(e.target.value)}
-                        className={cn(
-                          "w-full px-4 py-2 rounded-xl border outline-none text-xl font-heading font-bold",
-                          isDark
-                            ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
-                            : "bg-slate-50 border-slate-200 text-slate-800 focus:border-indigo-500"
-                        )}
-                      />
-                      <textarea
-                        value={editBio}
-                        onChange={(e) => setEditBio(e.target.value)}
-                        className={cn(
-                          "w-full px-4 py-2 rounded-xl border outline-none text-sm resize-none h-20",
-                          isDark
-                            ? "bg-slate-800 border-slate-700 text-white focus:border-indigo-500"
-                            : "bg-slate-50 border-slate-200 text-slate-800 focus:border-indigo-500"
-                        )}
-                      />
-                      <div className="flex gap-2 justify-center sm:justify-start">
-                        <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500">保存</Button>
-                        <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className={cn(
-                          isDark ? "border-slate-700" : "border-slate-200"
-                        )}>取消</Button>
-                      </div>
+                  {mockUser.is_vip && (
+                    <div className="absolute -bottom-1 -right-1 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-lg">
+                      <Crown className="h-4 w-4 text-white" />
                     </div>
-                  ) : (
-                    <>
-                      <h1 className={cn(
-                        "font-heading text-3xl font-bold mb-1",
-                        isDark ? "text-white" : "text-slate-800"
-                      )}>{mockUser.nickname}</h1>
-                      <p className={cn(
-                        "text-sm mb-3",
-                        isDark ? "text-slate-400" : "text-slate-500"
-                      )}>{mockUser.email}</p>
-                      <p className={cn(
-                        "mb-4",
-                        isDark ? "text-slate-300" : "text-slate-600"
-                      )}>{mockUser.bio}</p>
-                      <Button size="sm" variant="outline" onClick={() => setIsEditing(true)} className={cn(
-                        "gap-1.5",
-                        isDark
-                          ? "border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 hover:text-white"
-                          : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"
-                      )}>
-                        <Edit3 className="h-3.5 w-3.5" />
-                        编辑资料
-                      </Button>
-                    </>
                   )}
                 </div>
 
-                {/* Stats */}
-                <div className="flex gap-4 text-center">
-                  <div className={cn(
-                    "p-4 rounded-xl border",
-                    isDark 
-                      ? "glass border-indigo-500/20" 
-                      : "bg-indigo-50 border-indigo-100"
-                  )}>
-                    <div className={cn(
-                      "font-heading text-3xl font-bold",
-                      isDark ? "text-indigo-400" : "text-indigo-600"
-                    )}>{mockUser.points}</div>
-                    <div className={cn(
-                      "text-xs mt-1",
-                      isDark ? "text-slate-400" : "text-slate-500"
-                    )}>积分</div>
+                {/* 用户信息 */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h1 className="font-heading text-2xl font-bold text-white">
+                      {mockUser.nickname}
+                    </h1>
+                    {mockUser.is_vip && (
+                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
+                        VIP
+                      </Badge>
+                    )}
                   </div>
-                  <div className={cn(
-                    "p-4 rounded-xl border",
-                    isDark 
-                      ? "glass border-emerald-500/20" 
-                      : "bg-emerald-50 border-emerald-100"
-                  )}>
+                  <p className="text-white/70 text-sm mb-4 max-w-md">
+                    {mockUser.bio}
+                  </p>
+                  
+                  {/* 等级进度 */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Badge className={cn(
+                        "px-3 py-1 rounded-full text-xs font-bold",
+                        isDark ? "bg-white/20 text-white" : "bg-white/30 text-white"
+                      )}>
+                        Lv.{mockUser.level}
+                      </Badge>
+                    </div>
+                    <div className="flex-1 max-w-xs">
+                      <div className="flex items-center justify-between text-xs text-white/60 mb-1">
+                        <span>经验值</span>
+                        <span>{mockUser.exp}/{mockUser.expToNext}</span>
+                      </div>
+                      <div className={cn(
+                        "h-2 rounded-full overflow-hidden",
+                        isDark ? "bg-white/10" : "bg-white/20"
+                      )}>
+                        <div 
+                          className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
+                          style={{ width: `${(mockUser.exp / mockUser.expToNext) * 100}%` }}
+                        />
+                      </div>
+                    </div>
                     <div className={cn(
-                      "font-heading text-3xl font-bold",
-                      isDark ? "text-emerald-400" : "text-emerald-600"
-                    )}>{mockUser.joinedDays}</div>
-                    <div className={cn(
-                      "text-xs mt-1",
-                      isDark ? "text-slate-400" : "text-slate-500"
-                    )}>天学习</div>
+                      "flex items-center gap-1 px-3 py-1.5 rounded-full",
+                      isDark ? "bg-white/10" : "bg-white/20"
+                    )}>
+                      <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                      <span className="text-sm font-semibold text-white">{mockUser.points}</span>
+                    </div>
                   </div>
+
+                  {/* 统计 */}
+                  <div className="flex items-center gap-6">
+                    {stats.map((stat, i) => (
+                      <div key={i} className="text-center">
+                        <div className={cn(
+                          "flex items-center justify-center h-8 w-8 rounded-lg mb-1 mx-auto",
+                          isDark ? stat.bgDark : stat.bgLight
+                        )}>
+                          <stat.icon className={cn("h-4 w-4", stat.color)} />
+                        </div>
+                        <div className="text-lg font-bold text-white">{stat.value}</div>
+                        <div className="text-xs text-white/60">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 操作按钮 */}
+                <div className="flex flex-col gap-2">
+                  <Button className={cn(
+                    "h-10 px-5 rounded-xl font-medium",
+                    isDark
+                      ? "bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                      : "bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                  )}>
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    编辑资料
+                  </Button>
+                  <Button className={cn(
+                    "h-10 px-5 rounded-xl font-medium text-red-400",
+                    isDark
+                      ? "bg-red-500/10 hover:bg-red-500/20 border border-red-500/20"
+                      : "bg-red-50 hover:bg-red-100 border border-red-100"
+                  )}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    退出登录
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </section>
 
-        {/* Content Tabs */}
-        <section>
-          <Tabs defaultValue="posts" className="space-y-6">
-            <TabsList className={cn(
-              "p-1 grid w-full grid-cols-4",
+        <div className="grid grid-cols-3 gap-6">
+          {/* 左侧：动态 */}
+          <div className="col-span-2 space-y-6">
+            {/* 我的动态 */}
+            <Card className={cn(
+              "",
               isDark 
-                ? "bg-slate-800/50 border border-slate-700" 
-                : "bg-slate-100 border border-slate-200"
+                ? "bg-[#12121a] border-white/5" 
+                : "bg-white border-slate-200/80 shadow-sm"
             )}>
-              <TabsTrigger value="posts" className={cn(
-                "gap-1.5 text-xs sm:text-sm",
-                isDark ? "data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white text-slate-400" : "data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm text-slate-500"
-              )}>
-                <MessageSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">我的动态</span>
-              </TabsTrigger>
-              <TabsTrigger value="favorites" className={cn(
-                "gap-1.5 text-xs sm:text-sm",
-                isDark ? "data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white text-slate-400" : "data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm text-slate-500"
-              )}>
-                <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">收藏</span>
-              </TabsTrigger>
-              <TabsTrigger value="tasks" className={cn(
-                "gap-1.5 text-xs sm:text-sm",
-                isDark ? "data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white text-slate-400" : "data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm text-slate-500"
-              )}>
-                <Trophy className="h-4 w-4" />
-                <span className="hidden sm:inline">任务记录</span>
-              </TabsTrigger>
-              <TabsTrigger value="badges" className={cn(
-                "gap-1.5 text-xs sm:text-sm",
-                isDark ? "data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white text-slate-400" : "data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm text-slate-500"
-              )}>
-                <Award className="h-4 w-4" />
-                <span className="hidden sm:inline">徽章</span>
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Posts Tab */}
-            <TabsContent value="posts" className="space-y-4">
-              {mockUserPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-              {mockUserPosts.length === 0 && (
-                <div className="text-center py-12">
-                  <div className={cn(
-                    "inline-flex h-16 w-16 items-center justify-center rounded-2xl mb-4",
-                    isDark ? "glass" : "bg-slate-100"
-                  )}>
-                    <MessageSquare className={cn(
-                      "h-8 w-8",
-                      isDark ? "text-slate-500" : "text-slate-400"
-                    )} />
-                  </div>
-                  <p className={isDark ? "text-slate-400" : "text-slate-500"}>还没有发布动态</p>
-                  <Button className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600" asChild>
-                    <Link href="/">去社区看看</Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-
-            {/* Favorites Tab */}
-            <TabsContent value="favorites">
-              <Card className={cn(
-                isDark ? "glass border-indigo-500/20" : "bg-white border-slate-200 shadow-sm"
-              )}>
-                <CardContent className="p-4 space-y-3">
-                  {mockFavorites.map((item) => (
-                    <Link key={item.id} href="/resources">
-                      <div className={cn(
-                        "flex items-center justify-between p-3 rounded-xl transition-all cursor-pointer border",
-                        isDark
-                          ? "hover:bg-gradient-to-r hover:from-indigo-500/10 hover:to-transparent hover:border-indigo-500/20 border-transparent"
-                          : "hover:bg-indigo-50 hover:border-indigo-200 border-transparent"
-                      )}>
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "p-2 rounded-lg",
-                            isDark ? "bg-amber-500/20" : "bg-amber-100"
-                          )}>
-                            <Bookmark className={cn(
-                              "h-5 w-5",
-                              isDark ? "text-amber-400" : "text-amber-500"
-                            )} />
-                          </div>
-                          <span className={isDark ? "text-slate-300" : "text-slate-700"}>{item.title}</span>
-                        </div>
-                        <ChevronRight className={cn(
-                          "h-4 w-4",
-                          isDark ? "text-slate-500" : "text-slate-400"
-                        )} />
-                      </div>
-                    </Link>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Tasks Tab */}
-            <TabsContent value="tasks">
-              <Card className={cn(
-                isDark ? "glass border-indigo-500/20" : "bg-white border-slate-200 shadow-sm"
-              )}>
-                <CardContent className="p-4 space-y-3">
-                  {mockTaskHistory.map((task, index) => (
-                    <div key={index} className={cn(
-                      "flex items-center justify-between p-3 rounded-xl border",
-                      isDark
-                        ? "bg-slate-800/50 border-indigo-500/10"
-                        : "bg-slate-50 border-slate-100"
+              <div className={cn(
+                "h-1",
+                isDark 
+                  ? "bg-gradient-to-r from-blue-500 to-cyan-500" 
+                  : "bg-gradient-to-r from-blue-400 to-cyan-400"
+              )} />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "p-2 rounded-xl",
+                      isDark ? "bg-gradient-to-br from-blue-500/20 to-cyan-500/20" : "bg-gradient-to-br from-blue-100 to-cyan-100"
                     )}>
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-xl",
-                          isDark ? "bg-emerald-500/20" : "bg-emerald-100"
-                        )}>
-                          <Trophy className={cn(
-                            "h-5 w-5",
-                            isDark ? "text-emerald-400" : "text-emerald-500"
-                          )} />
-                        </div>
-                        <div>
-                          <p className={cn(
-                            "font-medium text-sm",
-                            isDark ? "text-white" : "text-slate-800"
-                          )}>{task.title}</p>
-                          <p className={cn(
-                            "text-xs",
-                            isDark ? "text-slate-500" : "text-slate-400"
-                          )}>{task.date}</p>
-                        </div>
-                      </div>
-                      <Badge className={cn(
-                        "border-0",
-                        isDark 
-                          ? "bg-emerald-500/20 text-emerald-400" 
-                          : "bg-emerald-100 text-emerald-600"
-                      )}>
-                        +{task.points}
-                      </Badge>
+                      <FileText className={cn(
+                        "h-4 w-4",
+                        isDark ? "text-blue-400" : "text-blue-600"
+                      )} />
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    <span className={cn(
+                      "font-heading text-base font-bold",
+                      isDark ? "text-white" : "text-slate-800"
+                    )}>我的动态</span>
+                  </div>
+                  <Badge className={cn(
+                    "text-xs font-medium",
+                    isDark 
+                      ? "bg-blue-500/20 text-blue-400 border-0" 
+                      : "bg-blue-100 text-blue-600 border-0"
+                  )}>
+                    42 条
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {recentPosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Badges Tab */}
-            <TabsContent value="badges">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {mockBadges.map((badge, index) => (
-                  <Card 
-                    key={index} 
+          {/* 右侧：任务 + 徽章 */}
+          <div className="space-y-6">
+            {/* 任务记录 */}
+            <Card className={cn(
+              "",
+              isDark 
+                ? "bg-[#12121a] border-white/5" 
+                : "bg-white border-slate-200/80 shadow-sm"
+            )}>
+              <div className={cn(
+                "h-1",
+                isDark 
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500" 
+                  : "bg-gradient-to-r from-emerald-400 to-teal-400"
+              )} />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "p-2 rounded-xl",
+                      isDark ? "bg-gradient-to-br from-emerald-500/20 to-teal-500/20" : "bg-gradient-to-br from-emerald-100 to-teal-100"
+                    )}>
+                      <Target className={cn(
+                        "h-4 w-4",
+                        isDark ? "text-emerald-400" : "text-emerald-600"
+                      )} />
+                    </div>
+                    <span className={cn(
+                      "font-heading text-base font-bold",
+                      isDark ? "text-white" : "text-slate-800"
+                    )}>任务记录</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {taskHistory.map((task) => (
+                  <div 
+                    key={task.id}
                     className={cn(
-                      "overflow-hidden",
-                      badge.earned 
-                        ? isDark 
-                          ? "glass border-indigo-500/30" 
-                          : "bg-white border-indigo-200 shadow-sm"
-                        : isDark 
-                          ? "opacity-50 border-slate-700" 
-                          : "opacity-50 border-slate-200"
+                      "flex items-center gap-3 py-2 px-3 rounded-xl transition-all",
+                      isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
                     )}
                   >
                     <div className={cn(
-                      "h-1",
-                      badge.earned 
-                        ? "bg-gradient-to-r from-indigo-500 to-purple-500" 
-                        : isDark ? "bg-slate-700" : "bg-slate-200"
-                    )} />
-                    <CardContent className="p-6 text-center">
-                      <div className={cn(
-                        'inline-flex h-16 w-16 items-center justify-center rounded-2xl mb-3',
-                        badge.earned 
-                          ? isDark 
-                            ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/30' 
-                            : 'bg-indigo-100'
-                          : isDark ? 'bg-slate-800' : 'bg-slate-100'
+                      "flex items-center justify-center h-8 w-8 rounded-lg shrink-0",
+                      isDark ? "bg-emerald-500/20" : "bg-emerald-100"
+                    )}>
+                      <BookOpen className={cn(
+                        "h-4 w-4",
+                        isDark ? "text-emerald-400" : "text-emerald-600"
+                      )} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "text-sm font-medium truncate",
+                        isDark ? "text-white" : "text-slate-700"
                       )}>
-                        <badge.icon className={cn(
-                          'h-8 w-8', 
-                          badge.earned 
-                            ? isDark ? 'text-indigo-400' : 'text-indigo-600'
-                            : isDark ? 'text-slate-600' : 'text-slate-400'
-                        )} />
-                      </div>
-                      <h3 className={cn(
-                        "font-medium mb-1",
-                        isDark ? "text-white" : "text-slate-800"
-                      )}>{badge.name}</h3>
-                      {badge.date && (
-                        <p className={cn(
-                          "text-xs",
-                          isDark ? "text-slate-500" : "text-slate-400"
-                        )}>{badge.date}</p>
-                      )}
-                      {!badge.earned && (
-                        <Badge variant="outline" className={cn(
-                          "mt-2 text-xs",
-                          isDark ? "border-slate-600 text-slate-500" : "border-slate-300 text-slate-400"
-                        )}>未解锁</Badge>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </section>
-
-        {/* Learning Progress */}
-        <section className="mt-8">
-          <Card className={cn(
-            isDark ? "glass border-indigo-500/20" : "bg-white border-slate-200 shadow-sm"
-          )}>
-            <CardHeader>
-              <CardTitle className={cn(
-                "flex items-center gap-2 font-heading text-lg",
-                isDark ? "text-white" : "text-slate-800"
-              )}>
-                <div className={cn(
-                  "p-2 rounded-xl",
-                  isDark ? "bg-indigo-500/20" : "bg-indigo-100"
-                )}>
-                  <TrendingUp className={cn(
-                    "h-5 w-5",
-                    isDark ? "text-indigo-400" : "text-indigo-600"
-                  )} />
-                </div>
-                学习进度
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { label: '成长路径进度', value: '75%', color: 'from-indigo-500 to-purple-500', barBg: isDark ? 'bg-slate-800' : 'bg-slate-100' },
-                  { label: '本周目标', value: '4/5 任务', color: 'from-cyan-500 to-indigo-500', barBg: isDark ? 'bg-slate-800' : 'bg-slate-100' },
-                  { label: '连续学习', value: '7 天', color: 'from-emerald-500 to-cyan-500', barBg: isDark ? 'bg-slate-800' : 'bg-slate-100' },
-                ].map((item, index) => (
-                  <div key={index}>
-                    <div className={cn(
-                      "flex items-center justify-between text-sm mb-2",
-                      isDark ? "text-slate-400" : "text-slate-500"
-                    )}>
-                      <span>{item.label}</span>
-                      <span className={cn(
-                        "font-medium",
-                        isDark ? "text-white" : "text-slate-800"
-                      )}>{item.value}</span>
+                        {task.title}
+                      </p>
+                      <p className={cn(
+                        "text-xs",
+                        isDark ? "text-slate-500" : "text-slate-400"
+                      )}>
+                        {task.date}
+                      </p>
                     </div>
-                    <div className={cn(
-                      "h-2 rounded-full overflow-hidden",
-                      item.barBg
+                    <Badge className={cn(
+                      "text-xs font-medium",
+                      isDark 
+                        ? "bg-amber-500/20 text-amber-400 border-0" 
+                        : "bg-amber-100 text-amber-600 border-0"
                     )}>
-                      <div 
-                        className={cn(
-                          "h-full rounded-full",
-                          index === 0 ? 'w-[75%]' : index === 1 ? 'w-[80%]' : 'w-full',
-                          `bg-gradient-to-r ${item.color}`
-                        )}
-                      />
-                    </div>
+                      +{task.xp} XP
+                    </Badge>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+              </CardContent>
+            </Card>
+
+            {/* 徽章展示 */}
+            <Card className={cn(
+              "",
+              isDark 
+                ? "bg-[#12121a] border-white/5" 
+                : "bg-white border-slate-200/80 shadow-sm"
+            )}>
+              <div className={cn(
+                "h-1",
+                isDark 
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500" 
+                  : "bg-gradient-to-r from-amber-400 to-orange-400"
+              )} />
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "p-2 rounded-xl",
+                      isDark ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20" : "bg-gradient-to-br from-amber-100 to-orange-100"
+                    )}>
+                      <Award className={cn(
+                        "h-4 w-4",
+                        isDark ? "text-amber-400" : "text-amber-600"
+                      )} />
+                    </div>
+                    <span className={cn(
+                      "font-heading text-base font-bold",
+                      isDark ? "text-white" : "text-slate-800"
+                    )}>我的徽章</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-4 gap-3">
+                  {earnedBadges.map((badge, i) => (
+                    <div 
+                      key={i}
+                      className={cn(
+                        "flex flex-col items-center p-3 rounded-xl transition-all",
+                        isDark 
+                          ? "bg-[#0a0a0f] hover:bg-white/5" 
+                          : "bg-slate-50 hover:bg-slate-100"
+                      )}
+                    >
+                      <div className={cn(
+                        "flex items-center justify-center h-12 w-12 rounded-xl mb-2",
+                        `bg-gradient-to-br ${badge.gradient}`
+                      )}>
+                        <badge.icon className="h-6 w-6 text-white" />
+                      </div>
+                      <span className={cn(
+                        "text-xs font-medium text-center",
+                        isDark ? "text-white" : "text-slate-700"
+                      )}>
+                        {badge.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className={cn(
+          "mt-20 pt-8 border-t text-center",
+          isDark ? "border-white/5 text-slate-500" : "border-slate-200 text-slate-400"
+        )}>
+          <p className="text-sm">
+            © 2024 NexusAI. Built with passion for AI learning.
+          </p>
+        </footer>
       </main>
     </div>
   );

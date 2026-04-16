@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { TrendingUp, Users, Flame, Hash, Sparkles, Sun, Moon, Menu, X } from 'lucide-react';
+import { TrendingUp, Users, Flame, Hash, Sparkles, Sun, Moon, ChevronRight, Zap, ArrowRight } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,56 +11,26 @@ import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
 import { resourceCategories, iconMap } from '@/lib/resources';
 
-// 主题上下文
-type Theme = 'light' | 'dark';
+import { PostCard } from '@/components/home/post-card';
+import { CreatePost } from '@/components/home/create-post';
 
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
-  toggleTheme: () => {},
-});
-
-export function useTheme() {
-  return useContext(ThemeContext);
-}
-
-// 动态导入重型组件
-import dynamic from 'next/dynamic';
-const PostCard = dynamic(() => import('@/components/home/post-card').then(mod => ({ default: mod.PostCard })), {
-  loading: () => <div className="h-24 bg-white dark:bg-slate-800 rounded-xl animate-pulse shadow-sm" />,
-  ssr: false,
-});
-
-const CreatePost = dynamic(() => import('@/components/home/create-post').then(mod => ({ default: mod.CreatePost })), {
-  loading: () => <div className="h-16 bg-white dark:bg-slate-800 rounded-xl animate-pulse shadow-sm" />,
-  ssr: false,
-});
-
-// 模拟动态数据
-const mockPosts: Post[] = [
-  {
-    id: '1',
-    user_id: '1',
-    content: '刚刚完成了 Midjourney 的进阶课程学习，终于掌握了如何生成高质量的产品图片！',
-    images: [],
-    likes_count: 42,
-    comments_count: 8,
-    created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-    user: { id: '1', email: 'a@test.com', nickname: '设计小能手', points: 150, created_at: '' },
-  },
-];
-
-// 首页分类导航
+// 分类导航
 const categories = resourceCategories.slice(0, 8).map(cat => ({
   icon: iconMap[cat.icon] || Sparkles,
   label: cat.name,
   desc: cat.description,
   color: cat.color,
-  href: '/resources'
+  href: '/resources',
+  gradient: {
+    'ai-tools': 'from-violet-500 to-purple-500',
+    'ai-chat': 'from-blue-500 to-cyan-500',
+    'ai-image': 'from-pink-500 to-rose-500',
+    'ai-video': 'from-red-500 to-orange-500',
+    'ai-music': 'from-purple-500 to-fuchsia-500',
+    'ai-coding': 'from-emerald-500 to-green-500',
+    'ai-prompts': 'from-amber-500 to-yellow-500',
+    'video-streaming': 'from-red-500 to-pink-500',
+  }[cat.id] || 'from-indigo-500 to-purple-500',
 }));
 
 // AI 热榜
@@ -81,151 +51,187 @@ const latestPosts = [
   { name: '技术大牛', content: '用 Claude 3.5 写代码一周了...', time: '3小时前', likes: 89 },
 ];
 
-// 主题 Provider 组件
-function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
+export default function HomePage() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme') as Theme;
-    if (saved) {
-      setTheme(saved);
-    } else {
-      setTheme('light');
-    }
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    setTheme(savedTheme || 'light');
+    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (mounted) {
+    if (isLoaded) {
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
-      localStorage.setItem('theme', theme);
     }
-  }, [theme, mounted]);
+  }, [theme, isLoaded]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-// 主题切换按钮
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={toggleTheme}
-      className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
-    >
-      {theme === 'light' ? (
-        <Moon className="h-5 w-5 text-slate-600" />
-      ) : (
-        <Sun className="h-5 w-5 text-yellow-400" />
-      )}
-    </Button>
-  );
-}
-
-export default function HomePage() {
-  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <div className={cn(
-      "min-h-screen relative",
-      theme === 'light' 
-        ? "bg-gradient-to-br from-slate-50 via-white to-indigo-50" 
-        : "gradient-bg tech-grid"
+      "min-h-screen transition-colors duration-500",
+      isDark 
+        ? "bg-[#0a0a0f] text-white" 
+        : "bg-[#fafbfc] text-slate-900"
     )}>
-      {/* 动态光效背景 - 仅深色模式 */}
-      {theme === 'dark' && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+      {/* 背景装饰 - 仅深色模式 */}
+      {isDark && (
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-transparent rounded-full blur-[120px]" />
+          <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-cyan-500/15 via-blue-500/10 to-transparent rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/4 left-1/3 w-[350px] h-[350px] bg-gradient-to-br from-purple-500/15 via-pink-500/10 to-transparent rounded-full blur-[100px]" />
+          {/* 网格背景 */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
         </div>
       )}
       
       <Navbar />
       
-      <main className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero 大Logo区域 - 更大更醒目 */}
-        <section className="mb-8">
+      <main className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+        {/* Hero 区域 */}
+        <section className="mb-12">
           <div className={cn(
-            "relative overflow-hidden rounded-2xl shadow-xl",
-            theme === 'light'
-              ? "bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700"
-              : "bg-gradient-to-br from-indigo-900/90 via-slate-900/95 to-purple-900/90 border border-indigo-500/30"
+            "relative overflow-hidden rounded-3xl",
+            isDark 
+              ? "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] border border-white/5" 
+              : "bg-gradient-to-br from-white via-indigo-50/50 to-purple-50/50 border border-slate-200/80 shadow-xl shadow-slate-200/50"
           )}>
-            {/* 背景光效 */}
-            <div className="absolute inset-0">
-              <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl" />
+            {/* 装饰元素 */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className={cn(
+                "absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl",
+                isDark ? "bg-indigo-500/10" : "bg-indigo-200/50"
+              )} />
+              <div className={cn(
+                "absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl",
+                isDark ? "bg-purple-500/10" : "bg-purple-200/50"
+              )} />
             </div>
             
-            <div className="relative px-8 py-16 flex flex-col items-center text-center">
+            <div className="relative px-10 py-16 flex flex-col items-center text-center">
               {/* Logo */}
-              <div className="flex items-center gap-5 mb-6">
-                <div className="flex items-center justify-center h-24 w-24 rounded-3xl bg-white/20 backdrop-blur shadow-lg">
-                  <Sparkles className="h-14 w-14 text-white" />
+              <div className="flex items-center gap-5 mb-8">
+                <div className={cn(
+                  "relative flex items-center justify-center h-20 w-20 rounded-2xl",
+                  isDark 
+                    ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-500/30" 
+                    : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl shadow-indigo-500/20"
+                )}>
+                  <Sparkles className="h-10 w-10 text-white" />
+                  <div className={cn(
+                    "absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent",
+                    isDark ? "" : ""
+                  )} />
                 </div>
-                <h1 className="font-heading text-6xl font-black text-white tracking-tight">
-                  NexusAI
-                </h1>
+                <div>
+                  <h1 className={cn(
+                    "font-heading text-5xl font-black tracking-tight",
+                    isDark 
+                      ? "bg-gradient-to-r from-white via-white to-slate-400 bg-clip-text text-transparent"
+                      : "bg-gradient-to-r from-slate-900 via-indigo-600 to-purple-600 bg-clip-text text-transparent"
+                  )}>
+                    NexusAI
+                  </h1>
+                  <p className={cn(
+                    "text-sm font-medium tracking-wider uppercase",
+                    isDark ? "text-slate-500" : "text-slate-400"
+                  )}>
+                    AI Learning Community
+                  </p>
+                </div>
               </div>
               
               {/* 标语 */}
-              <h2 className="text-3xl font-bold text-white/90 mb-4">
-                探索AI · 分享知识 · 连接未来
+              <h2 className={cn(
+                "text-2xl font-semibold mb-4 tracking-wide",
+                isDark ? "text-white/90" : "text-slate-700"
+              )}>
+                探索 AI · 分享知识 · 连接未来
               </h2>
-              <p className="text-lg text-white/70 mb-10 max-w-2xl">
+              <p className={cn(
+                "text-base mb-10 max-w-xl leading-relaxed",
+                isDark ? "text-slate-400" : "text-slate-500"
+              )}>
                 加入最大的AI学习社区，与千万学习者一起掌握最前沿的人工智能技术
               </p>
               
-              {/* 数据指标 - 更大 */}
-              <div className="flex items-center gap-14 mb-12">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white">10,000+</div>
-                  <div className="text-sm text-white/60 mt-1">精品资源</div>
-                </div>
-                <div className="w-px h-14 bg-white/20" />
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white">500+</div>
-                  <div className="text-sm text-white/60 mt-1">AI工具</div>
-                </div>
-                <div className="w-px h-14 bg-white/20" />
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white">1,000,000+</div>
-                  <div className="text-sm text-white/60 mt-1">学习者</div>
-                </div>
+              {/* 数据指标 */}
+              <div className={cn(
+                "flex items-center gap-10 mb-12 p-6 rounded-2xl",
+                isDark 
+                  ? "bg-white/5 backdrop-blur-sm border border-white/10" 
+                  : "bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-lg"
+              )}>
+                {[
+                  { value: '10,000+', label: '精品资源', border: isDark ? 'border-white/10' : 'border-slate-200' },
+                  { value: '500+', label: 'AI工具', border: isDark ? 'border-white/10' : 'border-slate-200' },
+                  { value: '1M+', label: '学习者', border: '' },
+                ].map((stat, i) => (
+                  <div key={i} className={cn(
+                    "text-center px-8",
+                    i < 2 ? (isDark ? "border-r border-white/10" : "border-r border-slate-200") : ""
+                  )}>
+                    <div className={cn(
+                      "font-heading text-3xl font-bold tracking-tight",
+                      isDark ? "text-white" : "text-slate-900"
+                    )}>
+                      {stat.value}
+                    </div>
+                    <div className={cn(
+                      "text-sm mt-1 font-medium",
+                      isDark ? "text-slate-400" : "text-slate-500"
+                    )}>
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
               
-              {/* 分类导航 - 更大更醒目 */}
+              {/* 分类导航 */}
               <div className="w-full grid grid-cols-4 gap-4">
                 {categories.map((cat, index) => (
-                  <Link key={index} href={cat.href}>
+                  <Link 
+                    key={index} 
+                    href={cat.href}
+                    className="group"
+                  >
                     <div className={cn(
-                      'group flex flex-col items-center p-5 rounded-2xl backdrop-blur transition-all duration-300 cursor-pointer',
-                      theme === 'light'
-                        ? 'bg-white/15 hover:bg-white/25 text-white'
-                        : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
+                      "relative p-5 rounded-2xl transition-all duration-300 h-full",
+                      isDark
+                        ? "bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 backdrop-blur-sm"
+                        : "bg-white hover:bg-white border border-slate-200/50 hover:border-indigo-200/50 shadow-sm hover:shadow-md"
                     )}>
                       <div className={cn(
-                        'flex items-center justify-center h-14 w-14 rounded-2xl mb-3 bg-white/20 group-hover:bg-white/30 transition-colors',
-                        cat.color
+                        "flex items-center justify-center h-12 w-12 rounded-xl mb-4 transition-transform duration-300 group-hover:scale-110",
+                        `bg-gradient-to-br ${cat.gradient}`
                       )}>
-                        <cat.icon className="h-7 w-7 text-white" />
+                        <cat.icon className="h-6 w-6 text-white" />
                       </div>
-                      <span className="text-base font-bold text-white mb-1">{cat.label}</span>
-                      <span className="text-xs text-white/60">{cat.desc}</span>
+                      <h3 className={cn(
+                        "text-sm font-semibold mb-1 transition-colors",
+                        isDark ? "text-white group-hover:text-white" : "text-slate-800 group-hover:text-indigo-600"
+                      )}>
+                        {cat.label}
+                      </h3>
+                      <p className={cn(
+                        "text-xs line-clamp-1",
+                        isDark ? "text-slate-500" : "text-slate-400"
+                      )}>
+                        {cat.desc}
+                      </p>
+                      <div className={cn(
+                        "absolute top-3 right-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                        isDark ? "text-white/50" : "text-indigo-400"
+                      )}>
+                        <ChevronRight className="h-4 w-4" />
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -234,68 +240,88 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 第二行：AI 热榜 + 最新动态（左右并排） */}
-        <section className="grid grid-cols-2 gap-6 mb-6">
+        {/* 第二行：AI 热榜 + 最新动态 */}
+        <section className="grid grid-cols-2 gap-6 mb-8">
           {/* AI 热榜 */}
           <Card className={cn(
-            "overflow-hidden relative shadow-sm",
-            theme === 'light' ? "bg-white border-slate-200" : "border-gradient bg-slate-900/80"
+            "overflow-hidden h-full",
+            isDark 
+              ? "bg-[#12121a] border-white/5" 
+              : "bg-white border-slate-200/80 shadow-sm"
           )}>
-            {theme === 'dark' && (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-900/30 via-slate-900/90 to-orange-900/30" />
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
-              </>
-            )}
-            <CardHeader className="relative pb-3">
+            <div className={cn(
+              "h-1",
+              isDark 
+                ? "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" 
+                : "bg-gradient-to-r from-amber-400 via-orange-400 to-red-400"
+            )} />
+            <CardHeader className={cn(
+              "pb-3",
+              isDark ? "bg-gradient-to-r from-amber-900/20 to-transparent" : "bg-gradient-to-r from-amber-50/50 to-transparent"
+            )}>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-amber-500" />
+                  <div className={cn(
+                    "p-2 rounded-xl",
+                    isDark ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20" : "bg-gradient-to-br from-amber-100 to-orange-100"
+                  )}>
+                    <TrendingUp className={cn(
+                      "h-4 w-4",
+                      isDark ? "text-amber-400" : "text-amber-600"
+                    )} />
+                  </div>
                   <span className={cn(
                     "font-heading text-base font-bold",
-                    theme === 'light' ? "text-slate-800" : "text-white"
-                  )}>🏆 AI 热榜</span>
+                    isDark ? "text-white" : "text-slate-800"
+                  )}>AI 热榜</span>
                 </div>
                 <Badge className={cn(
-                  "text-xs",
-                  theme === 'light' 
-                    ? "bg-amber-100 text-amber-700 border-0" 
-                    : "bg-amber-500/20 text-amber-400 border-0"
+                  "text-xs font-medium",
+                  isDark 
+                    ? "bg-amber-500/20 text-amber-400 border-0" 
+                    : "bg-amber-100 text-amber-600 border-0"
                 )}>
-                  <Flame className="h-3 w-3 mr-1" /> 实时
+                  <Flame className="h-3 w-3 mr-1" /> 实时更新
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="relative pt-0">
-              <div className="space-y-0">
+            <CardContent className="pt-0">
+              <div className="space-y-1">
                 {hotListItems.map((item) => (
                   <Link key={item.rank} href="/resources">
-                    <div className="group flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                    <div className={cn(
+                      "group flex items-center gap-4 py-3 px-3 -mx-3 rounded-xl transition-all cursor-pointer",
+                      isDark
+                        ? "hover:bg-white/5"
+                        : "hover:bg-slate-50"
+                    )}>
                       <span className={cn(
-                        'flex items-center justify-center h-6 w-6 rounded-lg text-xs font-bold shrink-0',
-                        theme === 'light'
-                          ? item.rank === 1 ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
-                          : item.rank === 1 ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
-                          : item.rank === 2 ? 'bg-slate-300 text-slate-700'
-                          : item.rank === 3 ? 'bg-orange-600 text-white'
-                          : 'bg-slate-200 text-slate-600'
-                          : item.rank === 2 && 'bg-gradient-to-br from-slate-400 to-slate-500 text-white',
-                          item.rank === 3 && 'bg-gradient-to-br from-orange-600 to-orange-700 text-white',
-                          item.rank > 3 && 'bg-slate-800 text-slate-400'
+                        'flex items-center justify-center h-7 w-7 rounded-lg text-sm font-bold shrink-0',
+                        item.rank === 1 
+                          ? isDark 
+                            ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/20'
+                            : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-200'
+                          : item.rank === 2 
+                            ? isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
+                            : item.rank === 3 
+                              ? isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
+                              : isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-100 text-slate-400'
                       )}>
                         {item.rank}
                       </span>
                       <div className="flex-1 min-w-0">
                         <h4 className={cn(
-                          "text-sm font-medium truncate",
-                          theme === 'light' ? "text-slate-700 group-hover:text-indigo-600" : "text-slate-200 group-hover:text-white"
+                          "text-sm font-medium truncate transition-colors",
+                          isDark 
+                            ? "text-slate-200 group-hover:text-white" 
+                            : "text-slate-700 group-hover:text-slate-900"
                         )}>
                           {item.title}
                         </h4>
                       </div>
                       <div className={cn(
-                        "flex items-center gap-0.5 text-xs shrink-0",
-                        theme === 'light' ? "text-orange-500" : "text-orange-400"
+                        "flex items-center gap-1 text-xs shrink-0 px-2 py-1 rounded-full",
+                        isDark ? "bg-red-500/10 text-red-400" : "bg-red-50 text-red-500"
                       )}>
                         <Flame className="h-3 w-3" />
                         {(item.heat / 1000).toFixed(0)}k
@@ -309,39 +335,76 @@ export default function HomePage() {
 
           {/* 最新动态 */}
           <Card className={cn(
-            "shadow-sm",
-            theme === 'light' ? "bg-white border-slate-200" : "glass border-indigo-500/20"
+            "h-full",
+            isDark 
+              ? "bg-[#12121a] border-white/5" 
+              : "bg-white border-slate-200/80 shadow-sm"
           )}>
-            <CardHeader className="pb-3">
+            <div className={cn(
+              "h-1",
+              isDark 
+                ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" 
+                : "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400"
+            )} />
+            <CardHeader className={cn(
+              "pb-3",
+              isDark ? "bg-gradient-to-r from-indigo-900/20 to-transparent" : "bg-gradient-to-r from-indigo-50/50 to-transparent"
+            )}>
               <CardTitle className="flex items-center gap-2">
-                <Hash className={cn("h-5 w-5", theme === 'light' ? "text-indigo-500" : "text-indigo-400")} />
+                <div className={cn(
+                  "p-2 rounded-xl",
+                  isDark ? "bg-gradient-to-br from-indigo-500/20 to-purple-500/20" : "bg-gradient-to-br from-indigo-100 to-purple-100"
+                )}>
+                  <Hash className={cn(
+                    "h-4 w-4",
+                    isDark ? "text-indigo-400" : "text-indigo-600"
+                  )} />
+                </div>
                 <span className={cn(
                   "font-heading text-base font-bold",
-                  theme === 'light' ? "text-slate-800" : "text-white"
-                )}>📢 最新动态</span>
+                  isDark ? "text-white" : "text-slate-800"
+                )}>最新动态</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 space-y-2">
+            <CardContent className="pt-0 space-y-1">
               {latestPosts.map((post, index) => (
-                <div key={index} className="flex items-start gap-3 py-2 px-2 -mx-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-sm font-semibold shrink-0">
+                <div 
+                  key={index} 
+                  className={cn(
+                    "flex items-start gap-3 py-3 px-3 -mx-3 rounded-xl transition-all",
+                    isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                  )}
+                >
+                  <div className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-xl text-sm font-semibold shrink-0 shadow-md",
+                    isDark 
+                      ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
+                      : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
+                  )}>
                     {post.name[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-0.5">
                       <span className={cn(
                         "text-sm font-medium",
-                        theme === 'light' ? "text-slate-800" : "text-white"
+                        isDark ? "text-white" : "text-slate-800"
                       )}>{post.name}</span>
                       <span className={cn(
                         "text-xs",
-                        theme === 'light' ? "text-slate-400" : "text-slate-500"
+                        isDark ? "text-slate-500" : "text-slate-400"
                       )}>{post.time}</span>
                     </div>
                     <p className={cn(
-                      "text-xs line-clamp-1 leading-tight",
-                      theme === 'light' ? "text-slate-500" : "text-slate-400"
+                      "text-xs line-clamp-1 leading-relaxed",
+                      isDark ? "text-slate-400" : "text-slate-500"
                     )}>{post.content}</p>
+                  </div>
+                  <div className={cn(
+                    "flex items-center gap-1 text-xs shrink-0",
+                    isDark ? "text-pink-400" : "text-pink-500"
+                  )}>
+                    <Flame className="h-3 w-3" />
+                    {post.likes}
                   </div>
                 </div>
               ))}
@@ -352,34 +415,78 @@ export default function HomePage() {
         {/* 第三行：社区动态 */}
         <section>
           <Card className={cn(
-            "shadow-sm",
-            theme === 'light' ? "bg-white border-slate-200" : "glass border-indigo-500/20"
+            "",
+            isDark 
+              ? "bg-[#12121a] border-white/5" 
+              : "bg-white border-slate-200/80 shadow-sm"
           )}>
-            <CardHeader className="pb-3">
+            <div className={cn(
+              "h-1",
+              isDark 
+                ? "bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" 
+                : "bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400"
+            )} />
+            <CardHeader className={cn(
+              "pb-3",
+              isDark ? "bg-gradient-to-r from-cyan-900/20 to-transparent" : "bg-gradient-to-r from-cyan-50/50 to-transparent"
+            )}>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className={cn("h-5 w-5", theme === 'light' ? "text-indigo-500" : "text-indigo-400")} />
+                  <div className={cn(
+                    "p-2 rounded-xl",
+                    isDark ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20" : "bg-gradient-to-br from-cyan-100 to-blue-100"
+                  )}>
+                    <Users className={cn(
+                      "h-4 w-4",
+                      isDark ? "text-cyan-400" : "text-cyan-600"
+                    )} />
+                  </div>
                   <span className={cn(
                     "font-heading text-base font-bold",
-                    theme === 'light' ? "text-slate-800" : "text-white"
-                  )}>💬 社区动态</span>
+                    isDark ? "text-white" : "text-slate-800"
+                  )}>社区动态</span>
                 </div>
-                <Link href="/" className={cn(
-                  "text-sm transition-colors",
-                  theme === 'light' ? "text-slate-400 hover:text-indigo-600" : "text-slate-400 hover:text-white"
-                )}>
-                  查看全部 →
+                <Link 
+                  href="/" 
+                  className={cn(
+                    "flex items-center gap-1 text-sm font-medium transition-colors group",
+                    isDark 
+                      ? "text-slate-400 hover:text-white" 
+                      : "text-slate-500 hover:text-indigo-600"
+                  )}
+                >
+                  查看全部
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <CreatePost />
-              {mockPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
+              <PostCard 
+                post={{
+                  id: '1',
+                  user_id: '1',
+                  content: '完成了今天的 AI 学习任务，感觉收获满满！',
+                  images: [],
+                  likes_count: 42,
+                  comments_count: 8,
+                  created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                  user: { id: '1', email: 'a@test.com', nickname: '设计小能手', points: 150, created_at: '' },
+                }} 
+              />
             </CardContent>
           </Card>
         </section>
+
+        {/* Footer */}
+        <footer className={cn(
+          "mt-16 pt-8 border-t text-center",
+          isDark ? "border-white/5 text-slate-500" : "border-slate-200 text-slate-400"
+        )}>
+          <p className="text-sm">
+            © 2024 NexusAI. Built with passion for AI learning.
+          </p>
+        </footer>
       </main>
     </div>
   );

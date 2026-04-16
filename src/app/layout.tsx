@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inspector } from 'react-dev-inspector';
 import { Toaster } from 'sonner';
+import { ThemeInitializer } from '@/components/layout/theme-initializer';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,14 +17,6 @@ export const metadata: Metadata = {
   },
 };
 
-// 主题脚本 - 防止闪烁
-const themeScript = `
-  (function() {
-    const theme = localStorage.getItem('theme') || 'light';
-    document.documentElement.classList.add(theme);
-  })();
-`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,10 +26,8 @@ export default function RootLayout({
 
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body className="antialiased">
+        <ThemeInitializer />
         {isDev && <Inspector />}
         {children}
         <Toaster 

@@ -5,8 +5,10 @@ export interface User {
   email: string;
   nickname: string;
   avatar_url?: string;
+  avatar?: string | null;
   bio?: string;
   points: number;
+  is_vip?: boolean;
   created_at: string;
 }
 

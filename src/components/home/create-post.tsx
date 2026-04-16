@@ -1,86 +1,128 @@
 'use client';
 
-import { useState } from 'react';
-import { Image, Smile, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Image, Send, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { UserAvatar } from '@/components/common/user-avatar';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
-interface CreatePostProps {
-  onPost?: (content: string, images: string[]) => void;
-}
-
-export function CreatePost({ onPost }: CreatePostProps) {
+export function CreatePost() {
   const [content, setContent] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+    
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    
+    observer.observe(document.documentElement, { 
+      attributes: true, 
+      attributeFilter: ['class'] 
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
-    onPost?.(content, []);
+    console.log('发布动态:', content);
     setContent('');
-    setIsOpen(false);
+    setIsFocused(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <div className="glass border-indigo-500/20 rounded-2xl p-5 hover-lift cursor-pointer group">
-          <div className="flex items-center gap-4">
-            <UserAvatar name="我" size="md" />
-            <div className="flex-1 px-5 py-3 bg-slate-900/50 rounded-full text-slate-500 text-sm group-hover:bg-slate-800/50 transition-colors">
-              分享你的 AI 学习心得...
-            </div>
-          </div>
-        </div>
-      </DialogTrigger>
-      <DialogContent className="glass border-indigo-500/20 bg-slate-950/95 sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="font-heading text-lg text-white">发布动态</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 pt-4">
+    <div className={cn(
+      "relative rounded-2xl p-4 transition-all duration-300",
+      isDark
+        ? isFocused
+          ? "bg-[#1a1a2e] border border-indigo-500/30"
+          : "bg-[#18181b] border border-white/5 hover:border-white/10"
+        : isFocused
+          ? "bg-white border border-indigo-200 shadow-lg shadow-indigo-100"
+          : "bg-white border border-slate-200/50 hover:border-slate-200"
+    )}>
+      <div className="flex items-start gap-3">
+        <Avatar className="h-11 w-11 rounded-xl">
+          <AvatarFallback className={cn(
+            "rounded-xl text-sm font-semibold",
+            isDark 
+              ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
+              : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
+          )}>
+            你
+          </AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1">
           <Textarea
-            placeholder="分享你的 AI 学习心得、工具使用体验、或者任何有趣的发现..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="min-h-[150px] resize-none glass border-indigo-500/20 bg-slate-900/50 focus:border-indigo-500/50"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => !content && setIsFocused(false)}
+            placeholder="分享你的 AI 学习心得..."
+            className={cn(
+              "min-h-[44px] resize-none rounded-xl border-0 p-3 text-sm transition-all duration-200 focus-visible:ring-0 focus-visible:ring-offset-0",
+              isDark
+                ? "bg-transparent text-white placeholder:text-slate-500 focus:bg-transparent"
+                : "bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:bg-slate-50"
+            )}
           />
           
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10">
+          <div className={cn(
+            "flex items-center justify-between pt-3 transition-all duration-300",
+            isFocused ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+          )}>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  isDark 
+                    ? "hover:bg-white/10 text-slate-400 hover:text-indigo-400" 
+                    : "hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
+                )}
+              >
                 <Image className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-amber-400 hover:bg-amber-500/10">
-                <Smile className="h-5 w-5" />
-              </Button>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className={cn(
-                'text-sm font-mono',
-                content.length > 500 ? 'text-red-400' : 'text-slate-500'
-              )}>
-                {content.length}/500
-              </span>
               <Button
-                onClick={handleSubmit}
-                disabled={!content.trim() || content.length > 500}
-                className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25"
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-9 w-9 rounded-lg transition-all duration-200",
+                  isDark 
+                    ? "hover:bg-white/10 text-slate-400 hover:text-indigo-400" 
+                    : "hover:bg-slate-100 text-slate-400 hover:text-indigo-600"
+                )}
               >
-                <Send className="h-4 w-4" />
-                发布
+                <Sparkles className="h-5 w-5" />
               </Button>
             </div>
+            
+            <Button
+              onClick={handleSubmit}
+              disabled={!content.trim()}
+              className={cn(
+                "h-9 px-5 rounded-xl font-medium transition-all duration-200",
+                content.trim()
+                  ? isDark
+                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
+                    : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/10"
+                  : isDark
+                    ? "bg-slate-700 text-slate-500"
+                    : "bg-slate-200 text-slate-400"
+              )}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              发布
+            </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
