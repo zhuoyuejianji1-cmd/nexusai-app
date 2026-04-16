@@ -1,22 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Sparkles, Code, Image, Video, FileText, BookOpen, Database, FolderGit2, ExternalLink, Lock, Star, TrendingUp, Music, MessageSquare, Tv, Clapperboard, Film, Gamepad2, Cpu, Headphones, Music2, Radio, GraduationCap, Download, Wrench, Cloud, Play, Globe } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useMemo } from 'react';
+import { Search, Sparkles, Globe } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { resourceCategories, resources, getResourcesByCategory, searchResources, type Resource } from '@/lib/resources';
+import { resourceCategories, resources, type Resource } from '@/lib/resources';
 
-// 图标映射
-const iconMap: Record<string, any> = {
-  Sparkles, Code, Image, Video, FileText, BookOpen, Database, FolderGit2,
-  ExternalLink, Lock, Star, TrendingUp, Music, MessageSquare, Tv, Clapperboard,
-  Film, Gamepad2, Cpu, Headphones, Music2, Radio, GraduationCap, Download,
-  Wrench, Cloud, Play, Globe
+// 预定义的图标组件映射（按需加载）
+const IconComponents: Record<string, any> = {
+  Sparkles, Globe
 };
 
 export default function ResourcesPage() {
@@ -24,21 +20,24 @@ export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // 过滤资源
-  const filteredResources = searchQuery 
-    ? searchResources(searchQuery)
-    : getResourcesByCategory(activeCategory);
+  // 使用 useMemo 缓存过滤结果
+  const filteredResources = useMemo(() => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return resources.filter(r => 
+        r.title.toLowerCase().includes(query) ||
+        r.description.toLowerCase().includes(query) ||
+        r.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+    if (activeCategory === 'all') return resources;
+    return resources.filter(r => r.category === activeCategory);
+  }, [activeCategory, searchQuery]);
 
-  // 获取分类名称
-  const getCategoryName = (categoryId: string) => {
-    const cat = resourceCategories.find(c => c.id === categoryId);
-    return cat?.name || categoryId;
-  };
-
-  // 获取分类颜色
-  const getCategoryColor = (categoryId: string) => {
-    const cat = resourceCategories.find(c => c.id === categoryId);
-    return cat?.color || 'from-indigo-500 to-purple-500';
+  // 获取分类信息
+  const getCategoryInfo = (categoryId: string) => {
+    return resourceCategories.find(c => c.id === categoryId) || 
+      resourceCategories.find(c => c.name === categoryId);
   };
 
   return (
@@ -53,284 +52,155 @@ export default function ResourcesPage() {
       
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* 页面标题 */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">AI 资源导航</h1>
-          <p className="text-slate-400">从 fmhy.net 精选的优质资源，包含 AI工具、视频、游戏、阅读等分类</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-white mb-1">AI 资源导航</h1>
+          <p className="text-sm text-slate-400">{resources.length} 个精选资源，{resourceCategories.length} 个分类</p>
         </div>
 
         {/* 搜索栏 */}
-        <div className="mb-6 flex gap-3">
-          <div className="relative flex-1 max-w-xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+        <div className="mb-4 flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
             <Input
               type="search"
               placeholder="搜索资源..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 rounded-xl bg-slate-900/80 border-slate-700/50 text-white placeholder-slate-500 focus:border-indigo-500"
+              className="pl-9 py-5 rounded-xl bg-slate-900/80 border-slate-700/50 text-white text-sm"
             />
           </div>
-          <div className="flex gap-1 bg-slate-800/50 rounded-xl p-1">
-            <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-indigo-500/20 text-white' : 'text-slate-400'}
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-indigo-500/20 text-white' : 'text-slate-400'}
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-            </Button>
-          </div>
         </div>
 
-        {/* 分类导航 */}
-        <div className="mb-8 overflow-x-auto pb-2">
-          <div className="flex gap-2 min-w-max">
+        {/* 分类导航 - 简化版 */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          <button
+            onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
+            className={cn(
+              'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+              activeCategory === 'all' && !searchQuery
+                ? 'bg-indigo-500 text-white'
+                : 'bg-slate-800/50 text-slate-400 hover:text-white'
+            )}
+          >
+            全部 ({resources.length})
+          </button>
+          {resourceCategories.slice(0, 10).map((cat) => (
             <button
-              onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
+              key={cat.id}
+              onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                activeCategory === 'all' && !searchQuery
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
-                  : 'bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50'
+                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                activeCategory === cat.id && !searchQuery
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
               )}
             >
-              <Globe className="h-4 w-4" />
-              全部
-              <Badge variant="secondary" className={cn(
-                'ml-1 text-[10px]',
-                activeCategory === 'all' ? 'bg-white/20 text-white' : 'bg-slate-700 text-slate-400'
-              )}>
-                {resources.length}
-              </Badge>
+              {cat.name} ({cat.count})
             </button>
-            {resourceCategories.map((cat) => {
-              const IconComponent = iconMap[cat.icon] || Sparkles;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
-                  className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-                    activeCategory === cat.id && !searchQuery
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
-                      : 'bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50'
-                  )}
-                >
-                  <IconComponent className="h-4 w-4" />
-                  {cat.name}
-                  <Badge variant="secondary" className={cn(
-                    'ml-1 text-[10px]',
-                    activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-700 text-slate-400'
-                  )}>
-                    {cat.count}
-                  </Badge>
-                </button>
-              );
-            })}
+          ))}
+          {activeCategory !== 'all' && !searchQuery && (
+            <span className="px-3 py-1.5 text-xs text-slate-500">
+              已选: {getCategoryInfo(activeCategory)?.name}
+            </span>
+          )}
+        </div>
+
+        {/* 资源统计 */}
+        <div className="mb-4 flex items-center justify-between text-xs text-slate-400">
+          <span>共 {filteredResources.length} 个资源</span>
+          <div className="flex gap-2">
+            <span className="text-emerald-400">{resources.filter(r => r.type === 'free').length} 免费</span>
+            <span className="text-amber-400">{resources.filter(r => r.type === 'premium').length} 付费</span>
+            <span className="text-red-400">{resources.filter(r => r.hot).length} 热门</span>
           </div>
         </div>
 
-        {/* 分类描述 */}
-        {!searchQuery && activeCategory !== 'all' && (
-          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                'flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br text-white',
-                getCategoryColor(activeCategory)
-              )}>
-                {(() => {
-                  const cat = resourceCategories.find(c => c.id === activeCategory);
-                  const IconComponent = iconMap[cat?.icon || 'Sparkles'];
-                  return <IconComponent className="h-5 w-5" />;
-                })()}
-              </div>
-              <div>
-                <h3 className="text-white font-medium">{getCategoryName(activeCategory)}</h3>
-                <p className="text-sm text-slate-400">
-                  {resourceCategories.find(c => c.id === activeCategory)?.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 资源列表 - 网格视图 */}
-        {viewMode === 'grid' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredResources.map((resource) => (
-              <Card 
-                key={resource.id} 
-                className="group glass border-slate-700/50 hover:border-indigo-500/50 transition-all overflow-hidden"
-              >
-                <CardHeader className="relative pb-2">
-                  <div className="flex items-start justify-between">
-                    <div className={cn(
-                      'flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br text-white',
-                      getCategoryColor(resource.category)
-                    )}>
-                      {resource.type === 'premium' ? (
-                        <Lock className="h-5 w-5" />
-                      ) : (
-                        <Sparkles className="h-5 w-5" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {resource.hot && (
-                        <Badge className="bg-red-500/20 text-red-400 border-0 text-[10px]">
-                          🔥 热门
-                        </Badge>
-                      )}
-                      <Badge className={cn(
-                        'text-[10px]',
-                        resource.type === 'premium' 
-                          ? 'bg-amber-500/20 text-amber-400 border-0' 
-                          : 'bg-emerald-500/20 text-emerald-400 border-0'
-                      )}>
-                        {resource.type === 'premium' ? '付费' : '免费'}
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardTitle className="text-base font-semibold text-white mt-3 line-clamp-1">
-                    {resource.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-slate-400 line-clamp-2 mb-4">
-                    {resource.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {resource.tags.slice(0, 3).map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-[10px] border-indigo-500/30 text-indigo-400">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-amber-400" />
-                        {resource.rating}
-                      </span>
-                      <Badge variant="secondary" className="text-[10px] bg-slate-800 text-slate-400">
-                        {getCategoryName(resource.category)}
-                      </Badge>
-                    </div>
-                    <a
-                      href={resource.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-                    >
-                      访问
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* 资源列表 - 列表视图 */}
-        {viewMode === 'list' && (
-          <div className="space-y-2">
-            {filteredResources.map((resource) => (
+        {/* 资源列表 - 初始只显示热门资源 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {(searchQuery ? filteredResources : filteredResources.filter(r => r.hot).slice(0, 16)).map((resource) => {
+            const catInfo = getCategoryInfo(resource.category);
+            return (
               <a
                 key={resource.id}
                 href={resource.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-indigo-500/50 transition-all group"
+                className="group block p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-indigo-500/30 transition-all"
               >
-                <div className={cn(
-                  'flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br text-white shrink-0',
-                  getCategoryColor(resource.category)
-                )}>
-                  {resource.type === 'premium' ? (
-                    <Lock className="h-5 w-5" />
-                  ) : (
-                    <Sparkles className="h-5 w-5" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-white font-medium truncate">{resource.title}</h3>
-                    {resource.hot && (
-                      <Badge className="bg-red-500/20 text-red-400 border-0 text-[10px] shrink-0">
-                        🔥
-                      </Badge>
-                    )}
-                    <Badge className={cn(
-                      'text-[10px] shrink-0',
-                      resource.type === 'premium' 
-                        ? 'bg-amber-500/20 text-amber-400 border-0' 
-                        : 'bg-emerald-500/20 text-emerald-400 border-0'
-                    )}>
-                      {resource.type === 'premium' ? '付费' : '免费'}
-                    </Badge>
+                <div className="flex items-start justify-between mb-2">
+                  <div className={cn(
+                    'flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br text-white text-xs',
+                    catInfo?.color || 'from-indigo-500 to-purple-500'
+                  )}>
+                    <Sparkles className="h-4 w-4" />
                   </div>
-                  <p className="text-sm text-slate-400 truncate">{resource.description}</p>
+                  <div className="flex gap-1">
+                    {resource.hot && (
+                      <span className="text-red-400 text-[10px]">🔥</span>
+                    )}
+                    <span className={cn(
+                      'text-[10px] px-1 rounded',
+                      resource.type === 'premium' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'
+                    )}>
+                      {resource.type === 'free' ? '免费' : '付费'}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="flex items-center gap-1 text-sm text-slate-400">
-                    <Star className="h-4 w-4 text-amber-400" />
-                    {resource.rating}
-                  </span>
-                  <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
-                </div>
+                <h3 className="text-sm font-medium text-white mb-1 truncate group-hover:text-indigo-400 transition-colors">
+                  {resource.title}
+                </h3>
+                <p className="text-[11px] text-slate-500 line-clamp-2">
+                  {resource.description}
+                </p>
               </a>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* 加载更多提示 */}
+        {filteredResources.length > 24 && (
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-500">
+              显示前 24 个资源，共 {filteredResources.length} 个
+            </p>
+            <p className="text-xs text-slate-600 mt-1">
+              点击资源卡片可直接访问原网站
+            </p>
           </div>
         )}
 
         {/* 空状态 */}
         {filteredResources.length === 0 && (
-          <div className="text-center py-16">
-            <Globe className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+          <div className="text-center py-12">
+            <Globe className="h-10 w-10 text-slate-600 mx-auto mb-3" />
             <p className="text-slate-400">未找到相关资源</p>
             <Button 
               variant="link" 
               onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
-              className="text-indigo-400"
+              className="text-indigo-400 text-sm"
             >
               清除筛选
             </Button>
           </div>
         )}
 
-        {/* 统计信息 */}
-        <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
-          <div className="flex flex-wrap justify-around gap-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">{resources.length}+</div>
-              <div className="text-sm text-slate-400">精选资源</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">{resourceCategories.length}</div>
-              <div className="text-sm text-slate-400">资源分类</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">{resources.filter(r => r.type === 'free').length}</div>
-              <div className="text-sm text-slate-400">免费资源</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">{resources.filter(r => r.hot).length}</div>
-              <div className="text-sm text-slate-400">热门推荐</div>
+        {/* 更多分类 */}
+        {activeCategory === 'all' && !searchQuery && (
+          <div className="mt-8">
+            <h3 className="text-sm font-medium text-white mb-3">更多分类</h3>
+            <div className="flex flex-wrap gap-2">
+              {resourceCategories.slice(10).map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
+                >
+                  {cat.name} ({cat.count})
+                </button>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

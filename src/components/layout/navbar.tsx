@@ -106,7 +106,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              prefetch
+              
               className={cn(
                 'relative px-4 py-2 text-sm font-medium transition-all rounded-lg',
                 pathname === link.href
@@ -184,7 +184,7 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator className="bg-indigo-500/20" />
                 <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-indigo-500/10 cursor-pointer">
-                  <Link href="/profile" prefetch>
+                  <Link href="/profile" >
                     <User className="h-4 w-4 mr-2" />
                     个人中心
                   </Link>
@@ -221,7 +221,7 @@ export function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    prefetch
+                    
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
                       'px-4 py-3 text-lg font-medium rounded-xl transition-all',
