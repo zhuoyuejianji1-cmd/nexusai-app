@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Eye } from 'lucide-react';
+import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { NewsCarousel } from '@/components/home/news-carousel';
@@ -66,7 +66,71 @@ export default function HomePage() {
       <Navbar />
       
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
-        {/* 第一行：Hero + 今日任务（紧凑并排） */}
+        {/* Hero 大Logo区域 */}
+        <section className="mb-3">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900/80 via-slate-900/90 to-purple-900/80 border border-indigo-500/30">
+            {/* 背景光效 */}
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-3xl" />
+            </div>
+            
+            <div className="relative px-8 py-12 flex flex-col items-center text-center">
+              {/* Logo */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-lg shadow-indigo-500/50">
+                  <Sparkles className="h-9 w-9 text-white" />
+                </div>
+                <div>
+                  <h1 className="font-heading text-4xl font-black bg-gradient-to-r from-white via-indigo-200 to-cyan-200 bg-clip-text text-transparent">
+                    NexusAI
+                  </h1>
+                </div>
+              </div>
+              
+              {/* 标语 */}
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                探索AI · 分享知识 · 连接未来
+              </h2>
+              <p className="text-base md:text-lg text-indigo-200/80 mb-6 max-w-2xl">
+                加入最大的AI学习社区，与千万学习者一起掌握最前沿的人工智能技术
+              </p>
+              
+              {/* 数据指标 */}
+              <div className="flex items-center gap-8 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">1,000,000+</div>
+                  <div className="text-xs text-indigo-300/60">学习者</div>
+                </div>
+                <div className="w-px h-10 bg-indigo-500/30" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">10,000+</div>
+                  <div className="text-xs text-indigo-300/60">精选资源</div>
+                </div>
+                <div className="w-px h-10 bg-indigo-500/30" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">500+</div>
+                  <div className="text-xs text-indigo-300/60">AI工具</div>
+                </div>
+              </div>
+              
+              {/* CTA按钮 */}
+              <div className="flex items-center gap-3">
+                <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50">
+                  <Zap className="h-5 w-5" />
+                  开始学习
+                </button>
+                <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all border border-white/20">
+                  <Sparkles className="h-5 w-5" />
+                  了解更多
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 第二行：Hero 轮播 + 今日任务 */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
           {/* Hero 轮播 - 2/3 宽度 */}
           <div className="lg:col-span-2">
