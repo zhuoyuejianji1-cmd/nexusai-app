@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Star, Eye, Play } from 'lucide-react';
+import { TrendingUp, Users, Zap, ChevronRight, MessageSquare, Code, Image, Video, FileText, Hash, Flame, Target, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { NewsCarousel } from '@/components/home/news-carousel';
@@ -35,38 +35,22 @@ const toolCategories = [
   { icon: FileText, label: '文档处理', count: '756', color: 'from-cyan-500 to-blue-500' },
 ];
 
-// AI 热榜 - 紧凑卡片
+// AI 热榜 - 竖排排名列表
 const hotListItems = [
-  { rank: 1, title: 'GPT-5 正式发布', heat: 98600, category: '大模型', isHot: true },
-  { rank: 2, title: 'Claude 3.5 超越 GPT-4', heat: 87500, category: '大模型', isHot: true },
-  { rank: 3, title: '开源 Llama 4 发布', heat: 76200, category: '开源' },
-  { rank: 4, title: 'AI Agent 落地应用', heat: 65400, category: 'Agent', isNew: true },
-  { rank: 5, title: 'Midjourney V7 发布', heat: 54300, category: '图像' },
-  { rank: 6, title: 'GitHub Copilot X', heat: 43200, category: '编程' },
-  { rank: 7, title: '国产大模型新进展', heat: 32100, category: '大模型' },
+  { rank: 1, title: 'GPT-5 正式发布：OpenAI 开启新一代多模态时代', heat: 98600, category: '大模型', isHot: true },
+  { rank: 2, title: 'Claude 3.5 超越 GPT-4 成为编程最强助手', heat: 87500, category: '大模型', isHot: true },
+  { rank: 3, title: '开源模型 Llama 4 发布：性能直逼闭源', heat: 76200, category: '开源' },
+  { rank: 4, title: 'AI Agent 落地应用：AutoGPT 成为焦点', heat: 65400, category: 'Agent', isNew: true },
+  { rank: 5, title: 'Midjourney V7 发布：细节控制更精准', heat: 54300, category: '图像' },
+  { rank: 6, title: 'GitHub Copilot X 新功能解析', heat: 43200, category: '编程' },
 ];
 
-// 热门话题
-const hotTopics = [
-  { tag: 'ChatGPT-5', posts: 2340 },
-  { tag: 'Claude3.5', posts: 1890 },
-  { tag: 'AI编程', posts: 1560 },
-  { tag: 'AI绘图', posts: 1230 },
-  { tag: 'Prompt工程', posts: 980 },
-];
-
-// 活跃用户
-const activeUsers = [
-  { name: 'AI探险家', tasks: 45, avatar: 'A', streak: 12 },
-  { name: '技术小能手', tasks: 38, avatar: 'T', streak: 8 },
-  { name: '学习达人', tasks: 32, avatar: 'L', streak: 6 },
-];
-
-// 精选文章
-const featuredArticles = [
-  { title: '从零开始学习 ChatGPT：新手入门完全指南', reads: '12.5k' },
-  { title: '掌握 Midjourney 提示词的10个技巧', reads: '8.3k' },
-  { title: '用 AI 提升10倍编程效率的实战经验', reads: '6.8k' },
+// 最新动态
+const latestPosts = [
+  { name: '设计小能手', content: '刚刚完成了 Midjourney 的进阶课程学习，终于掌握了如何生成高质量的产品图片！', time: '15分钟前', likes: 42 },
+  { name: '效率达人', content: '分享一个超好用的 AI 工具：Notion AI 真的太香了！用它来整理笔记效率翻倍。', time: '45分钟前', likes: 128 },
+  { name: 'AI学习者', content: 'Day 3/30：今天开始学习 Prompt Engineering，Chain of Thought 技巧真的很实用！', time: '2小时前', likes: 35 },
+  { name: '技术大牛', content: '用 Claude 3.5 写代码一周了，总结了10个提升效率的技巧分享给大家。', time: '3小时前', likes: 89 },
 ];
 
 export default function HomePage() {
@@ -121,7 +105,7 @@ export default function HomePage() {
           </Card>
         </section>
 
-        {/* 第二行：工具分类 + 热门话题 */}
+        {/* 第二行：工具分类 */}
         <section className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-3">
           {/* 工具分类 - 9/12 宽度 */}
           <div className="xl:col-span-9">
@@ -156,37 +140,12 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-          
-          {/* 热门话题 - 3/12 宽度 */}
-          <Card className="xl:col-span-3 glass border-pink-500/20">
-            <CardContent className="p-3">
-              <h3 className="text-xs font-medium text-white mb-2 flex items-center gap-1">
-                <Hash className="h-3 w-3 text-pink-400" />
-                热门话题
-              </h3>
-              <div className="flex flex-wrap gap-1">
-                {hotTopics.map((topic, index) => (
-                  <Link key={index} href="/resources">
-                    <Badge 
-                      variant="outline" 
-                      className={cn(
-                        'cursor-pointer text-[10px] px-1.5 py-0.5 border-pink-500/30',
-                        index < 2 && 'bg-pink-500/20 text-pink-400 border-pink-400'
-                      )}
-                    >
-                      #{topic.tag}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </section>
 
-        {/* 第三行：AI 热榜 + 精选文章 + 活跃学习者 */}
+        {/* 第三行：AI 热榜（竖排排名）+ 最新动态 */}
         <section className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-3">
-          {/* AI 热榜 - 横向滚动 - 5/12 */}
-          <Card className="xl:col-span-5 border-gradient overflow-hidden relative">
+          {/* AI 热榜 - 竖排排名列表 - 7/12 */}
+          <Card className="xl:col-span-7 border-gradient overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-900/30 via-slate-900/90 to-orange-900/30" />
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500 via-orange-500 to-red-500" />
             <CardHeader className="relative pb-2">
@@ -201,34 +160,45 @@ export default function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="relative">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="space-y-0">
                 {hotListItems.map((item) => (
-                  <Link key={item.rank} href="/resources" className="shrink-0">
-                    <div className="w-36 p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 transition-all cursor-pointer group">
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <span className={cn(
-                          'flex items-center justify-center h-5 w-5 rounded text-[10px] font-bold',
-                          item.rank === 1 && 'bg-gradient-to-br from-amber-500 to-orange-500 text-white',
-                          item.rank === 2 && 'bg-gradient-to-br from-slate-400 to-slate-500 text-white',
-                          item.rank === 3 && 'bg-gradient-to-br from-orange-600 to-orange-700 text-white',
-                          item.rank > 3 && 'bg-slate-800 text-slate-400'
-                        )}>
-                          {item.rank <= 3 ? ['🥇', '🥈', '🥉'][item.rank - 1] : item.rank}
-                        </span>
-                        <Badge className={cn(
-                          'text-[8px] px-1 py-0 border-0',
-                          item.isHot ? 'bg-red-500/20 text-red-400' : 'bg-indigo-500/20 text-indigo-400'
-                        )}>
-                          {item.isHot ? '🔥' : item.category}
-                        </Badge>
+                  <Link key={item.rank} href="/resources">
+                    <div className="group flex items-center gap-3 py-2 px-1 -mx-1 rounded-lg hover:bg-slate-800/50 transition-colors cursor-pointer border-b border-slate-800/50 last:border-0">
+                      <span className={cn(
+                        'flex items-center justify-center h-7 w-7 rounded-lg text-xs font-bold shrink-0',
+                        item.rank === 1 && 'bg-gradient-to-br from-amber-500 to-orange-500 text-white',
+                        item.rank === 2 && 'bg-gradient-to-br from-slate-400 to-slate-500 text-white',
+                        item.rank === 3 && 'bg-gradient-to-br from-orange-600 to-orange-700 text-white',
+                        item.rank > 3 && 'bg-slate-800 text-slate-400'
+                      )}>
+                        {item.rank}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="text-sm font-medium text-slate-200 group-hover:text-white truncate">
+                            {item.title}
+                          </h4>
+                          {item.isHot && (
+                            <Badge className="shrink-0 text-[8px] px-1 py-0 bg-red-500/20 text-red-400 border-0">
+                              🔥
+                            </Badge>
+                          )}
+                          {item.isNew && (
+                            <Badge className="shrink-0 text-[8px] px-1 py-0 bg-green-500/20 text-green-400 border-0">
+                              NEW
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="outline" className="text-[10px] px-1 py-0 border-indigo-500/30 text-indigo-400">
+                            {item.category}
+                          </Badge>
+                        </div>
                       </div>
-                      <h4 className="text-xs font-medium text-slate-200 group-hover:text-white line-clamp-2 leading-tight">
-                        {item.title}
-                      </h4>
-                      <p className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-0.5">
-                        <Flame className="h-2.5 w-2.5 text-orange-400" />
+                      <div className="flex items-center gap-1 text-[12px] text-orange-400 shrink-0">
+                        <Flame className="h-3 w-3" />
                         {(item.heat / 1000).toFixed(1)}k
-                      </p>
+                      </div>
                     </div>
                   </Link>
                 ))}
@@ -236,56 +206,30 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 精选文章 - 4/12 */}
-          <Card className="xl:col-span-4 glass border-purple-500/20">
+          {/* 最新动态 - 5/12 */}
+          <Card className="xl:col-span-5 glass border-indigo-500/20">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-purple-400" />
-                <span className="font-heading text-sm font-bold text-white">✨ 精选文章</span>
+                <Hash className="h-4 w-4 text-indigo-400" />
+                <span className="font-heading text-sm font-bold text-white">📢 最新动态</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1.5">
-              {featuredArticles.map((article, index) => (
-                <Link key={index} href="/resources">
-                  <div className="group flex items-center gap-2 p-2 rounded-lg hover:bg-purple-500/10 transition-colors cursor-pointer">
-                    <div className="h-8 w-10 rounded bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center shrink-0">
-                      <Play className="h-3 w-3 text-purple-400" />
+            <CardContent className="space-y-2">
+              {latestPosts.map((post, index) => (
+                <div key={index} className="flex gap-2 p-2 rounded-lg hover:bg-indigo-500/5 transition-colors cursor-pointer">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-xs font-semibold shrink-0">
+                    {post.name[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium text-white">{post.name}</span>
+                      <span className="text-[10px] text-slate-500">{post.time}</span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs font-medium text-slate-300 group-hover:text-white line-clamp-1">
-                        {article.title}
-                      </h4>
-                      <p className="text-[10px] text-slate-500 flex items-center gap-0.5">
-                        <Eye className="h-2.5 w-2.5" />
-                        {article.reads}
-                      </p>
+                    <p className="text-xs text-slate-400 line-clamp-2 leading-tight mt-0.5">{post.content}</p>
+                    <div className="flex items-center gap-1 mt-0.5 text-[10px] text-slate-500">
+                      <Flame className="h-2.5 w-2.5 text-orange-400" />
+                      {post.likes}
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* 活跃学习者 - 3/12 */}
-          <Card className="xl:col-span-3 glass border-emerald-500/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-emerald-400" />
-                <span className="font-heading text-sm font-bold text-white">活跃学习者</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1.5">
-              {activeUsers.map((user, index) => (
-                <div key={index} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-emerald-500/5 transition-colors cursor-pointer">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold text-white bg-gradient-to-br from-emerald-500 to-teal-500 shrink-0">
-                    {user.avatar}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-xs font-medium text-slate-300 block truncate">{user.name}</span>
-                    <span className="text-[10px] text-emerald-400">{user.tasks} 任务</span>
-                  </div>
-                  <div className="flex items-center gap-0.5 text-[10px] text-amber-400">
-                    🔥{user.streak}
                   </div>
                 </div>
               ))}
