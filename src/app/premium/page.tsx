@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Clock, Eye, Heart, Crown, Zap, Star, BookOpen } from 'lucide-react';
 import { Navbar } from '@/components/layout/navbar';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface Course {
@@ -20,7 +19,7 @@ interface Course {
   tags: string[];
 }
 
-// 虚拟课程数据 - 更多示例课程
+// 虚拟课程数据
 const courses: Course[] = [
   {
     id: '1',
@@ -171,6 +170,20 @@ const courses: Course[] = [
 export default function PremiumPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // 监听主题变化
+  useEffect(() => {
+    const checkTheme = () => {
+      setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const isDark = theme === 'dark';
 
   // 获取所有标签
   const allTags = [...new Set(courses.flatMap(c => c.tags))];
@@ -191,17 +204,22 @@ export default function PremiumPage() {
   };
 
   return (
-    <div className="min-h-screen gradient-bg relative">
+    <div className={cn(
+      "min-h-screen relative",
+      isDark ? "gradient-bg" : "bg-gradient-to-br from-slate-50 via-white to-indigo-50"
+    )}>
       {/* 背景光效 */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
-      </div>
+      {isDark && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
+        </div>
+      )}
       
       <Navbar />
       
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* 顶部Banner - 更醒目 */}
+        {/* 顶部Banner */}
         <div className="mb-6 rounded-2xl overflow-hidden bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 p-6 shadow-xl shadow-purple-500/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -229,13 +247,18 @@ export default function PremiumPage() {
         {/* 搜索和筛选 */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               type="search"
               placeholder="搜索课程..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 py-5 rounded-xl bg-slate-900/80 border-slate-700/50 text-white text-sm"
+              className={cn(
+                "pl-9 py-5 rounded-xl text-sm",
+                isDark
+                  ? "bg-slate-900/80 border-slate-700/50 text-white placeholder:text-slate-500"
+                  : "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400"
+              )}
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -245,7 +268,9 @@ export default function PremiumPage() {
                 'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
                 !selectedTag
                   ? 'bg-indigo-500 text-white'
-                  : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                  : isDark
+                    ? 'bg-slate-800/50 text-slate-400 hover:text-white'
+                    : 'bg-slate-100 text-slate-600 hover:text-indigo-600'
               )}
             >
               全部
@@ -258,7 +283,9 @@ export default function PremiumPage() {
                   'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
                   tag === selectedTag
                     ? 'bg-indigo-500 text-white'
-                    : 'bg-slate-800/50 text-slate-400 hover:text-white'
+                    : isDark
+                      ? 'bg-slate-800/50 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 text-slate-600 hover:text-indigo-600'
                 )}
               >
                 {tag}
@@ -268,27 +295,35 @@ export default function PremiumPage() {
         </div>
 
         {/* 课程统计 */}
-        <div className="mb-4 flex items-center gap-4 text-xs text-slate-400">
+        <div className={cn(
+          "mb-4 flex items-center gap-4 text-xs",
+          isDark ? "text-slate-400" : "text-slate-500"
+        )}>
           <span>共 {filteredCourses.length} 个课程</span>
-          <span className="text-amber-400">{courses.filter(c => !c.isMemberFree).length} 个付费</span>
-          <span className="text-emerald-400">{courses.filter(c => c.isMemberFree).length} 个会员免费</span>
+          <span className="text-amber-500">{courses.filter(c => !c.isMemberFree).length} 个付费</span>
+          <span className="text-emerald-500">{courses.filter(c => c.isMemberFree).length} 个会员免费</span>
         </div>
 
-        {/* 课程网格 - 3-4列 */}
+        {/* 课程网格 */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredCourses.map((course) => (
             <div
               key={course.id}
-              className="group rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700/50 hover:border-rose-500/30 transition-all hover:shadow-lg hover:shadow-rose-500/10"
+              className={cn(
+                "group rounded-xl overflow-hidden border transition-all hover:shadow-lg",
+                isDark
+                  ? "bg-slate-800/50 border-slate-700/50 hover:border-rose-500/30 hover:shadow-rose-500/10"
+                  : "bg-white border-slate-200 hover:border-rose-300 hover:shadow-md"
+              )}
             >
-              {/* 封面图 - 横向宽图 */}
+              {/* 封面图 */}
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img
                   src={course.image}
                   alt={course.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
                 
                 {/* 价格标签 */}
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
@@ -306,7 +341,10 @@ export default function PremiumPage() {
 
               {/* 内容区 */}
               <div className="p-3">
-                <h3 className="text-sm font-bold text-white mb-1 line-clamp-1 group-hover:text-rose-400 transition-colors">
+                <h3 className={cn(
+                  "text-sm font-bold mb-2 line-clamp-1 group-hover:text-rose-400 transition-colors",
+                  isDark ? "text-white" : "text-slate-800"
+                )}>
                   {course.title}
                 </h3>
 
@@ -315,7 +353,10 @@ export default function PremiumPage() {
                   {course.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[10px]"
+                      className={cn(
+                        "px-1.5 py-0.5 rounded text-[10px]",
+                        isDark ? 'bg-rose-500/10 text-rose-400' : 'bg-rose-50 text-rose-600'
+                      )}
                     >
                       {tag}
                     </span>
@@ -323,7 +364,10 @@ export default function PremiumPage() {
                 </div>
 
                 {/* 底部信息 */}
-                <div className="flex items-center justify-between text-[10px] text-slate-500">
+                <div className={cn(
+                  "flex items-center justify-between text-[10px]",
+                  isDark ? "text-slate-500" : "text-slate-400"
+                )}>
                   <span className="flex items-center gap-1">
                     <Clock className="w-2.5 h-2.5" />
                     {course.publishTime}
@@ -347,11 +391,11 @@ export default function PremiumPage() {
         {/* 空状态 */}
         {filteredCourses.length === 0 && (
           <div className="text-center py-12">
-            <BookOpen className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">未找到相关课程</p>
+            <BookOpen className={cn("h-10 w-10 mx-auto mb-3", isDark ? "text-slate-600" : "text-slate-400")} />
+            <p className={isDark ? "text-slate-400" : "text-slate-500"}>未找到相关课程</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedTag(null); }}
-              className="mt-2 text-sm text-indigo-400 hover:text-indigo-300"
+              className="mt-2 text-sm text-indigo-500 hover:text-indigo-400"
             >
               清除筛选
             </button>
@@ -361,7 +405,12 @@ export default function PremiumPage() {
         {/* 加载更多 */}
         {filteredCourses.length > 0 && (
           <div className="mt-8 text-center">
-            <button className="px-6 py-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all text-sm">
+            <button className={cn(
+              "px-6 py-2 rounded-lg transition-all text-sm",
+              isDark
+                ? "bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700/50"
+                : "bg-slate-100 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50"
+            )}>
               加载更多
             </button>
           </div>
