@@ -18,7 +18,6 @@ interface Course {
   views: number;
   likes: number;
   tags: string[];
-  author: string;
 }
 
 // 虚拟课程数据 - 更多示例课程
@@ -34,7 +33,6 @@ const courses: Course[] = [
     views: 12580,
     likes: 892,
     tags: ['AI', 'Python', '实战'],
-    author: '张老师',
   },
   {
     id: '2',
@@ -47,7 +45,6 @@ const courses: Course[] = [
     views: 9870,
     likes: 654,
     tags: ['设计', 'AI绘画', '变现'],
-    author: '李设计师',
   },
   {
     id: '3',
@@ -60,7 +57,6 @@ const courses: Course[] = [
     views: 15620,
     likes: 1203,
     tags: ['自媒体', '变现', '小红书'],
-    author: '小红老师',
   },
   {
     id: '4',
@@ -73,7 +69,6 @@ const courses: Course[] = [
     views: 7650,
     likes: 421,
     tags: ['独立开发', '产品', '营销'],
-    author: '王老板',
   },
   {
     id: '5',
@@ -86,7 +81,6 @@ const courses: Course[] = [
     views: 18930,
     likes: 1567,
     tags: ['视频剪辑', '抖音', '运营'],
-    author: '剪辑师小王',
   },
   {
     id: '6',
@@ -99,7 +93,6 @@ const courses: Course[] = [
     views: 23450,
     likes: 2156,
     tags: ['AI', '提示词', '效率'],
-    author: 'AI学院',
   },
   {
     id: '7',
@@ -112,7 +105,6 @@ const courses: Course[] = [
     views: 6780,
     likes: 389,
     tags: ['知识付费', '副业', '变现'],
-    author: '创业导师',
   },
   {
     id: '8',
@@ -125,7 +117,6 @@ const courses: Course[] = [
     views: 11200,
     likes: 876,
     tags: ['跨境电商', '亚马逊', '选品'],
-    author: '跨境老王',
   },
   {
     id: '9',
@@ -138,7 +129,6 @@ const courses: Course[] = [
     views: 15680,
     likes: 1432,
     tags: ['Notion', '知识管理', '效率'],
-    author: '效率达人',
   },
   {
     id: '10',
@@ -151,7 +141,6 @@ const courses: Course[] = [
     views: 9870,
     likes: 567,
     tags: ['Python', '爬虫', '数据'],
-    author: '数据老张',
   },
   {
     id: '11',
@@ -164,7 +153,6 @@ const courses: Course[] = [
     views: 14560,
     likes: 1089,
     tags: ['AI绘画', 'SD', '变现'],
-    author: 'AI画师',
   },
   {
     id: '12',
@@ -177,7 +165,6 @@ const courses: Course[] = [
     views: 7890,
     likes: 432,
     tags: ['营销', 'Affiliate', '被动收入'],
-    author: '营销达人',
   },
 ];
 
@@ -341,7 +328,7 @@ export default function PremiumPage() {
                     <Clock className="w-2.5 h-2.5" />
                     {course.publishTime}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="flex items-center gap-0.5">
                       <Eye className="w-2.5 h-2.5" />
                       {formatNumber(course.views)}
@@ -351,14 +338,6 @@ export default function PremiumPage() {
                       {formatNumber(course.likes)}
                     </span>
                   </div>
-                </div>
-
-                {/* 作者 */}
-                <div className="mt-2 pt-2 border-t border-slate-700/50 flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-rose-500 to-purple-500 flex items-center justify-center text-white text-[8px] font-bold">
-                    {course.author[0]}
-                  </div>
-                  <span className="text-[10px] text-slate-400 truncate">{course.author}</span>
                 </div>
               </div>
             </div>
