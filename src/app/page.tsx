@@ -58,23 +58,7 @@ const colorMap: Record<string, { gradient: string; text: string }> = {
   'default': { gradient: 'from-indigo-500 to-purple-500', text: 'text-indigo-500' },
 };
 
-// AI 热榜
-const hotListItems = [
-  { rank: 1, title: 'GPT-5 正式发布：OpenAI 开启新一代多模态时代', heat: 98600, category: '大模型', isHot: true },
-  { rank: 2, title: 'Claude 3.5 超越 GPT-4 成为编程最强助手', heat: 87500, category: '大模型', isHot: true },
-  { rank: 3, title: '开源模型 Llama 4 发布：性能直逼闭源', heat: 76200, category: '开源' },
-  { rank: 4, title: 'AI Agent 落地应用：AutoGPT 成为焦点', heat: 65400, category: 'Agent', isNew: true },
-  { rank: 5, title: 'Midjourney V7 发布：细节控制更精准', heat: 54300, category: '图像' },
-  { rank: 6, title: 'GitHub Copilot X 新功能解析', heat: 43200, category: '编程' },
-];
-
-// 最新动态
-const latestPosts = [
-  { name: '设计小能手', content: '刚刚完成了 Midjourney 的进阶课程学习...', time: '15分钟前', likes: 42 },
-  { name: '效率达人', content: '分享一个超好用的 AI 工具：Notion AI...', time: '45分钟前', likes: 128 },
-  { name: 'AI学习者', content: 'Day 3/30：今天开始学习 Prompt Engineering...', time: '2小时前', likes: 35 },
-  { name: '技术大牛', content: '用 Claude 3.5 写代码一周了...', time: '3小时前', likes: 89 },
-];
+// 数据从 API 获取，不在前端暴露硬编码数据
 
 // 精品课程数据
 const premiumCourses = [
@@ -86,12 +70,7 @@ const premiumCourses = [
   { id: 6, title: '大模型微调实战 (LoRA)', desc: '掌握 LLM 微调核心技能', students: 1234, rating: 4.9, price: 2499, gradient: 'from-red-500 to-pink-500' },
 ];
 
-// 今日任务
-const todayTasks = [
-  { id: 1, title: '完成 AI 基础课程第 3 章', desc: '学习机器学习核心概念', progress: 80, xp: 50 },
-  { id: 2, title: '使用 ChatGPT 写一篇文章', desc: '练习 Prompt 技巧', progress: 100, xp: 30, completed: true },
-  { id: 3, title: '阅读 AI 最新资讯', desc: '了解行业动态', progress: 60, xp: 20 },
-];
+
 
 // 学习路径
 const learningPaths = [
@@ -108,16 +87,7 @@ const badges = [
   { id: 4, name: 'AI 探索者', icon: Target, gradient: 'from-emerald-400 to-teal-400', earned: false },
 ];
 
-// 用户数据
-const mockUser = {
-  nickname: 'AI探索者',
-  points: 1250,
-  level: 8,
-  exp: 750,
-  expToNext: 1000,
-  is_vip: true,
-  stats: { posts: 42, likes: 328, favorites: 15, comments: 89 }
-};
+
 
 type TabType = 'home' | 'resources' | 'premium' | 'learn' | 'profile';
 
@@ -128,11 +98,33 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // API 数据状态
+  const [hotList, setHotList] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
     setTheme(savedTheme || 'light');
     setIsLoaded(true);
   }, []);
+
+  // 从 API 获取数据
+  useEffect(() => {
+    if (!isLoaded) return;
+    Promise.all([
+      fetch('/api/hot-list').then(r => r.json()).catch(() => ({ data: [] })),
+      fetch('/api/posts?limit=4').then(r => r.json()).catch(() => ({ data: [] })),
+      fetch('/api/tasks').then(r => r.json()).catch(() => ({ data: [] })),
+      fetch('/api/auth/me').then(r => r.json()).catch(() => ({ user: null })),
+    ]).then(([hotData, postsData, tasksData, userData]) => {
+      if (hotData.data?.length) setHotList(hotData.data);
+      if (postsData.data?.length) setPosts(postsData.data);
+      if (tasksData.data?.length) setTasks(tasksData.data);
+      if (userData.user) setUser(userData.user);
+    });
+  }, [isLoaded]);
 
   useEffect(() => {
     if (isLoaded) {
@@ -140,6 +132,14 @@ export default function HomePage() {
       document.documentElement.classList.add(theme);
     }
   }, [theme, isLoaded]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   const isDark = theme === 'dark';
 
@@ -261,7 +261,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {hotListItems.map((item) => (
+            {hotList.map((item) => (
               <div key={item.rank} className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-white/5 cursor-pointer">
                 <span className={cn(
                   'flex items-center justify-center h-6 w-6 rounded-lg text-xs font-bold',
@@ -284,7 +284,7 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {latestPosts.map((post, i) => (
+            {posts.map((post, i) => (
               <div key={i} className="flex items-start gap-3 py-2 px-2 rounded-lg hover:bg-white/5">
                 <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold", isDark ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white")}>
                   {post.name[0]}
@@ -538,7 +538,7 @@ export default function HomePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-3 gap-4">
-          {todayTasks.map((task) => (
+          {tasks.map((task) => (
             <div key={task.id} className={cn(
               "p-4 rounded-xl",
               isDark ? "bg-[#18181b]" : "bg-slate-50"
@@ -634,24 +634,24 @@ export default function HomePage() {
         <CardContent className="relative px-6 py-6">
           <div className="flex items-center gap-6">
             <div className={cn("flex items-center justify-center h-20 w-20 rounded-2xl text-2xl font-bold", isDark ? "bg-gradient-to-br from-indigo-500 to-purple-500" : "bg-white/20")}>
-              {mockUser.nickname[0]}
+              {user?.nickname?.[0] || '?'}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className={cn("font-heading text-xl font-bold text-white")}>{mockUser.nickname}</h1>
-                {mockUser.is_vip && <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">VIP</Badge>}
+                <h1 className={cn("font-heading text-xl font-bold text-white")}>{user?.nickname || 'AI探索者'}</h1>
+                {user?.is_vip && <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">VIP</Badge>}
               </div>
               <div className="flex items-center gap-4 mb-3">
-                <span className={cn("text-sm text-white/70")}>Lv.{mockUser.level}</span>
+                <span className={cn("text-sm text-white/70")}>Lv.{user?.level || 8}</span>
                 <div className="flex items-center gap-2">
                   <div className={cn("w-24 h-2 rounded-full overflow-hidden", isDark ? "bg-white/20" : "bg-white/30")}>
-                    <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full" style={{ width: `${(mockUser.exp/mockUser.expToNext)*100}%` }} />
+                    <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full" style={{ width: `${((user?.exp || 750)/(user?.expToNext || 1000))*100}%` }} />
                   </div>
-                  <span className={cn("text-xs text-white/60")}>{mockUser.exp}/{mockUser.expToNext}</span>
+                  <span className={cn("text-xs text-white/60")}>{user?.exp || 750}/{user?.expToNext || 1000}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                  <span className={cn("text-sm font-semibold text-white")}>{mockUser.points}</span>
+                  <span className={cn("text-sm font-semibold text-white")}>{user?.points || 1250}</span>
                 </div>
               </div>
             </div>
@@ -666,10 +666,10 @@ export default function HomePage() {
       {/* 统计 */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: '动态', value: mockUser.stats.posts, icon: FileText, color: 'text-blue-500' },
-          { label: '获赞', value: mockUser.stats.likes, icon: Heart, color: 'text-pink-500' },
-          { label: '收藏', value: mockUser.stats.favorites, icon: Bookmark, color: 'text-amber-500' },
-          { label: '评论', value: mockUser.stats.comments, icon: MessageCircle, color: 'text-emerald-500' },
+          { label: '动态', value: user?.stats?.posts ?? 42, icon: FileText, color: 'text-blue-500' },
+          { label: '获赞', value: user?.stats?.likes ?? 328, icon: Heart, color: 'text-pink-500' },
+          { label: '收藏', value: user?.stats?.favorites ?? 15, icon: Bookmark, color: 'text-amber-500' },
+          { label: '评论', value: user?.stats?.comments ?? 89, icon: MessageCircle, color: 'text-emerald-500' },
         ].map((stat, i) => (
           <Card key={i} className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
             <CardContent className="p-4 flex items-center gap-4">
@@ -730,7 +730,7 @@ export default function HomePage() {
         </div>
       )}
       
-      <Navbar onTabChange={setActiveTab} />
+      <Navbar onTabChange={setActiveTab} theme={theme} onThemeToggle={toggleTheme} />
       
       <main className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
         <div key={activeTab} className="animate-fade-in">

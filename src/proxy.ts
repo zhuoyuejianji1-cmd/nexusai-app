@@ -6,7 +6,7 @@ const protectedRoutes = ['/learn', '/profile', '/resources/premium'];
 // 付费资源的前缀
 const premiumPrefix = '/api/resources/premium';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // 检查是否是需要登录的路由

@@ -33,6 +33,8 @@ interface UserData {
 
 interface NavbarProps {
   onTabChange?: (tab: TabType) => void;
+  theme?: 'light' | 'dark';
+  onThemeToggle?: () => void;
 }
 
 const navLinks = [
@@ -43,28 +45,38 @@ const navLinks = [
   { id: 'profile' as TabType, label: '我的', href: '/' },
 ];
 
-export function Navbar({ onTabChange }: NavbarProps) {
+export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [localTheme, setLocalTheme] = useState<'light' | 'dark'>('light');
   const [activeTab, setActiveTab] = useState<TabType>('home');
 
-  useEffect(() => {
-    const saved = localStorage.getItem('theme') as 'light' | 'dark';
-    setTheme(saved || 'light');
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
+  // 使用外部注入的 theme（SPA模式），否则回退到自管理（独立页面模式）
+  const theme = themeProp ?? localTheme;
+  const toggleTheme = onThemeToggle ?? (() => {
+    const newTheme = localTheme === 'light' ? 'dark' : 'light';
+    setLocalTheme(newTheme);
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(newTheme);
     localStorage.setItem('theme', newTheme);
-  };
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') as 'light' | 'dark';
+    setLocalTheme(saved || 'light');
+  }, []);
+
+  // 获取用户信息
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(d => { if (d.user) setUser(d.user); })
+      .catch(() => {});
+  }, []);
 
   const isDark = theme === 'dark';
 
@@ -195,8 +207,8 @@ export function Navbar({ onTabChange }: NavbarProps) {
                 "px-3 py-2 rounded-lg mb-1",
                 isDark ? "bg-white/5" : "bg-slate-50"
               )}>
-                <p className="text-sm font-semibold text-white">游客用户</p>
-                <p className="text-xs text-slate-400">登录解锁更多功能</p>
+                <p className="text-sm font-semibold text-white">{user?.nickname || '游客用户'}</p>
+                <p className="text-xs text-slate-400">{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
               </div>
               <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
               <DropdownMenuItem 

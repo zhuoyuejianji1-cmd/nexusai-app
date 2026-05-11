@@ -250,7 +250,11 @@ export default function PremiumPage() {
   }, [theme, isLoaded]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(newTheme);
+    localStorage.setItem('theme', newTheme);
   };
 
   const isDark = theme === 'dark';
@@ -574,7 +578,7 @@ export default function PremiumPage() {
                     </div>
 
                     {/* 底部信息 */}
-                    <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="flex items-center justify-between pt-4 border-t mb-3">
                       <div className="flex items-center gap-3">
                         {/* 评分 */}
                         <div className="flex items-center gap-1">
@@ -607,6 +611,18 @@ export default function PremiumPage() {
                         {course.level}
                       </Badge>
                     </div>
+
+                    {/* 立即购买按钮 */}
+                    <Link href={`/payment?course_id=${course.id}`}>
+                      <Button className={cn(
+                        "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200",
+                        isDark
+                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
+                          : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/10"
+                      )}>
+                        立即购买 · ¥{course.price}
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               </div>
