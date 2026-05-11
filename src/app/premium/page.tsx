@@ -12,7 +12,6 @@ import {
   Crown,
   Shield,
   Zap,
-  ChevronRight,
   BookOpen,
   Award,
   CheckCircle2,
@@ -20,7 +19,7 @@ import {
   Moon,
   GraduationCap,
   Layers,
-  TrendingUp
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,7 @@ interface Course {
   duration: string;
   students: number;
   rating: number;
-  level: '入门' | '进阶' | '高级';
+  level: string;
   tags: string[];
   isPremium: boolean;
   price: number;
@@ -44,185 +43,14 @@ interface Course {
   updatedAt: string;
   chapters: number;
   highlights: string[];
+  sourceUrl?: string;
 }
 
-const courses: Course[] = [
-  {
-    id: '1',
-    title: 'AI 全栈工程师实战班',
-    description: '从零打造企业级 AI 应用，掌握大模型 API、向量数据库、RAG 系统开发',
-    instructor: '技术总监 Alex',
-    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80',
-    duration: '45小时',
-    students: 2847,
-    rating: 4.9,
-    level: '高级',
-    tags: ['LLM', 'RAG', '向量数据库'],
-    isPremium: true,
-    price: 2999,
-    originalPrice: 4999,
-    updatedAt: '2024-01-15',
-    chapters: 28,
-    highlights: ['企业级项目实战', '一对一答疑', '就业指导'],
-  },
-  {
-    id: '2',
-    title: 'ChatGPT 与 Prompt Engineering',
-    description: '系统学习 Prompt 工程，掌握 AI 对话交互核心技巧，提升 10x 效率',
-    instructor: 'AI 教育专家 李明',
-    thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80',
-    duration: '20小时',
-    students: 5623,
-    rating: 4.8,
-    level: '入门',
-    tags: ['Prompt', 'ChatGPT', '效率工具'],
-    isPremium: true,
-    price: 999,
-    originalPrice: 1999,
-    updatedAt: '2024-01-10',
-    chapters: 15,
-    highlights: ['100+ 实战案例', '场景化模板', '持续更新'],
-  },
-  {
-    id: '3',
-    title: 'Midjourney 商业设计实战',
-    description: '从注册到变现，AI 生成视觉内容的完整商业路径',
-    instructor: '创意总监 陈思',
-    thumbnail: 'https://images.unsplash.com/photo-1547954575-855750c57bd3?w=800&q=80',
-    duration: '18小时',
-    students: 3412,
-    rating: 4.7,
-    level: '入门',
-    tags: ['Midjourney', '视觉设计', '商业变现'],
-    isPremium: true,
-    price: 799,
-    originalPrice: 1599,
-    updatedAt: '2024-01-08',
-    chapters: 12,
-    highlights: ['接单技巧', '版权指南', '作品集辅导'],
-  },
-  {
-    id: '4',
-    title: 'Stable Diffusion 进阶指南',
-    description: 'ControlNet、Lora 训练、高清修复等核心技术，打造专业级 AI 图像',
-    instructor: 'AI 艺术家 王浩',
-    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
-    duration: '25小时',
-    students: 2156,
-    rating: 4.9,
-    level: '进阶',
-    tags: ['Stable Diffusion', 'ControlNet', 'Lora'],
-    isPremium: true,
-    price: 1299,
-    originalPrice: 2499,
-    updatedAt: '2024-01-12',
-    chapters: 20,
-    highlights: ['模型训练', '插件生态', '商业应用'],
-  },
-  {
-    id: '5',
-    title: 'LangChain 与 Agent 开发',
-    description: '构建智能 Agent 系统，掌握工具调用、记忆管理、多 Agent 协作',
-    instructor: '首席工程师 张伟',
-    thumbnail: 'https://images.unsplash.com/photo-1684487747720-1ba29cda82f6?w=800&q=80',
-    duration: '30小时',
-    students: 1893,
-    rating: 4.8,
-    level: '高级',
-    tags: ['LangChain', 'Agent', 'Tool Calling'],
-    isPremium: true,
-    price: 1999,
-    originalPrice: 3999,
-    updatedAt: '2024-01-05',
-    chapters: 22,
-    highlights: ['架构设计', '性能优化', '生产部署'],
-  },
-  {
-    id: '6',
-    title: 'AI 产品经理入门到精通',
-    description: 'AI 产品设计思维、大模型能力边界分析、AIGC 产品规划全流程',
-    instructor: '产品VP 李华',
-    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-    duration: '22小时',
-    students: 1567,
-    rating: 4.6,
-    level: '入门',
-    tags: ['产品经理', 'AI产品', '商业思维'],
-    isPremium: true,
-    price: 1199,
-    originalPrice: 2399,
-    updatedAt: '2024-01-03',
-    chapters: 16,
-    highlights: ['案例分析', '需求文档', '面试指导'],
-  },
-  {
-    id: '7',
-    title: '大模型微调实战 (LoRA/QLoRA)',
-    description: '从数据准备到模型训练，掌握 LLM 微调核心技能，定制专属模型',
-    instructor: '算法专家 刘强',
-    thumbnail: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&q=80',
-    duration: '28小时',
-    students: 1234,
-    rating: 4.9,
-    level: '高级',
-    tags: ['LLM微调', 'LoRA', 'QLoRA', '模型训练'],
-    isPremium: true,
-    price: 2499,
-    originalPrice: 4999,
-    updatedAt: '2024-01-14',
-    chapters: 18,
-    highlights: ['分布式训练', '显存优化', '效果评估'],
-  },
-  {
-    id: '8',
-    title: 'Claude API 高级应用开发',
-    description: '深入 Claude 模型能力，构建智能客服、知识库问答、多轮对话系统',
-    instructor: '架构师 赵明',
-    thumbnail: 'https://images.unsplash.com/photo-1684487747720-1ba29cda82f6?w=800&q=80',
-    duration: '16小时',
-    students: 987,
-    rating: 4.7,
-    level: '进阶',
-    tags: ['Claude', 'API开发', '智能客服'],
-    isPremium: true,
-    price: 899,
-    originalPrice: 1799,
-    updatedAt: '2024-01-11',
-    chapters: 14,
-    highlights: ['API最佳实践', '安全防护', '成本优化'],
-  },
-  {
-    id: '9',
-    title: 'AI 数据标注师认证课程',
-    description: '成为专业 AI 训练数据标注师，系统学习标注工具、标注规范、质量控制',
-    instructor: '数据总监 周丽',
-    thumbnail: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80',
-    duration: '12小时',
-    students: 3421,
-    rating: 4.5,
-    level: '入门',
-    tags: ['数据标注', 'AI训练', '认证'],
-    isPremium: true,
-    price: 399,
-    originalPrice: 799,
-    updatedAt: '2024-01-02',
-    chapters: 8,
-    highlights: ['行业认证', '接单渠道', '兼职指导'],
-  },
-];
-
-const levelColors = {
+const levelColors: Record<string, { light: string; dark: string }> = {
   '入门': { light: 'bg-emerald-50 text-emerald-600 border-emerald-200', dark: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   '进阶': { light: 'bg-amber-50 text-amber-600 border-amber-200', dark: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
   '高级': { light: 'bg-red-50 text-red-600 border-red-200', dark: 'bg-red-500/20 text-red-400 border-red-500/30' },
 };
-
-const stats = [
-  { icon: GraduationCap, value: '9', label: '精品课程' },
-  { icon: Users, value: '20,000+', label: '学员总数' },
-  { icon: Award, value: '98%', label: '好评率' },
-  { icon: Clock, value: '215', label: '总课时' },
-];
 
 const benefits = [
   { icon: Crown, title: '专属会员群', desc: '与讲师和同学实时交流' },
@@ -235,6 +63,12 @@ export default function PremiumPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
@@ -249,6 +83,28 @@ export default function PremiumPage() {
     }
   }, [theme, isLoaded]);
 
+  // 从API加载课程数据
+  const fetchCourses = async (pageNum: number) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/courses?page=${pageNum}&limit=12`);
+      if (!res.ok) throw new Error('加载失败');
+      const result = await res.json();
+      setCourses(result.data);
+      setTotalCourses(result.pagination.total);
+      setTotalPages(result.pagination.totalPages);
+    } catch (err) {
+      setError('课程加载失败，请刷新重试');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses(page);
+  }, [page]);
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -258,6 +114,16 @@ export default function PremiumPage() {
   };
 
   const isDark = theme === 'dark';
+
+  const stats = [
+    { icon: GraduationCap, value: `${Math.min(totalCourses, 9999)}`, label: '精品课程' },
+    { icon: Clock, value: `${Math.min(Math.ceil(totalCourses * 1.5), 9999)}`, label: '总课时' },
+    { icon: Star, value: '4.8', label: '平均评分' },
+    { icon: Layers, value: `${Math.min(Math.ceil(totalCourses / 5), 999)}`, label: '分类' },
+  ];
+
+  const handlePrevPage = () => { if (page > 1) { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+  const handleNextPage = () => { if (page < totalPages) { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
 
   return (
     <div className={cn(
@@ -337,7 +203,6 @@ export default function PremiumPage() {
               ? "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#1f1f3a] border border-white/5" 
               : "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 border border-indigo-200/50"
           )}>
-            {/* 装饰 */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
               <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
@@ -354,14 +219,14 @@ export default function PremiumPage() {
                     精品课程
                   </h1>
                   <p className="text-white/70 text-sm font-medium">
-                    Premium Courses · 行业顶级讲师 · 实战驱动学习
+                    Premium Courses · 实战驱动 · 持续更新
                   </p>
                 </div>
               </div>
               
               <p className="text-white/80 text-lg max-w-2xl leading-relaxed mb-8">
-                精选最前沿的 AI 技术课程，由行业顶尖专家倾力打造。<br />
-                从入门到精通，系统化学习路径助你快速成为 AI 人才。
+                精选全网最新 AI 与副业课程，由行业实战者倾力打造。<br />
+                从入门到精通，系统化学习路径助你快速提升。
               </p>
 
               {/* 数据统计 */}
@@ -384,12 +249,7 @@ export default function PremiumPage() {
 
         {/* 会员权益 */}
         <section className="mb-10">
-          <div className={cn(
-            "grid grid-cols-4 gap-4",
-            isDark 
-              ? "" 
-              : ""
-          )}>
+          <div className="grid grid-cols-4 gap-4">
             {benefits.map((benefit, i) => (
               <div 
                 key={i}
@@ -446,188 +306,266 @@ export default function PremiumPage() {
                 ? "bg-indigo-500/20 text-indigo-400 border-0" 
                 : "bg-indigo-100 text-indigo-600 border-0"
             )}>
-              共 {courses.length} 门课程
+              共 {totalCourses} 门课程
             </Badge>
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <div
-                key={course.id}
-                className="group"
-                onMouseEnter={() => setHoveredCourse(course.id)}
-                onMouseLeave={() => setHoveredCourse(null)}
-              >
-                <Card className={cn(
-                  "overflow-hidden transition-all duration-300 h-full",
-                  isDark
-                    ? hoveredCourse === course.id
-                      ? "bg-[#1a1a2e] border-indigo-500/30 shadow-xl shadow-indigo-500/5"
-                      : "bg-[#12121a] border-white/5"
-                    : hoveredCourse === course.id
-                      ? "bg-white border-indigo-200 shadow-xl shadow-slate-200/50 -translate-y-1"
-                      : "bg-white border-slate-200/80"
+          {/* 骨架屏加载态 */}
+          {isLoading && (
+            <div className="grid grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={cn(
+                  "rounded-2xl overflow-hidden animate-pulse",
+                  isDark ? "bg-[#12121a]" : "bg-white"
                 )}>
-                  {/* 封面图 */}
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <img
-                      src={course.thumbnail}
-                      alt={course.title}
-                      className={cn(
-                        "w-full h-full object-cover transition-transform duration-500",
-                        hoveredCourse === course.id ? "scale-105" : "scale-100"
-                      )}
-                    />
-                    {/* 渐变遮罩 */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    
-                    {/* 价格标签 */}
-                    <div className="absolute top-3 right-3">
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "px-3 py-1.5 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm",
-                          isDark ? "bg-white/20 text-white" : "bg-white/90 text-slate-800"
-                        )}>
-                          ¥{course.price}
-                        </span>
-                        {course.originalPrice > course.price && (
-                          <span className={cn(
-                            "px-2 py-1 rounded-full text-xs font-medium",
-                            isDark ? "bg-red-500/80 text-white" : "bg-red-500 text-white"
-                          )}>
-                            {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 播放按钮 */}
-                    <div className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
-                      hoveredCourse === course.id ? "opacity-100" : "opacity-0"
-                    )}>
-                      <div className={cn(
-                        "flex items-center justify-center h-14 w-14 rounded-full backdrop-blur-sm transition-transform duration-300",
-                        hoveredCourse === course.id ? "scale-100" : "scale-75",
-                        isDark ? "bg-white/20" : "bg-white/80"
-                      )}>
-                        <Play className={cn(
-                          "h-6 w-6 ml-1",
-                          isDark ? "text-white" : "text-indigo-600"
-                        )} />
-                      </div>
-                    </div>
-
-                    {/* 底部信息 */}
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <div className="flex items-center gap-2">
-                        <Badge className={cn(
-                          "text-xs font-medium border-0 backdrop-blur-sm",
-                          isDark 
-                            ? "bg-black/40 text-white" 
-                            : "bg-white/80 text-slate-700"
-                        )}>
-                          {course.duration}
-                        </Badge>
-                        <Badge className={cn(
-                          "text-xs font-medium border-0 backdrop-blur-sm",
-                          isDark 
-                            ? "bg-black/40 text-white" 
-                            : "bg-white/80 text-slate-700"
-                        )}>
-                          {course.chapters} 章节
-                        </Badge>
-                      </div>
-                    </div>
+                  <div className={cn(
+                    "aspect-[16/10]",
+                    isDark ? "bg-white/5" : "bg-slate-100"
+                  )} />
+                  <div className="p-5 space-y-3">
+                    <div className={cn("h-5 rounded w-3/4", isDark ? "bg-white/5" : "bg-slate-100")} />
+                    <div className={cn("h-4 rounded w-full", isDark ? "bg-white/5" : "bg-slate-100")} />
+                    <div className={cn("h-4 rounded w-1/2", isDark ? "bg-white/5" : "bg-slate-100")} />
+                    <div className={cn("h-10 rounded-lg w-full mt-4", isDark ? "bg-white/5" : "bg-slate-100")} />
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-                  <CardContent className="p-5">
-                    {/* 标题 */}
-                    <h3 className={cn(
-                      "font-heading text-lg font-bold mb-2 line-clamp-2 transition-colors leading-snug",
-                      isDark 
-                        ? "text-white group-hover:text-white" 
-                        : "text-slate-800 group-hover:text-indigo-600"
+          {/* 错误状态 */}
+          {error && !isLoading && (
+            <div className={cn(
+              "text-center py-20 rounded-2xl",
+              isDark ? "bg-white/5" : "bg-white"
+            )}>
+              <p className={cn(
+                "text-lg mb-4",
+                isDark ? "text-slate-400" : "text-slate-500"
+              )}>{error}</p>
+              <Button onClick={() => fetchCourses(page)}>
+                重新加载
+              </Button>
+            </div>
+          )}
+
+          {/* 课程列表 */}
+          {!isLoading && !error && (
+            <>
+              <div className="grid grid-cols-3 gap-6">
+                {courses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="group"
+                    onMouseEnter={() => setHoveredCourse(course.id)}
+                    onMouseLeave={() => setHoveredCourse(null)}
+                  >
+                    <Card className={cn(
+                      "overflow-hidden transition-all duration-300 h-full",
+                      isDark
+                        ? hoveredCourse === course.id
+                          ? "bg-[#1a1a2e] border-indigo-500/30 shadow-xl shadow-indigo-500/5"
+                          : "bg-[#12121a] border-white/5"
+                        : hoveredCourse === course.id
+                          ? "bg-white border-indigo-200 shadow-xl shadow-slate-200/50 -translate-y-1"
+                          : "bg-white border-slate-200/80"
                     )}>
-                      {course.title}
-                    </h3>
-
-                    {/* 描述 */}
-                    <p className={cn(
-                      "text-sm line-clamp-2 mb-4 leading-relaxed",
-                      isDark ? "text-slate-400" : "text-slate-500"
-                    )}>
-                      {course.description}
-                    </p>
-
-                    {/* 标签 */}
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {course.tags.slice(0, 3).map((tag, i) => (
-                        <span
-                          key={i}
+                      {/* 封面图 */}
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        <img
+                          src={course.thumbnail}
+                          alt={course.title}
                           className={cn(
-                            "px-2 py-0.5 rounded-md text-xs font-medium",
-                            isDark 
-                              ? "bg-indigo-500/10 text-indigo-400" 
-                              : "bg-indigo-50 text-indigo-600"
+                            "w-full h-full object-cover transition-transform duration-500",
+                            hoveredCourse === course.id ? "scale-105" : "scale-100"
                           )}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* 底部信息 */}
-                    <div className="flex items-center justify-between pt-4 border-t mb-3">
-                      <div className="flex items-center gap-3">
-                        {/* 评分 */}
-                        <div className="flex items-center gap-1">
-                          <Star className={cn(
-                            "h-4 w-4 fill-current",
-                            isDark ? "text-amber-400" : "text-amber-500"
-                          )} />
-                          <span className={cn(
-                            "text-sm font-semibold",
-                            isDark ? "text-white" : "text-slate-800"
-                          )}>
-                            {course.rating}
-                          </span>
+                          onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80'; }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        
+                        {/* 价格标签 */}
+                        <div className="absolute top-3 right-3">
+                          <div className="flex items-center gap-2">
+                            <span className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm",
+                              isDark ? "bg-white/20 text-white" : "bg-white/90 text-slate-800"
+                            )}>
+                              {course.price > 0 ? `¥${course.price}` : '免费'}
+                            </span>
+                            {course.originalPrice > course.price && course.price > 0 && (
+                              <span className={cn(
+                                "px-2 py-1 rounded-full text-xs font-medium",
+                                isDark ? "bg-red-500/80 text-white" : "bg-red-500 text-white"
+                              )}>
+                                {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        {/* 学员数 */}
+
+                        {/* 播放按钮 */}
                         <div className={cn(
-                          "flex items-center gap-1 text-sm",
+                          "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+                          hoveredCourse === course.id ? "opacity-100" : "opacity-0"
+                        )}>
+                          <div className={cn(
+                            "flex items-center justify-center h-14 w-14 rounded-full backdrop-blur-sm transition-transform duration-300",
+                            hoveredCourse === course.id ? "scale-100" : "scale-75",
+                            isDark ? "bg-white/20" : "bg-white/80"
+                          )}>
+                            <Play className={cn(
+                              "h-6 w-6 ml-1",
+                              isDark ? "text-white" : "text-indigo-600"
+                            )} />
+                          </div>
+                        </div>
+
+                        {/* 底部信息 */}
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <div className="flex items-center gap-2">
+                            <Badge className={cn(
+                              "text-xs font-medium border-0 backdrop-blur-sm",
+                              isDark 
+                                ? "bg-black/40 text-white" 
+                                : "bg-white/80 text-slate-700"
+                            )}>
+                              {course.duration}
+                            </Badge>
+                            <Badge className={cn(
+                              "text-xs font-medium border-0 backdrop-blur-sm",
+                              isDark 
+                                ? "bg-black/40 text-white" 
+                                : "bg-white/80 text-slate-700"
+                            )}>
+                              {course.chapters || 1} 章节
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      <CardContent className="p-5">
+                        {/* 标题 */}
+                        <h3 className={cn(
+                          "font-heading text-lg font-bold mb-2 line-clamp-2 transition-colors leading-snug",
+                          isDark 
+                            ? "text-white group-hover:text-white" 
+                            : "text-slate-800 group-hover:text-indigo-600"
+                        )}>
+                          {course.title}
+                        </h3>
+
+                        {/* 描述 */}
+                        <p className={cn(
+                          "text-sm line-clamp-2 mb-4 leading-relaxed",
                           isDark ? "text-slate-400" : "text-slate-500"
                         )}>
-                          <Users className="h-4 w-4" />
-                          <span>{(course.students / 1000).toFixed(1)}k</span>
-                        </div>
-                      </div>
-                      
-                      {/* 等级 */}
-                      <Badge className={cn(
-                        "text-xs font-medium border",
-                        levelColors[course.level as keyof typeof levelColors][isDark ? 'dark' : 'light']
-                      )}>
-                        {course.level}
-                      </Badge>
-                    </div>
+                          {course.description}
+                        </p>
 
-                    {/* 立即购买按钮 */}
-                    <Link href={`/payment?course_id=${course.id}`}>
-                      <Button className={cn(
-                        "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200",
-                        isDark
-                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
-                          : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/10"
-                      )}>
-                        立即购买 · ¥{course.price}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                        {/* 讲师 */}
+                        <p className={cn(
+                          "text-xs mb-3 font-medium",
+                          isDark ? "text-slate-500" : "text-slate-400"
+                        )}>
+                          讲师: {course.instructor || '精品课程'}
+                        </p>
+
+                        {/* 标签 */}
+                        {course.tags && course.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {course.tags.slice(0, 3).map((tag, i) => (
+                              <span
+                                key={i}
+                                className={cn(
+                                  "px-2 py-0.5 rounded-md text-xs font-medium",
+                                  isDark 
+                                    ? "bg-indigo-500/10 text-indigo-400" 
+                                    : "bg-indigo-50 text-indigo-600"
+                                )}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 底部信息 */}
+                        <div className="flex items-center justify-between pt-4 border-t mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <Star className={cn(
+                                "h-4 w-4 fill-current",
+                                isDark ? "text-amber-400" : "text-amber-500"
+                              )} />
+                              <span className={cn(
+                                "text-sm font-semibold",
+                                isDark ? "text-white" : "text-slate-800"
+                              )}>
+                                {course.rating}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <Badge className={cn(
+                            "text-xs font-medium border",
+                            (levelColors[course.level] || levelColors['入门'])[isDark ? 'dark' : 'light']
+                          )}>
+                            {course.level}
+                          </Badge>
+                        </div>
+
+                        {/* 购买按钮 */}
+                        <Link href={`/payment?course_id=${course.id}`}>
+                          <Button className={cn(
+                            "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200",
+                            isDark
+                              ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
+                              : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/10"
+                          )}>
+                            {course.price > 0 ? `立即购买 · ¥${course.price}` : '免费学习'}
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+
+              {/* 分页 */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-10">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevPage}
+                    disabled={page <= 1}
+                    className={cn(
+                      "px-6 rounded-xl",
+                      isDark ? "border-white/10 text-slate-300" : ""
+                    )}
+                  >
+                    上一页
+                  </Button>
+                  <span className={cn(
+                    "text-sm font-medium",
+                    isDark ? "text-slate-400" : "text-slate-500"
+                  )}>
+                    第 {page} / {totalPages} 页
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={handleNextPage}
+                    disabled={page >= totalPages}
+                    className={cn(
+                      "px-6 rounded-xl",
+                      isDark ? "border-white/10 text-slate-300" : ""
+                    )}
+                  >
+                    下一页
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </section>
 
         {/* Footer */}
