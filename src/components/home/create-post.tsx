@@ -29,7 +29,7 @@ export function CreatePost() {
 
   const handleSubmit = () => {
     if (!content.trim()) return;
-    console.log('发布动态:', content);
+    // TODO: 发布动态API（暂未实现）
     setContent('');
     setIsFocused(false);
   };

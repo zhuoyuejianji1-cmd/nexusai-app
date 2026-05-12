@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Edit3, 
   Heart, 
@@ -33,19 +34,19 @@ import { PostCard } from '@/components/home/post-card';
 import { cn } from '@/lib/utils';
 import type { Post } from '@/lib/types';
 
-// 模拟用户数据
-const mockUser = {
-  id: '1',
-  nickname: 'AI探索者',
-  email: 'user@example.com',
+// 默认占位数据（仅在未登录时使用）
+const placeholderUser = {
+  id: '',
+  nickname: '',
+  email: '',
   avatar: null as string | null,
-  is_vip: true,
-  bio: '热爱 AI，专注学习新技术。希望用 AI 提升工作效率，探索无限可能。',
-  points: 1250,
-  joinedDays: 23,
-  level: 8,
-  exp: 750,
-  expToNext: 1000,
+  is_vip: false,
+  bio: '登录后查看个人主页',
+  points: 0,
+  joinedDays: 0,
+  level: 1,
+  exp: 0,
+  expToNext: 100,
 };
 
 // 统计数据
@@ -97,14 +98,33 @@ const earnedBadges = [
 ];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [user, setUser] = useState<typeof placeholderUser | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
     setTheme(savedTheme || 'light');
     setIsLoaded(true);
   }, []);
+
+  // 从API获取真实用户信息
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.user) {
+          setUser({ ...placeholderUser, ...data.user, bio: data.user.bio || '这个人很懒，什么都没写' });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAuthLoaded(true));
+  }, []);
+
+  // 未登录且已加载完毕时不要跳转，只显示空数据占位
+  const u = user || (authLoaded ? placeholderUser : null);
 
   useEffect(() => {
     if (isLoaded) {
@@ -226,9 +246,9 @@ export default function ProfilePage() {
                       ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" 
                       : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white"
                   )}>
-                    {mockUser.nickname[0].toUpperCase()}
+                    {u ? u.nickname[0]?.toUpperCase() || '?' : '?'}
                   </div>
-                  {mockUser.is_vip && (
+                  {u?.is_vip && (
                     <div className="absolute -bottom-1 -right-1 flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-lg">
                       <Crown className="h-4 w-4 text-white" />
                     </div>
@@ -239,16 +259,16 @@ export default function ProfilePage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="font-heading text-2xl font-bold text-white">
-                      {mockUser.nickname}
+                      {u?.nickname || '我的主页'}
                     </h1>
-                    {mockUser.is_vip && (
+                    {u?.is_vip && (
                       <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">
                         VIP
                       </Badge>
                     )}
                   </div>
                   <p className="text-white/70 text-sm mb-4 max-w-md">
-                    {mockUser.bio}
+                    {u?.bio}
                   </p>
                   
                   {/* 等级进度 */}
@@ -258,13 +278,13 @@ export default function ProfilePage() {
                         "px-3 py-1 rounded-full text-xs font-bold",
                         isDark ? "bg-white/20 text-white" : "bg-white/30 text-white"
                       )}>
-                        Lv.{mockUser.level}
+                        Lv.{u?.level || 1}
                       </Badge>
                     </div>
                     <div className="flex-1 max-w-xs">
                       <div className="flex items-center justify-between text-xs text-white/60 mb-1">
                         <span>经验值</span>
-                        <span>{mockUser.exp}/{mockUser.expToNext}</span>
+                        <span>{u?.exp || 0}/{u?.expToNext || 100}</span>
                       </div>
                       <div className={cn(
                         "h-2 rounded-full overflow-hidden",
@@ -272,7 +292,7 @@ export default function ProfilePage() {
                       )}>
                         <div 
                           className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
-                          style={{ width: `${(mockUser.exp / mockUser.expToNext) * 100}%` }}
+                          style={{ width: `${((u?.exp || 0) / (u?.expToNext || 100)) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -281,7 +301,7 @@ export default function ProfilePage() {
                       isDark ? "bg-white/10" : "bg-white/20"
                     )}>
                       <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                      <span className="text-sm font-semibold text-white">{mockUser.points}</span>
+                      <span className="text-sm font-semibold text-white">{u?.points || 0}</span>
                     </div>
                   </div>
 
@@ -313,7 +333,13 @@ export default function ProfilePage() {
                     <Edit3 className="h-4 w-4 mr-2" />
                     编辑资料
                   </Button>
-                  <Button className={cn(
+                  <Button
+                    onClick={async () => {
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                      setUser(null);
+                      router.push('/');
+                    }}
+                    className={cn(
                     "h-10 px-5 rounded-xl font-medium text-red-400",
                     isDark
                       ? "bg-red-500/10 hover:bg-red-500/20 border border-red-500/20"
