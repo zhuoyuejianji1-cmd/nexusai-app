@@ -150,6 +150,145 @@ export function getProduct(productId: string): Product | undefined {
   return undefined
 }
 
+// ====== 微信支付 JSAPI 模式（小程序支付）=====
+
+// 调用微信支付JSAPI下单API (V3)
+// 返回 prepay_id
+async function callWechatPayJSAPI(order: {
+  outTradeNo: string
+  description: string
+  totalFee: number // 分
+  notifyUrl: string
+  openid: string
+}): Promise<{ prepayId: string }> {
+  // 构造请求体
+  const body = {
+    mchid: process.env.WECHAT_MCHID,
+    appid: process.env.WECHAT_APPID,
+    description: order.description,
+    out_trade_no: order.outTradeNo,
+    notify_url: order.notifyUrl,
+    amount: {
+      total: order.totalFee,
+      currency: 'CNY'
+    },
+    payer: {
+      openid: order.openid
+    }
+  }
+
+  // 构建签名（微信支付V3 API使用商户证书签名）
+  const nonce = Math.random().toString(36).substring(2, 16)
+  const timestamp = Math.floor(Date.now() / 1000).toString()
+  const url = 'https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi'
+  const method = 'POST'
+  const bodyStr = JSON.stringify(body)
+
+  // 构造签名串
+  const signatureStr = `${method}\n${new URL(url).pathname}\n${timestamp}\n${nonce}\n${bodyStr}\n`
+
+  // 使用商户私钥进行签名
+  const privateKey = process.env.WECHAT_MERCHANT_PRIVATE_KEY || ''
+  const { createSign } = await import('crypto')
+  const sign = createSign('RSA-SHA256')
+  sign.update(signatureStr)
+  const signature = sign.sign(privateKey, 'base64')
+
+  const authorization = `WECHATPAY2-SHA256-RSA2048 mchid="${process.env.WECHAT_MCHID}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${process.env.WECHAT_MERCHANT_CERT_SERIAL}",signature="${signature}"`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': authorization,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': '资料库Pro/1.0'
+    },
+    body: bodyStr
+  })
+
+  const result = await response.json() as any
+  if (!response.ok) {
+    console.error('微信支付JSAPI下单失败:', result)
+    throw new Error(`微信支付下单失败: ${result.message || JSON.stringify(result)}`)
+  }
+
+  return { prepayId: result.prepay_id }
+}
+
+// 生成小程序端调起支付所需的参数
+// 文档: https://pay.weixin.qq.com/wiki/doc/apiv3/open/pay/chapter2_5_3.shtml
+function generateMiniProgramPaymentParams(prepayId: string, signType: string = 'RSA'): {
+  timeStamp: string
+  nonceStr: string
+  package: string
+  signType: string
+  paySign: string
+} {
+  const timeStamp = Math.floor(Date.now() / 1000).toString()
+  const nonceStr = Math.random().toString(36).substring(2, 18)
+  const packageStr = `prepay_id=${prepayId}`
+
+  // 构造签名串
+  // AppId + \n + timeStamp + \n + nonceStr + \n + prepay_id + \n
+  const signatureStr = `${process.env.WECHAT_APPID}\n${timeStamp}\n${nonceStr}\n${packageStr}\n`
+
+  // 使用商户私钥签名
+  const privateKey = process.env.WECHAT_MERCHANT_PRIVATE_KEY || ''
+  const { createSign } = require('crypto')
+  const sign = createSign('RSA-SHA256')
+  sign.update(signatureStr)
+  const paySign = sign.sign(privateKey, 'base64')
+
+  return {
+    timeStamp,
+    nonceStr,
+    package: packageStr,
+    signType,
+    paySign,
+  }
+}
+
+// Mock JSAPI 支付参数（开发模式用）
+function mockJSAPIPayment(outTradeNo: string) {
+  return {
+    timeStamp: Math.floor(Date.now() / 1000).toString(),
+    nonceStr: Math.random().toString(36).substring(2, 18),
+    package: `prepay_id=mock_${outTradeNo}`,
+    signType: 'RSA' as const,
+    paySign: 'mock_signature_for_development',
+  }
+}
+
+// 创建 JSAPI 支付（小程序用）
+export async function createJSAPIPayment(order: Order, openid: string): Promise<{
+  payment: {
+    timeStamp: string
+    nonceStr: string
+    package: string
+    signType: string
+    paySign: string
+  }
+}> {
+  if (isMockMode()) {
+    console.log(`[Mock JSAPI] 订单 ${order.outTradeNo} 金额 ¥${(order.totalFee / 100).toFixed(2)} openid=${openid}`)
+    return { payment: mockJSAPIPayment(order.outTradeNo) }
+  }
+
+  const notifyUrl = process.env.WECHAT_NOTIFY_URL || 'https://huyuai.icu/api/payment/wxpay/notify'
+  
+  const { prepayId } = await callWechatPayJSAPI({
+    outTradeNo: order.outTradeNo,
+    description: truncateByBytes(order.productName, 127),
+    totalFee: order.totalFee,
+    notifyUrl,
+    openid,
+  })
+
+  const payment = generateMiniProgramPaymentParams(prepayId)
+  return { payment }
+}
+
 // ====== 微信支付 Native 模式 ======
 
 // 是否为Mock模式
