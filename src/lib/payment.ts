@@ -292,14 +292,15 @@ export async function createJSAPIPayment(order: Order, openid: string): Promise<
 // ====== 微信支付 Native 模式 ======
 
 // 是否为Mock模式
-// 1. 如果 WECHAT_PAY_MODE=mock 则强制Mock
-// 2. 否则检查商户配置是否完整
+// 小程序审核期间始终用Mock模式
 function isMockMode(): boolean {
-  if (process.env.WECHAT_PAY_MODE === 'mock') return true
+  return true
+  /* 小程序上线后取消注释以下代码启用真实支付
   return !process.env.WECHAT_MCHID 
     || !process.env.WECHAT_APPID 
     || !process.env.WECHAT_MERCHANT_PRIVATE_KEY 
     || process.env.WECHAT_MERCHANT_PRIVATE_KEY.length < 100
+  */
 }
 
 // 调用微信支付Native下单API (V3)
