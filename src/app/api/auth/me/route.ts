@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getVipStatus } from '@/lib/redis';
 
 // 解析 token，支持 Cookie 和 Bearer 两种方式
 function parseToken(request: NextRequest): any {
@@ -38,16 +39,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ user: null });
     }
 
+    // 默认用户信息
+    const baseUser = {
+      id: '',
+      nickname: '用户',
+      avatar: null,
+      is_vip: false,
+      vip_expire: null,
+      points: 0,
+    };
+
     // 微信小程序用户
     if (tokenData.openid) {
+      const vip = await getVipStatus(tokenData.openid);
+      const now = new Date().toISOString().split('T')[0];
+      const isValid = vip.isVip && vip.expire >= now;
+
       return NextResponse.json({
         user: {
+          ...baseUser,
           id: tokenData.openid,
           openid: tokenData.openid,
           nickname: tokenData.nickname || '微信用户',
-          avatar: null,
-          is_vip: false,
-          points: 0,
+          is_vip: isValid,
+          vip_expire: vip.expire || null,
+          vip_since: vip.since || null,
         },
       });
     }
@@ -55,11 +71,10 @@ export async function GET(request: NextRequest) {
     // Web 端邮箱用户
     return NextResponse.json({
       user: {
+        ...baseUser,
         id: tokenData.userId,
         email: tokenData.email,
         nickname: tokenData.email?.split('@')[0] || '用户',
-        avatar: null,
-        is_vip: false,
         points: 100,
       },
     });
