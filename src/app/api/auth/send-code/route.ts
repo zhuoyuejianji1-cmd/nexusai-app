@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { saveCode } from '@/lib/code-store';
 
-// 初始化 Resend - 使用环境变量或用户提供的新 API Key
-const resend = new Resend(process.env.RESEND_API_KEY || 're_KRJcQQk9_EhQ5J3W1W2DcYGUBvXbNo15Q');
+function getResend(): Resend | null {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
 
 // 生成6位验证码
 function generateCode(): string {
@@ -25,6 +29,9 @@ export async function POST(request: NextRequest) {
     const code = generateCode();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10分钟有效期
     
+    // 保存验证码（文件存储，生产环境需换数据库）
+    saveCode(email, code);
+    
     // 开发环境：直接返回验证码，不实际发送邮件
     if (process.env.NODE_ENV === 'development') {
       console.log(`【开发环境】验证码 ${code} 已发送至 ${email}`);
@@ -36,6 +43,14 @@ export async function POST(request: NextRequest) {
     }
     
     // 生产环境：发送邮件
+    const resend = getResend();
+    if (!resend) {
+      console.error('RESEND_API_KEY 未配置');
+      return NextResponse.json(
+        { error: '邮件服务未配置，请联系管理员' },
+        { status: 500 }
+      );
+    }
     try {
       const emailSubject = type === 'register' 
         ? 'NexusAI 注册验证码' 
@@ -88,7 +103,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // TODO: 保存验证码到数据库（生产环境必须）
     console.log(`验证码 ${code} 已发送至 ${email}`);
     
     return NextResponse.json({

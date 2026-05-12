@@ -393,14 +393,14 @@ export default function PremiumPage() {
                               "px-3 py-1.5 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm",
                               isDark ? "bg-white/20 text-white" : "bg-white/90 text-slate-800"
                             )}>
-                              {course.price > 0 ? `¥${course.price}` : '免费'}
+                              {course.price === 0 ? '免费' : '¥9.9'}
                             </span>
-                            {course.originalPrice > course.price && course.price > 0 && (
+                            {course.originalPrice > 0 && course.price > 0 && (
                               <span className={cn(
                                 "px-2 py-1 rounded-full text-xs font-medium",
                                 isDark ? "bg-red-500/80 text-white" : "bg-red-500 text-white"
                               )}>
-                                {Math.round((1 - course.price / course.originalPrice) * 100)}% OFF
+                                {Math.round((1 - 9.9 / course.originalPrice) * 100)}% OFF
                               </span>
                             )}
                           </div>

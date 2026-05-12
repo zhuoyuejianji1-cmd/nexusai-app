@@ -111,7 +111,8 @@ export default function CourseDetailPage() {
   }
 
   const isVip = user?.is_vip === true;
-  const displayPrice = course.price > 0 ? course.price : 9.9;
+  const isFreeCourse = course.price === 0;
+  const displayPrice = isFreeCourse ? 0 : 9.9;
   const showPayButton = !isVip;
 
   return (
@@ -235,8 +236,18 @@ export default function CourseDetailPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <span className={cn("text-3xl font-black", isDark ? "text-amber-400" : "text-amber-600")}>¥{displayPrice}</span>
-                      <span className={cn("text-sm line-through", isDark ? "text-slate-500" : "text-slate-400")}>¥{course.originalPrice > displayPrice ? course.originalPrice : (displayPrice * 2)}</span>
+                      {displayPrice > 0 ? (
+                        <>
+                          <span className={cn("text-3xl font-black", isDark ? "text-amber-400" : "text-amber-600")}>¥{displayPrice}</span>
+                          {course.originalPrice > displayPrice && (
+                            <span className={cn("text-sm line-through", isDark ? "text-slate-500" : "text-slate-400")}>¥{course.originalPrice}</span>
+                          )}
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className={cn("text-3xl font-black", isDark ? "text-emerald-400" : "text-emerald-600")}>免费</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
