@@ -395,14 +395,6 @@ export default function PremiumPage() {
                             )}>
                               {course.price === 0 ? '免费' : '¥9.9'}
                             </span>
-                            {course.originalPrice > 0 && course.price > 0 && (
-                              <span className={cn(
-                                "px-2 py-1 rounded-full text-xs font-medium",
-                                isDark ? "bg-red-500/80 text-white" : "bg-red-500 text-white"
-                              )}>
-                                {Math.round((1 - 9.9 / course.originalPrice) * 100)}% OFF
-                              </span>
-                            )}
                           </div>
                         </div>
 

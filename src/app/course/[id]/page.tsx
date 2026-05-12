@@ -237,16 +237,9 @@ export default function CourseDetailPage() {
                   ) : (
                     <div className="flex items-center gap-3">
                       {displayPrice > 0 ? (
-                        <>
-                          <span className={cn("text-3xl font-black", isDark ? "text-amber-400" : "text-amber-600")}>¥{displayPrice}</span>
-                          {course.originalPrice > displayPrice && (
-                            <span className={cn("text-sm line-through", isDark ? "text-slate-500" : "text-slate-400")}>¥{course.originalPrice}</span>
-                          )}
-                        </>
+                        <span className={cn("text-3xl font-black", isDark ? "text-amber-400" : "text-amber-600")}>¥{displayPrice}</span>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <span className={cn("text-3xl font-black", isDark ? "text-emerald-400" : "text-emerald-600")}>免费</span>
-                        </div>
+                        <span className={cn("text-3xl font-black", isDark ? "text-emerald-400" : "text-emerald-600")}>免费</span>
                       )}
                     </div>
                   )}

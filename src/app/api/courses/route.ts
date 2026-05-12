@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 
 export interface Course {
@@ -26,12 +26,61 @@ export interface Course {
   sourceUrl: string;
 }
 
+// 模块级缓存，避免每次请求都读磁盘
+let coursesCache: Course[] | null = null;
+let cacheTime = 0;
+const CACHE_TTL = 60 * 1000; // 1分钟
+
+function loadCourses(): Course[] {
+  const now = Date.now();
+  if (coursesCache && now - cacheTime < CACHE_TTL) {
+    return coursesCache;
+  }
+  const filePath = path.join(process.cwd(), 'src', 'data', 'courses.json');
+  if (!existsSync(filePath)) {
+    return [];
+  }
+  const raw = readFileSync(filePath, 'utf-8');
+  coursesCache = JSON.parse(raw);
+  cacheTime = now;
+  return coursesCache!;
+}
+
+// 清理课程数据（按需返回安全字段）
+function cleanCourse(c: Course) {
+  let content = c.content || c.detail || '';
+  // 爬虫数据内容可能含富文本标记，适当截断
+  if (content.length > 10000) content = content.slice(0, 10000) + '...';
+
+  return {
+    id: c.id,
+    title: c.title || '未命名课程',
+    description: c.description || c.detail?.slice(0, 200) || '',
+    detail: c.detail || '',
+    instructor: c.instructor || '精品课程',
+    thumbnail: c.thumbnail || '',
+    duration: c.duration || '待定',
+    students: c.students || 0,
+    rating: c.rating || 4.5,
+    level: c.level || '入门',
+    tags: c.tags || [],
+    isPremium: true,
+    price: c.price || 0,
+    originalPrice: c.originalPrice || 0,
+    updatedAt: c.updatedAt || '',
+    chapters: c.chapters || 1,
+    highlights: c.highlights || [],
+    content: content,
+    baiduLinks: c.baiduLinks || [],
+    detailImages: c.detailImages || [],
+    sourceUrl: c.sourceUrl || '',
+  };
+}
+
 // GET /api/courses - 获取课程列表
 export async function GET(request: NextRequest) {
   try {
-    const filePath = path.join(process.cwd(), 'src', 'data', 'courses.json');
-    const raw = readFileSync(filePath, 'utf-8');
-    const allCourses: Course[] = JSON.parse(raw);
+    const allCourses = loadCourses();
 
     const { searchParams } = new URL(request.url);
     
@@ -68,39 +117,7 @@ export async function GET(request: NextRequest) {
     const total = filtered.length;
     const start = (page - 1) * limit;
     const paged = filtered.slice(start, start + limit);
-
-// 清理课程数据
-function cleanCourse(c: Course) {
-  let content = c.content || c.detail || '';
-  // 爬虫数据内容可能含富文本标记，适当清理
-  if (content.length > 10000) content = content.slice(0, 10000) + '...';
-
-  return {
-    id: c.id,
-    title: c.title || '未命名课程',
-    description: c.description || c.detail?.slice(0, 200) || '',
-    detail: c.detail || '',
-    instructor: c.instructor || '精品课程',
-    thumbnail: c.thumbnail || '',
-    duration: c.duration || '待定',
-    students: c.students || 0,
-    rating: c.rating || 4.5,
-    level: c.level || '入门',
-    tags: c.tags || [],
-    isPremium: true,
-    price: c.price || 0,
-    originalPrice: c.originalPrice || 0,
-    updatedAt: c.updatedAt || '',
-    chapters: c.chapters || 1,
-    highlights: c.highlights || [],
-    content: content,
-    baiduLinks: c.baiduLinks || [],
-    detailImages: c.detailImages || [],
-    sourceUrl: c.sourceUrl || '',
-  };
-}
-
-const courses = paged.map(cleanCourse);
+    const courses = paged.map(cleanCourse);
 
     return NextResponse.json({
       data: courses,

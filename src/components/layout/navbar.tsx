@@ -215,24 +215,46 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                 <p className="text-xs text-slate-400">{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
               </div>
               <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
-              <DropdownMenuItem 
-                className={cn(
-                  "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors",
-                  isDark ? "text-slate-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600 focus:bg-slate-50"
-                )}
-              >
-                <User className="mr-2 h-4 w-4" />
-                登录 / 注册
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
-              <DropdownMenuItem 
-                className={cn(
-                  "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
-                )}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                退出登录
-              </DropdownMenuItem>
+              {user ? (
+                <>
+                  <DropdownMenuItem 
+                    onClick={() => { setShowUserMenu(false); router.push('/profile'); }}
+                    className={cn(
+                      "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors",
+                      isDark ? "text-slate-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600 focus:bg-slate-50"
+                    )}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    我的主页
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
+                  <DropdownMenuItem 
+                    onClick={async () => {
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                      setUser(null);
+                      setShowUserMenu(false);
+                      window.location.reload();
+                    }}
+                    className={cn(
+                      "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
+                    )}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    退出登录
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem 
+                  onClick={() => { setShowUserMenu(false); router.push('/login'); }}
+                  className={cn(
+                    "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors",
+                    isDark ? "text-slate-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600 focus:bg-slate-50"
+                  )}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  登录 / 注册
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

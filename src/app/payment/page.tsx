@@ -21,7 +21,7 @@ function PaymentPageContent() {
 
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isLoaded, setIsLoaded] = useState(false);
-  const [step, setStep] = useState<'loading' | 'create_order' | 'show_qr' | 'paid' | 'error'>('loading');
+  const [step, setStep] = useState<'loading' | 'checking_auth' | 'create_order' | 'show_qr' | 'paid' | 'error'>('loading');
   const [order, setOrder] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [qrCode, setQrCode] = useState<string>('');
@@ -36,10 +36,29 @@ function PaymentPageContent() {
 
   const isDark = theme === 'dark';
 
-  // 创建订单
+  // 检查登录状态
   useEffect(() => {
     if (!isLoaded || !courseId) return;
+    
+    setStep('checking_auth');
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.user) {
+          // 未登录，跳转到登录页，登录后返回支付页
+          router.push(`/login?redirect=/payment?course_id=${courseId}`);
+          return;
+        }
+        // 已登录，开始创建订单
+        createOrder();
+      })
+      .catch(() => {
+        setErrorMsg('无法验证身份，请重新登录');
+        setStep('error');
+      });
+  }, [isLoaded, courseId]);
 
+  function createOrder() {
     setStep('create_order');
     fetch('/api/orders/create', {
       method: 'POST',
@@ -73,7 +92,7 @@ function PaymentPageContent() {
         setErrorMsg('网络错误，请重试');
         setStep('error');
       });
-  }, [isLoaded, courseId]);
+  }
 
   // 轮询支付状态
   useEffect(() => {

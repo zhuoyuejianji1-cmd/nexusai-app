@@ -90,8 +90,10 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        // 登录成功，返回首页
-        router.push('/');
+        // 登录成功，跳转回来源页面或首页
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect') || '/';
+        router.push(redirect);
       } else {
         setError(data.error || '验证失败');
       }
