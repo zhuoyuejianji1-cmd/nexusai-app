@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Sparkles, 
@@ -60,6 +61,7 @@ const benefits = [
 ];
 
 export default function PremiumPage() {
+  const router = useRouter();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
@@ -356,9 +358,10 @@ export default function PremiumPage() {
                 {courses.map((course) => (
                   <div
                     key={course.id}
-                    className="group"
+                    className="group cursor-pointer"
                     onMouseEnter={() => setHoveredCourse(course.id)}
                     onMouseLeave={() => setHoveredCourse(null)}
+                    onClick={() => router.push(`/course/${course.id}`)}
                   >
                     <Card className={cn(
                       "overflow-hidden transition-all duration-300 h-full",
@@ -514,17 +517,17 @@ export default function PremiumPage() {
                           </Badge>
                         </div>
 
-                        {/* 购买按钮 */}
-                        <Link href={`/payment?course_id=${course.id}`}>
-                          <Button className={cn(
-                            "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200",
+                        {/* 查看详情按钮 */}
+                        <Button
+                          onClick={() => router.push(`/course/${course.id}`)}
+                          className={cn(
+                            "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200 cursor-pointer",
                             isDark
                               ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
                               : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/10"
                           )}>
-                            {course.price > 0 ? `立即购买 · ¥${course.price}` : '免费学习'}
-                          </Button>
-                        </Link>
+                          查看详情
+                        </Button>
                       </CardContent>
                     </Card>
                   </div>

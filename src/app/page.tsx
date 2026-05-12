@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   TrendingUp, 
@@ -60,16 +61,6 @@ const colorMap: Record<string, { gradient: string; text: string }> = {
 
 // 数据从 API 获取，不在前端暴露硬编码数据
 
-// 精品课程数据
-const premiumCourses = [
-  { id: 1, title: 'AI 全栈工程师实战班', desc: '从零打造企业级 AI 应用', students: 2847, rating: 4.9, price: 2999, gradient: 'from-violet-500 to-purple-500' },
-  { id: 2, title: 'ChatGPT 与 Prompt Engineering', desc: '系统学习 Prompt 工程', students: 5623, rating: 4.8, price: 999, gradient: 'from-blue-500 to-cyan-500' },
-  { id: 3, title: 'Midjourney 商业设计实战', desc: 'AI 生成视觉内容商业路径', students: 3412, rating: 4.7, price: 799, gradient: 'from-pink-500 to-rose-500' },
-  { id: 4, title: 'Stable Diffusion 进阶指南', desc: 'ControlNet、Lora 训练核心技术', students: 2156, rating: 4.9, price: 1299, gradient: 'from-emerald-500 to-teal-500' },
-  { id: 5, title: 'LangChain 与 Agent 开发', desc: '构建智能 Agent 系统', students: 1893, rating: 4.8, price: 1999, gradient: 'from-amber-500 to-orange-500' },
-  { id: 6, title: '大模型微调实战 (LoRA)', desc: '掌握 LLM 微调核心技能', students: 1234, rating: 4.9, price: 2499, gradient: 'from-red-500 to-pink-500' },
-];
-
 
 
 // 学习路径
@@ -89,9 +80,10 @@ const badges = [
 
 
 
-type TabType = 'home' | 'resources' | 'premium' | 'learn' | 'profile';
+type TabType = 'home' | 'resources' | 'learn' | 'profile';
 
 export default function HomePage() {
+  const router = useRouter();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -225,29 +217,32 @@ export default function HomePage() {
             <Crown className={cn("h-5 w-5", isDark ? "text-amber-400" : "text-amber-600")} />
             精品课程
           </h2>
-          <button onClick={() => setActiveTab('premium')} className={cn("text-sm font-medium flex items-center gap-1", isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-indigo-600")}>
-            查看全部 <ChevronRight className="h-4 w-4" />
-          </button>
+          <Link href="/premium" className={cn("text-sm font-medium flex items-center gap-1 group", isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-indigo-600")}>
+            查看全部 <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </div>
-        <div className="grid grid-cols-3 gap-4">
-          {premiumCourses.slice(0, 3).map((course) => (
-            <div key={course.id} className={cn(
-              "rounded-xl p-4 transition-all duration-200 cursor-pointer",
-              isDark ? "bg-[#12121a] hover:bg-[#1a1a2e] border border-white/5 hover:border-indigo-500/30" : "bg-white hover:shadow-md border border-slate-200/50"
-            )}>
-              <div className={cn("h-10 w-10 rounded-lg mb-3 bg-gradient-to-br " + course.gradient)} />
-              <h3 className={cn("text-sm font-bold mb-1", isDark ? "text-white" : "text-slate-800")}>{course.title}</h3>
-              <p className={cn("text-xs mb-3", isDark ? "text-slate-500" : "text-slate-400")}>{course.desc}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Star className={cn("h-3 w-3", isDark ? "text-amber-400" : "text-amber-500")} />
-                  <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{course.rating}</span>
+        <Link href="/premium" className="block group">
+          <div className={cn(
+            "rounded-xl p-6 transition-all duration-200",
+            isDark ? "bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40" : "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/50 hover:border-amber-300"
+          )}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={cn("flex items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500")}>
+                  <Crown className="h-7 w-7 text-white" />
                 </div>
-                <span className={cn("text-sm font-bold", isDark ? "text-amber-400" : "text-amber-600")}>¥{course.price}</span>
+                <div>
+                  <h3 className={cn("font-heading font-bold text-base mb-1", isDark ? "text-white" : "text-slate-800")}>5000+ 精品课程</h3>
+                  <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>AI、副业、编程、设计... 持续更新中</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={cn("text-xs font-medium", isDark ? "text-amber-400" : "text-amber-600")}>浏览课程</span>
+                <ChevronRight className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-amber-600")} />
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        </Link>
       </section>
 
       {/* 热榜 + 动态 */}
@@ -401,93 +396,6 @@ export default function HomePage() {
             </div>
           );
         })}
-      </div>
-    </div>
-  );
-
-  // ==================== 精品课程页 ====================
-  const renderPremium = () => (
-    <div className="space-y-6">
-      {/* Banner */}
-      <div className={cn(
-        "relative overflow-hidden rounded-2xl",
-        isDark ? "bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border border-white/5" : "bg-gradient-to-br from-amber-500 via-orange-500 to-pink-500"
-      )}>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
-        </div>
-        <div className="relative px-6 py-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Crown className="h-6 w-6 text-white" />
-            <h1 className={cn("font-heading text-2xl font-bold text-white")}>精品课程</h1>
-          </div>
-          <p className={cn("text-white/70 text-sm mb-4")}>行业顶级讲师 · 实战驱动学习 · 系统化成长路径</p>
-          <div className="flex items-center gap-6">
-            {[{ value: '9', label: '精选课程' }, { value: '20,000+', label: '学员总数' }, { value: '98%', label: '好评率' }].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className={cn("text-xl font-bold text-white")}>{stat.value}</div>
-                <div className={cn("text-xs text-white/60")}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 会员权益 */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { icon: Crown, title: '专属会员群', desc: '与讲师实时交流' },
-          { icon: Shield, title: '永久更新', desc: '内容持续迭代' },
-          { icon: Zap, title: '优先体验', desc: '最新功能抢先学' },
-          { icon: CheckCircle2, title: '退款保障', desc: '7天无理由退款' },
-        ].map((item, i) => (
-          <div key={i} className={cn(
-            "flex items-center gap-3 p-4 rounded-xl",
-            isDark ? "bg-[#12121a] border border-white/5" : "bg-white border border-slate-200/50"
-          )}>
-            <div className={cn("flex items-center justify-center h-10 w-10 rounded-lg", isDark ? "bg-amber-500/20" : "bg-amber-100")}>
-              <item.icon className={cn("h-5 w-5", isDark ? "text-amber-400" : "text-amber-600")} />
-            </div>
-            <div>
-              <h3 className={cn("text-sm font-semibold", isDark ? "text-white" : "text-slate-800")}>{item.title}</h3>
-              <p className={cn("text-xs", isDark ? "text-slate-500" : "text-slate-400")}>{item.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* 课程列表 */}
-      <div className="grid grid-cols-3 gap-4">
-        {premiumCourses.map((course) => (
-          <div key={course.id} className={cn(
-            "rounded-xl overflow-hidden transition-all duration-200 cursor-pointer group",
-            isDark ? "bg-[#12121a] border border-white/5 hover:border-indigo-500/30" : "bg-white border border-slate-200/50 hover:shadow-lg"
-          )}>
-            <div className={cn("h-20 bg-gradient-to-br " + course.gradient + " relative")}>
-              <Play className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center" />
-            </div>
-            <div className="p-4">
-              <h3 className={cn("text-sm font-bold mb-1", isDark ? "text-white" : "text-slate-800")}>{course.title}</h3>
-              <p className={cn("text-xs mb-3", isDark ? "text-slate-500" : "text-slate-400")}>{course.desc}</p>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Star className={cn("h-3 w-3", isDark ? "text-amber-400" : "text-amber-500")} />
-                    <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{course.rating}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className={cn("h-3 w-3", isDark ? "text-slate-400" : "text-slate-500")} />
-                    <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{(course.students/1000).toFixed(1)}k</span>
-                  </div>
-                </div>
-                <span className={cn("text-sm font-bold", isDark ? "text-amber-400" : "text-amber-600")}>¥{course.price}</span>
-              </div>
-              <Button className={cn("w-full h-8 rounded-lg text-xs font-medium", isDark ? "bg-indigo-500 text-white hover:bg-indigo-400" : "bg-indigo-500 text-white hover:bg-indigo-600")}>
-                立即购买
-              </Button>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -736,7 +644,6 @@ export default function HomePage() {
         <div key={activeTab} className="animate-fade-in">
           {activeTab === 'home' && renderHome()}
           {activeTab === 'resources' && renderResources()}
-          {activeTab === 'premium' && renderPremium()}
           {activeTab === 'learn' && renderLearn()}
           {activeTab === 'profile' && renderProfile()}
         </div>

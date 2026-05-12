@@ -39,6 +39,26 @@ export async function POST(request: NextRequest) {
     // 创建订单
     const order = createOrder(product, { userId, email });
 
+    // 如果总价为0（VIP免费），直接标记为已支付
+    if (order.totalFee === 0) {
+      order.status = 'paid';
+      order.paidAt = Date.now();
+      // 直接返回成功，不需要生成二维码
+      return NextResponse.json({
+        success: true,
+        freeOrder: true,
+        order: {
+          id: order.id,
+          outTradeNo: order.outTradeNo,
+          productName: order.productName,
+          totalFee: order.totalFee,
+          status: 'paid',
+          createdAt: order.createdAt,
+          paidAt: order.paidAt,
+        },
+      });
+    }
+
     // 获取支付二维码
     const { codeUrl } = await createPayment(order);
     order.codeUrl = codeUrl;

@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-type TabType = 'home' | 'resources' | 'premium' | 'learn' | 'profile';
+type TabType = 'home' | 'resources' | 'learn' | 'profile';
 
 interface UserData {
   id: string;
@@ -40,7 +40,7 @@ interface NavbarProps {
 const navLinks = [
   { id: 'home' as TabType, label: '首页', href: '/' },
   { id: 'resources' as TabType, label: '资源', href: '/' },
-  { id: 'premium' as TabType, label: '精品课程', href: '/' },
+  { id: 'premium' as const, label: '精品课程', href: '/premium' },
   { id: 'learn' as TabType, label: '学习', href: '/' },
   { id: 'profile' as TabType, label: '我的', href: '/' },
 ];
@@ -80,7 +80,11 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
 
   const isDark = theme === 'dark';
 
-  const handleNavClick = (tabId: TabType) => {
+  const handleNavClick = (tabId: TabType | 'premium') => {
+    if (tabId === 'premium') {
+      router.push('/premium');
+      return;
+    }
     setActiveTab(tabId);
     if (onTabChange) {
       onTabChange(tabId);

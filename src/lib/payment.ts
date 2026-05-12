@@ -96,22 +96,58 @@ export function getAllOrders(): Order[] {
   return Array.from(orders.values()).sort((a, b) => b.createdAt - a.createdAt)
 }
 
-// 预定义商品 (从精品课程抽取)
-export const PRODUCTS: Record<string, Product> = {
-  '1': { id: '1', name: 'AI 全栈工程师实战班', price: 299900, description: '从零打造企业级 AI 应用' },
-  '2': { id: '2', name: 'ChatGPT 与 Prompt Engineering', price: 99900, description: '系统学习 Prompt 工程' },
-  '3': { id: '3', name: 'Midjourney 商业设计实战', price: 79900, description: 'AI 生成视觉内容商业路径' },
-  '4': { id: '4', name: 'Stable Diffusion 进阶指南', price: 129900, description: 'ControlNet、Lora 训练核心技术' },
-  '5': { id: '5', name: 'LangChain 与 Agent 开发', price: 199900, description: '构建智能 Agent 系统' },
-  '6': { id: '6', name: '大模型微调实战 (LoRA/QLoRA)', price: 249900, description: '掌握 LLM 微调核心技能' },
-  '7': { id: '7', name: 'AI 产品经理入门到精通', price: 119900, description: 'AI 产品设计思维全流程' },
-  '8': { id: '8', name: 'Claude API 高级应用开发', price: 89900, description: '构建智能客服与知识库' },
-  '9': { id: '9', name: 'AI 数据标注师认证课程', price: 39900, description: '成为专业 AI 训练数据标注师' },
+// 动态获取商品信息
+// 先查硬编码商品（兼容旧ID），再查courses.json中的课程（新ID）
+// 非会员统一价 9.9元 = 990分
+const DEFAULT_PRICE = 990 // 9.9元（单位：分）
+
+// 缓存课程数据，避免重复读取
+let coursesCache: any[] | null = null
+function getCoursesSync(): any[] {
+  if (coursesCache) return coursesCache
+  try {
+    const fs = require('fs')
+    const path = require('path')
+    const filePath = path.join(process.cwd(), 'src', 'data', 'courses.json')
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf-8')
+      coursesCache = JSON.parse(raw)
+      return coursesCache!
+    }
+  } catch {}
+  return []
 }
 
 // 获取商品信息
 export function getProduct(productId: string): Product | undefined {
-  return PRODUCTS[productId]
+  // 先查旧硬编码商品（兼容之前的小范围ID）
+  const hardcodedProducts: Record<string, Product> = {
+    '1': { id: '1', name: 'AI 全栈工程师实战班', price: 299900, description: '从零打造企业级 AI 应用' },
+    '2': { id: '2', name: 'ChatGPT 与 Prompt Engineering', price: 99900, description: '系统学习 Prompt 工程' },
+    '3': { id: '3', name: 'Midjourney 商业设计实战', price: 79900, description: 'AI 生成视觉内容商业路径' },
+    '4': { id: '4', name: 'Stable Diffusion 进阶指南', price: 129900, description: 'ControlNet、Lora 训练核心技术' },
+    '5': { id: '5', name: 'LangChain 与 Agent 开发', price: 199900, description: '构建智能 Agent 系统' },
+    '6': { id: '6', name: '大模型微调实战 (LoRA/QLoRA)', price: 249900, description: '掌握 LLM 微调核心技能' },
+    '7': { id: '7', name: 'AI 产品经理入门到精通', price: 119900, description: 'AI 产品设计思维全流程' },
+    '8': { id: '8', name: 'Claude API 高级应用开发', price: 89900, description: '构建智能客服与知识库' },
+    '9': { id: '9', name: 'AI 数据标注师认证课程', price: 39900, description: '成为专业 AI 训练数据标注师' },
+  }
+  
+  if (hardcodedProducts[productId]) return hardcodedProducts[productId]
+  
+  // 从 courses.json 动态查找
+  const courses = getCoursesSync()
+  const course = courses.find((c: any) => String(c.id) === productId)
+  if (course) {
+    return {
+      id: String(course.id),
+      name: course.title || '未命名课程',
+      price: DEFAULT_PRICE, // 非会员统一定价 9.9元
+      description: (course.description || '').substring(0, 100),
+    }
+  }
+  
+  return undefined
 }
 
 // ====== 微信支付 Native 模式 ======

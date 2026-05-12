@@ -50,10 +50,15 @@ function PaymentPageContent() {
       .then(data => {
         if (data.success && data.order) {
           setOrder(data.order);
+          // 免费订单（VIP用户），直接完成
+          if (data.freeOrder) {
+            setStep('paid');
+            return;
+          }
           setStep('show_qr');
           // 生成二维码 (使用qrcode库)
           import('qrcode').then(qr => {
-            qr.toDataURL(data.order.codeUrl, {
+            qr.toDataURL(data.order.codeUrl || data.order.code_url || '', {
               width: 280,
               margin: 2,
               color: { dark: isDark ? '#ffffff' : '#000000', light: 'transparent' },
