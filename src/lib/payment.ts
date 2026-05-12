@@ -222,6 +222,19 @@ async function callWechatPayNative(order: {
   return { codeUrl: result.code_url }
 }
 
+// 按UTF-8字节数截断字符串（微信支付description要求≤127字节）
+function truncateByBytes(str: string, maxBytes: number): string {
+  let result = ''
+  let bytes = 0
+  for (const char of str) {
+    const charBytes = new TextEncoder().encode(char).length
+    if (bytes + charBytes > maxBytes) break
+    result += char
+    bytes += charBytes
+  }
+  return result
+}
+
 // 创建支付 (自动选择模式)
 export async function createPayment(order: Order): Promise<{ codeUrl: string }> {
   if (isMockMode()) {
@@ -236,7 +249,7 @@ export async function createPayment(order: Order): Promise<{ codeUrl: string }> 
   const notifyUrl = process.env.WECHAT_NOTIFY_URL || 'https://nexusai.example.com/api/payment/wxpay/notify'
   return callWechatPayNative({
     outTradeNo: order.outTradeNo,
-    description: order.productName,
+    description: truncateByBytes(order.productName, 127),
     totalFee: order.totalFee,
     notifyUrl
   })
