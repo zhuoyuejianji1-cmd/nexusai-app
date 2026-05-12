@@ -6,7 +6,7 @@ export default function PrivacyPage() {
       <h1 style={{ fontSize: 24, fontWeight: 700, textAlign: 'center', marginBottom: 8 }}>隐私政策</h1>
       <p style={{ textAlign: 'center', color: '#999', fontSize: 13, marginBottom: 32 }}>更新日期：2026年5月12日</p>
 
-      <p style={{ marginBottom: 20, color: '#666', fontSize: 14, lineHeight: 1.6 }}>欢迎使用「资料库Pro」小程序（以下简称"本小程序"）。本小程序由广州天河星轨互联网商品销售工作室（以下简称"我们"）运营。我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。本隐私政策将向您说明我们如何收集、使用、存储和保护您的个人信息。</p>
+      <p style={{ marginBottom: 20, color: '#666', fontSize: 14, lineHeight: 1.6 }}>欢迎使用「悠悠云创社」小程序（以下简称"本小程序"）。本小程序由广州天河星轨互联网商品销售工作室（以下简称"我们"）运营。我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。本隐私政策将向您说明我们如何收集、使用、存储和保护您的个人信息。</p>
 
       <Section title="一、我们如何收集和使用您的个人信息">
         <p>在您使用本小程序的过程中，我们可能会收集和使用您的以下个人信息：</p>
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
         borderTop: '1px solid #eee', color: '#999', fontSize: 12,
       }}>
         <p>广州天河星轨互联网商品销售工作室</p>
-        <p>Copyright &copy; 2026 资料库Pro. All rights reserved.</p>
+        <p>Copyright &copy; 2026 悠悠云创社. All rights reserved.</p>
       </div>
     </main>
   )
