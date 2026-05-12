@@ -41,8 +41,8 @@ const navLinks = [
   { id: 'home' as TabType, label: '首页', href: '/' },
   { id: 'resources' as TabType, label: '资源', href: '/' },
   { id: 'premium' as const, label: '精品课程', href: '/premium' },
-  { id: 'learn' as TabType, label: '学习', href: '/' },
-  { id: 'profile' as TabType, label: '我的', href: '/' },
+  { id: 'learn' as TabType, label: '学习', href: '/learn' },
+  { id: 'profile' as TabType, label: '我的', href: '/profile' },
 ];
 
 export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarProps) {
@@ -81,10 +81,12 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
   const isDark = theme === 'dark';
 
   const handleNavClick = (tabId: TabType | 'premium') => {
-    if (tabId === 'premium') {
-      router.push('/premium');
+    // 有独立页面的导航：直接跳转
+    if (tabId === 'premium' || tabId === 'learn' || tabId === 'profile') {
+      router.push(`/${tabId === 'premium' ? 'premium' : tabId}`);
       return;
     }
+    // SPA tab（首页/资源还在首页用tab切换）
     setActiveTab(tabId);
     if (onTabChange) {
       onTabChange(tabId);
@@ -196,6 +198,9 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                 )}>
                   {user?.nickname?.[0]?.toUpperCase() || '登录'}
                 </div>
+                {user?.is_vip && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center h-3.5 w-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold shadow">👑</span>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
@@ -211,8 +216,13 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                 "px-3 py-2 rounded-lg mb-1",
                 isDark ? "bg-white/5" : "bg-slate-50"
               )}>
-                <p className="text-sm font-semibold text-white">{user?.nickname || '游客用户'}</p>
-                <p className="text-xs text-slate-400">{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold" style={{color: isDark ? '#fff' : '#1e293b'}}>{user?.nickname || '游客用户'}</p>
+                  {user?.is_vip && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white">VIP</span>
+                  )}
+                </div>
+                <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
               </div>
               <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
               {user ? (
