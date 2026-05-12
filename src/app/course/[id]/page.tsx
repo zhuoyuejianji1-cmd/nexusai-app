@@ -307,8 +307,8 @@ export default function CourseDetailPage() {
               </Card>
             )}
 
-            {/* 百度网盘链接 */}
-            {course.baiduLinks?.length > 0 && (
+            {/* 百度网盘链接 - 仅会员可见 */}
+            {course.baiduLinks?.length > 0 && isVip && (
               <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
                 <CardContent className="p-6">
                   <h2 className={cn("text-lg font-bold mb-4 flex items-center gap-2", isDark ? "text-white" : "text-slate-800")}>
@@ -331,6 +331,30 @@ export default function CourseDetailPage() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* 非会员：资源锁定提示 */}
+            {course.baiduLinks?.length > 0 && !isVip && (
+              <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
+                <CardContent className="p-6 text-center">
+                  <div className={cn("inline-flex items-center justify-center h-14 w-14 rounded-full mb-4", isDark ? "bg-slate-800" : "bg-slate-100")}>
+                    <Crown className={cn("h-7 w-7", isDark ? "text-amber-400" : "text-amber-600")} />
+                  </div>
+                  <h3 className={cn("font-bold text-base mb-2", isDark ? "text-white" : "text-slate-800")}>
+                    会员专属资源
+                  </h3>
+                  <p className={cn("text-sm mb-5 leading-relaxed", isDark ? "text-slate-400" : "text-slate-500")}>
+                    开通会员即可下载本课程全部资源<br />
+                    （百度网盘链接 + 提取码）
+                  </p>
+                  <Button 
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-amber-500/20"
+                    onClick={() => router.push('/profile')}
+                  >
+                    开通会员
+                  </Button>
                 </CardContent>
               </Card>
             )}
