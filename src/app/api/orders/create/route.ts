@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProduct, createOrder, createPayment, createJSAPIPayment } from '@/lib/payment';
+import { setVip } from '@/lib/redis';
 
 // POST /api/orders/create - 创建订单
 // 支持两种支付方式:
@@ -54,6 +55,40 @@ export async function POST(request: NextRequest) {
 
     // 创建订单
     const order = createOrder(product, { userId, email });
+
+    // VIP会员商品：下单即自动激活（Mock模式，生产环境需等支付回调）
+    const vipId = (openid || userId) as string
+    if (vipId && (productId === 'vip_monthly' || productId === 'vip_yearly' || productId === 'vip_forever')) {
+      let expireDate = ''
+      const now = new Date()
+      if (productId === 'vip_monthly') {
+        now.setMonth(now.getMonth() + 1)
+      } else if (productId === 'vip_yearly') {
+        now.setFullYear(now.getFullYear() + 1)
+      } else if (productId === 'vip_forever') {
+        now.setFullYear(now.getFullYear() + 50) // 永久 = 50年
+      }
+      expireDate = now.toISOString().split('T')[0]
+      await setVip(vipId, expireDate)
+      console.log(`[VIP] 用户 ${vipId} 已开通会员，到期 ${expireDate}`)
+      // 订单直接标记已支付
+      order.status = 'paid'
+      order.paidAt = Date.now()
+      return NextResponse.json({
+        success: true,
+        vipActivated: true,
+        order: {
+          id: order.id,
+          outTradeNo: order.outTradeNo,
+          productName: order.productName,
+          totalFee: order.totalFee,
+          status: 'paid',
+          createdAt: order.createdAt,
+          paidAt: order.paidAt,
+        },
+        expireDate,
+      })
+    }
 
     // 如果总价为0（免费），直接标记为已支付
     if (order.totalFee === 0) {

@@ -131,6 +131,10 @@ export function getProduct(productId: string): Product | undefined {
     '7': { id: '7', name: 'AI 产品经理入门到精通', price: 119900, description: 'AI 产品设计思维全流程' },
     '8': { id: '8', name: 'Claude API 高级应用开发', price: 89900, description: '构建智能客服与知识库' },
     '9': { id: '9', name: 'AI 数据标注师认证课程', price: 39900, description: '成为专业 AI 训练数据标注师' },
+    // VIP会员商品
+    'vip_monthly': { id: 'vip_monthly', name: '月度VIP会员', price: 1990, description: '30天VIP会员，解锁全部课程' },
+    'vip_yearly': { id: 'vip_yearly', name: '年度VIP会员', price: 9900, description: '365天VIP会员，解锁全部课程' },
+    'vip_forever': { id: 'vip_forever', name: '永久VIP会员', price: 19900, description: '永久VIP会员，解锁全部课程+未来更新' },
   }
   
   if (hardcodedProducts[productId]) return hardcodedProducts[productId]
