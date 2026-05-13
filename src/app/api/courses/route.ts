@@ -16,6 +16,7 @@ export interface Course {
   level: string;
   tags: string[];
   isPremium: boolean;
+  isVipOnly?: boolean;
   price: number;
   originalPrice: number;
   updatedAt: string;
