@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
+import { getVipStatus } from '@/lib/redis';
 
 export interface Course {
   id: string;
@@ -85,9 +86,36 @@ function cleanCourse(c: Course) {
 }
 
 // GET /api/courses - 获取课程列表
+// 从请求中解析用户openid（小程序token或cookie）
+function getOpenId(request: NextRequest): string | null {
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const data = JSON.parse(Buffer.from(authHeader.slice(7), 'base64').toString());
+      return data.openid || null;
+    } catch { /* 忽略 */ }
+  }
+  try {
+    const authToken = request.cookies.get('auth_token');
+    if (authToken) {
+      const data = JSON.parse(Buffer.from(authToken.value, 'base64').toString());
+      return data.openid || null;
+    }
+  } catch { /* 忽略 */ }
+  return null;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const allCourses = loadCourses();
+    // 检查当前用户VIP状态
+    let isVipUser = false;
+    const openid = getOpenId(request);
+    if (openid) {
+      const vip = await getVipStatus(openid);
+      const now = new Date().toISOString().split('T')[0];
+      isVipUser = vip.isVip && vip.expire >= now;
+    }
 
     const { searchParams } = new URL(request.url);
     
@@ -98,8 +126,9 @@ export async function GET(request: NextRequest) {
       if (!course) {
         return NextResponse.json({ data: [], pagination: { page: 1, limit: 1, total: 0, totalPages: 0 } });
       }
+      const clean = cleanCourse(course);
       return NextResponse.json({
-        data: [cleanCourse(course)],
+        data: [{ ...clean, isVipUser }],
         pagination: { page: 1, limit: 1, total: 1, totalPages: 1 },
       });
     }
@@ -127,7 +156,7 @@ export async function GET(request: NextRequest) {
     const courses = paged.map(cleanCourse);
 
     return NextResponse.json({
-      data: courses,
+      data: courses.map(c => ({ ...c, isVipUser })),
       pagination: {
         page,
         limit,
