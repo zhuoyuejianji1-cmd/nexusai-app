@@ -52,13 +52,11 @@ function cleanCourse(c: Course) {
   // 爬虫数据内容可能含富文本标记，适当截断
   if (content.length > 10000) content = content.slice(0, 10000) + '...';
 
-  // 课程类型：free=免费（所有人）| paid=付费（单独购买）| vip=会员专享
-  // 规则：price=0 且 originalPrice=0 且不是会员课程=免费
-  //       price>0 或 originalPrice>0 = 付费课（统一定价9.9元）
-  //       标记为VIP的课程 = 会员专享
-  const price = c.price || 0;
-  const origPrice = c.originalPrice || 0;
-  const isFree = price === 0 && origPrice === 0;
+  // 课程类型：free=免费（所有人可见）| vip=会员专享（仅VIP可看）
+  // 当前规则：全部课程均为会员专享
+  // 如需设置免费课，在 courses.json 中给对应课程加 "isVipOnly": false
+  const isVipOnly = c.isVipOnly !== false; // 默认 true，全部会员专享
+  const price = isVipOnly ? 0 : (c.price || 0);
   
   return {
     id: c.id,
@@ -72,10 +70,10 @@ function cleanCourse(c: Course) {
     rating: c.rating || 4.5,
     level: c.level || '入门',
     tags: c.tags || [],
-    isPremium: true,
+    isPremium: isVipOnly,
     price: price,
-    originalPrice: origPrice,
-    type: isFree ? 'free' : 'paid',  // free=免费课, paid=付费课/会员课
+    originalPrice: 0,
+    type: isVipOnly ? 'vip' : 'free',  // vip=会员专享, free=免费课
     updatedAt: c.updatedAt || '',
     chapters: c.chapters || 1,
     highlights: c.highlights || [],
