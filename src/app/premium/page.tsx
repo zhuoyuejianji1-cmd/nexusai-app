@@ -131,16 +131,16 @@ export default function PremiumPage() {
     <div className={cn(
       "min-h-screen transition-colors duration-500",
       isDark 
-        ? "bg-[#0a0a0f] text-white" 
-        : "bg-[#fafbfc] text-slate-900"
+        ? "bg-[#171412] text-stone-100" 
+        : "bg-[#fefdfb] text-stone-900"
     )}>
       {/* 背景装饰 */}
       {isDark && (
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[150px]" />
-          <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-amber-500/10 via-orange-500/8 to-transparent rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-1/3 w-[450px] h-[450px] bg-gradient-to-br from-pink-500/10 via-rose-500/8 to-transparent rounded-full blur-[120px]" />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:70px_70px]" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-orange-500/12 via-amber-500/8 to-transparent rounded-full blur-[150px]" />
+          <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-amber-500/10 via-yellow-500/6 to-transparent rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-1/3 w-[450px] h-[450px] bg-gradient-to-br from-orange-400/8 via-amber-400/6 to-transparent rounded-full blur-[120px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:70px_70px]" />
         </div>
       )}
 
@@ -148,24 +148,24 @@ export default function PremiumPage() {
       <header className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         isDark 
-          ? "bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5" 
-          : "bg-white/80 backdrop-blur-xl border-b border-slate-200/80"
+          ? "bg-[#171412]/80 backdrop-blur-xl border-b border-white/5" 
+          : "bg-white/80 backdrop-blur-xl border-b border-stone-200/60"
       )}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3 group">
             <div className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300",
+              "flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-300",
               isDark 
-                ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20" 
-                : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/10"
+                ? "bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 shadow-lg shadow-orange-500/20" 
+                : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-lg shadow-orange-500/15"
             )}>
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <span className={cn(
               "font-heading text-xl font-bold tracking-tight",
               isDark 
-                ? "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" 
-                : "bg-gradient-to-r from-slate-900 via-indigo-600 to-purple-600 bg-clip-text text-transparent"
+                ? "text-stone-100" 
+                : "text-stone-800"
             )}>
               NexusAI
             </span>
@@ -177,8 +177,8 @@ export default function PremiumPage() {
               size="icon"
               onClick={toggleTheme}
               className={cn(
-                "h-10 w-10 rounded-xl transition-all duration-200",
-                isDark ? "hover:bg-white/10 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+                "h-10 w-10 rounded-xl transition-all duration-300",
+                isDark ? "hover:bg-white/10 text-stone-400 hover:text-amber-400" : "hover:bg-stone-100 text-stone-500 hover:text-orange-500"
               )}
             >
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -186,7 +186,7 @@ export default function PremiumPage() {
             <Link href="/">
               <Button variant="ghost" size="sm" className={cn(
                 "gap-2 h-10 px-4 rounded-xl font-medium",
-                isDark ? "text-slate-400 hover:text-white hover:bg-white/5" : "text-slate-600 hover:text-indigo-600 hover:bg-slate-50"
+                isDark ? "text-stone-400 hover:text-stone-200 hover:bg-white/5" : "text-stone-600 hover:text-orange-600 hover:bg-stone-50"
               )}>
                 <ArrowLeft className="h-4 w-4" />
                 返回首页
@@ -200,33 +200,33 @@ export default function PremiumPage() {
         {/* Hero Banner */}
         <section className="mb-10">
           <div className={cn(
-            "relative overflow-hidden rounded-3xl",
+            "relative overflow-hidden rounded-[2rem]",
             isDark 
-              ? "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#1f1f3a] border border-white/5" 
-              : "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 border border-indigo-200/50"
+              ? "bg-gradient-to-br from-[#2a1f1a] via-[#1f1a16] to-[#2a2018] border border-white/5" 
+              : "bg-gradient-to-br from-orange-50 via-amber-50/60 to-yellow-50/40 border border-orange-200/30 shadow-warm"
           )}>
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-white/5 via-transparent to-white/5 rounded-full blur-3xl" />
+              <div className={cn("absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl", isDark ? "bg-orange-500/8" : "bg-orange-200/40")} />
+              <div className={cn("absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl", isDark ? "bg-amber-500/8" : "bg-amber-200/30")} />
+              <div className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-3xl", isDark ? "bg-yellow-500/5" : "bg-yellow-100/40")} />
             </div>
             
             <div className="relative px-10 py-14">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm">
-                  <Crown className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-4 mb-8">
+                <div className={cn("flex items-center justify-center h-14 w-14 rounded-2xl shadow-lg", isDark ? "bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 shadow-orange-500/20" : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-orange-500/15")}>
+                  <Crown className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <h1 className="font-heading text-3xl font-black text-white tracking-tight">
+                  <h1 className={cn("font-heading text-3xl font-black tracking-tight", isDark ? "text-stone-100" : "text-stone-800")}>
                     精品课程
                   </h1>
-                  <p className="text-white/70 text-sm font-medium">
+                  <p className={cn("text-sm font-medium mt-1", isDark ? "text-stone-500" : "text-stone-500")}>
                     Premium Courses · 实战驱动 · 持续更新
                   </p>
                 </div>
               </div>
               
-              <p className="text-white/80 text-lg max-w-2xl leading-relaxed mb-8">
+              <p className={cn("text-lg max-w-2xl leading-relaxed mb-8", isDark ? "text-stone-400" : "text-stone-600")}>
                 精选全网最新 AI 与副业课程，由行业实战者倾力打造。<br />
                 从入门到精通，系统化学习路径助你快速提升。
               </p>
@@ -235,12 +235,12 @@ export default function PremiumPage() {
               <div className="flex items-center gap-8">
                 {stats.map((stat, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm">
-                      <stat.icon className="h-5 w-5 text-white/80" />
+                    <div className={cn("flex items-center justify-center h-10 w-10 rounded-xl", isDark ? "bg-white/8" : "bg-orange-100/60")}>
+                      <stat.icon className={cn("h-5 w-5", isDark ? "text-orange-400" : "text-orange-600")} />
                     </div>
                     <div>
-                      <div className="text-xl font-bold text-white">{stat.value}</div>
-                      <div className="text-xs text-white/60 font-medium">{stat.label}</div>
+                      <div className={cn("text-xl font-bold", isDark ? "text-stone-100" : "text-stone-800")}>{stat.value}</div>
+                      <div className={cn("text-xs font-medium", isDark ? "text-stone-500" : "text-stone-500")}>{stat.label}</div>
                     </div>
                   </div>
                 ))}
@@ -256,33 +256,33 @@ export default function PremiumPage() {
               <div 
                 key={i}
                 className={cn(
-                  "relative flex items-center gap-4 p-5 rounded-2xl transition-all duration-300",
+                  "relative flex items-center gap-4 p-5 rounded-2xl transition-all duration-300 hover-warm",
                   isDark
-                    ? "bg-white/5 hover:bg-white/10 border border-white/5 backdrop-blur-sm"
-                    : "bg-white hover:shadow-lg border border-slate-200/50 hover:border-indigo-200/50"
+                    ? "bg-white/5 hover:bg-white/8 border border-white/5 backdrop-blur-sm"
+                    : "bg-white border border-stone-200/40 hover:border-orange-200/50"
                 )}
               >
                 <div className={cn(
                   "flex items-center justify-center h-12 w-12 rounded-xl shrink-0",
                   isDark 
-                    ? "bg-gradient-to-br from-amber-500/20 to-orange-500/20" 
-                    : "bg-gradient-to-br from-amber-50 to-orange-50"
+                    ? "bg-gradient-to-br from-orange-500/20 to-amber-500/20" 
+                    : "bg-gradient-to-br from-orange-50 to-amber-50"
                 )}>
                   <benefit.icon className={cn(
                     "h-6 w-6",
-                    isDark ? "text-amber-400" : "text-amber-600"
+                    isDark ? "text-orange-400" : "text-orange-500"
                   )} />
                 </div>
                 <div>
                   <h3 className={cn(
                     "text-sm font-semibold mb-0.5",
-                    isDark ? "text-white" : "text-slate-800"
+                    isDark ? "text-stone-100" : "text-stone-800"
                   )}>
                     {benefit.title}
                   </h3>
                   <p className={cn(
                     "text-xs",
-                    isDark ? "text-slate-400" : "text-slate-500"
+                    isDark ? "text-stone-400" : "text-stone-500"
                   )}>
                     {benefit.desc}
                   </p>
@@ -297,16 +297,16 @@ export default function PremiumPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className={cn(
               "font-heading text-xl font-bold flex items-center gap-2",
-              isDark ? "text-white" : "text-slate-900"
+              isDark ? "text-stone-100" : "text-stone-900"
             )}>
-              <Layers className={cn("h-5 w-5", isDark ? "text-indigo-400" : "text-indigo-600")} />
+              <Layers className={cn("h-5 w-5", isDark ? "text-orange-400" : "text-orange-500")} />
               全部课程
             </h2>
             <Badge className={cn(
               "px-3 py-1.5 rounded-full text-xs font-medium",
               isDark 
-                ? "bg-indigo-500/20 text-indigo-400 border-0" 
-                : "bg-indigo-100 text-indigo-600 border-0"
+                ? "bg-orange-500/20 text-orange-400 border-0" 
+                : "bg-orange-100 text-orange-600 border-0"
             )}>
               共 {totalCourses} 门课程
             </Badge>
@@ -318,17 +318,17 @@ export default function PremiumPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className={cn(
                   "rounded-2xl overflow-hidden animate-pulse",
-                  isDark ? "bg-[#12121a]" : "bg-white"
+                  isDark ? "bg-[#1c1917]" : "bg-white"
                 )}>
                   <div className={cn(
                     "aspect-[16/10]",
-                    isDark ? "bg-white/5" : "bg-slate-100"
+                    isDark ? "bg-white/5" : "bg-stone-100"
                   )} />
                   <div className="p-5 space-y-3">
-                    <div className={cn("h-5 rounded w-3/4", isDark ? "bg-white/5" : "bg-slate-100")} />
-                    <div className={cn("h-4 rounded w-full", isDark ? "bg-white/5" : "bg-slate-100")} />
-                    <div className={cn("h-4 rounded w-1/2", isDark ? "bg-white/5" : "bg-slate-100")} />
-                    <div className={cn("h-10 rounded-lg w-full mt-4", isDark ? "bg-white/5" : "bg-slate-100")} />
+                    <div className={cn("h-5 rounded w-3/4", isDark ? "bg-white/5" : "bg-stone-100")} />
+                    <div className={cn("h-4 rounded w-full", isDark ? "bg-white/5" : "bg-stone-100")} />
+                    <div className={cn("h-4 rounded w-1/2", isDark ? "bg-white/5" : "bg-stone-100")} />
+                    <div className={cn("h-10 rounded-lg w-full mt-4", isDark ? "bg-white/5" : "bg-stone-100")} />
                   </div>
                 </div>
               ))}
@@ -343,7 +343,7 @@ export default function PremiumPage() {
             )}>
               <p className={cn(
                 "text-lg mb-4",
-                isDark ? "text-slate-400" : "text-slate-500"
+                isDark ? "text-stone-400" : "text-stone-500"
               )}>{error}</p>
               <Button onClick={() => fetchCourses(page)}>
                 重新加载
@@ -364,14 +364,14 @@ export default function PremiumPage() {
                     onClick={() => router.push(`/course/${course.id}`)}
                   >
                     <Card className={cn(
-                      "overflow-hidden transition-all duration-300 h-full",
+                      "overflow-hidden transition-all duration-300 h-full rounded-2xl",
                       isDark
                         ? hoveredCourse === course.id
-                          ? "bg-[#1a1a2e] border-indigo-500/30 shadow-xl shadow-indigo-500/5"
-                          : "bg-[#12121a] border-white/5"
+                          ? "bg-[#2a2420] border-orange-500/20 shadow-warm-hover"
+                          : "bg-[#1c1917] border-white/5"
                         : hoveredCourse === course.id
-                          ? "bg-white border-indigo-200 shadow-xl shadow-slate-200/50 -translate-y-1"
-                          : "bg-white border-slate-200/80"
+                          ? "bg-white border-orange-200/50 shadow-warm-hover -translate-y-1"
+                          : "bg-white border-stone-200/40 shadow-warm"
                     )}>
                       {/* 封面图 */}
                       <div className="relative aspect-[16/10] overflow-hidden">
@@ -391,7 +391,7 @@ export default function PremiumPage() {
                           <div className="flex items-center gap-2">
                             <span className={cn(
                               "px-3 py-1.5 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm",
-                              isDark ? "bg-white/20 text-white" : "bg-white/90 text-slate-800"
+                              isDark ? "bg-white/20 text-white" : "bg-white/90 text-stone-800"
                             )}>
                               {course.price === 0 ? '免费' : '¥9.9'}
                             </span>
@@ -410,7 +410,7 @@ export default function PremiumPage() {
                           )}>
                             <Play className={cn(
                               "h-6 w-6 ml-1",
-                              isDark ? "text-white" : "text-indigo-600"
+                              isDark ? "text-white" : "text-orange-600"
                             )} />
                           </div>
                         </div>
@@ -422,7 +422,7 @@ export default function PremiumPage() {
                               "text-xs font-medium border-0 backdrop-blur-sm",
                               isDark 
                                 ? "bg-black/40 text-white" 
-                                : "bg-white/80 text-slate-700"
+                                : "bg-white/80 text-stone-700"
                             )}>
                               {course.duration}
                             </Badge>
@@ -430,7 +430,7 @@ export default function PremiumPage() {
                               "text-xs font-medium border-0 backdrop-blur-sm",
                               isDark 
                                 ? "bg-black/40 text-white" 
-                                : "bg-white/80 text-slate-700"
+                                : "bg-white/80 text-stone-700"
                             )}>
                               {course.chapters || 1} 章节
                             </Badge>
@@ -443,8 +443,8 @@ export default function PremiumPage() {
                         <h3 className={cn(
                           "font-heading text-lg font-bold mb-2 line-clamp-2 transition-colors leading-snug",
                           isDark 
-                            ? "text-white group-hover:text-white" 
-                            : "text-slate-800 group-hover:text-indigo-600"
+                            ? "text-stone-100 group-hover:text-stone-100" 
+                            : "text-stone-800 group-hover:text-orange-600"
                         )}>
                           {course.title}
                         </h3>
@@ -452,7 +452,7 @@ export default function PremiumPage() {
                         {/* 描述 */}
                         <p className={cn(
                           "text-sm line-clamp-2 mb-4 leading-relaxed",
-                          isDark ? "text-slate-400" : "text-slate-500"
+                          isDark ? "text-stone-400" : "text-stone-500"
                         )}>
                           {course.description}
                         </p>
@@ -460,7 +460,7 @@ export default function PremiumPage() {
                         {/* 讲师 */}
                         <p className={cn(
                           "text-xs mb-3 font-medium",
-                          isDark ? "text-slate-500" : "text-slate-400"
+                          isDark ? "text-stone-500" : "text-stone-400"
                         )}>
                           讲师: {course.instructor || '精品课程'}
                         </p>
@@ -474,8 +474,8 @@ export default function PremiumPage() {
                                 className={cn(
                                   "px-2 py-0.5 rounded-md text-xs font-medium",
                                   isDark 
-                                    ? "bg-indigo-500/10 text-indigo-400" 
-                                    : "bg-indigo-50 text-indigo-600"
+                                    ? "bg-orange-500/10 text-orange-400" 
+                                    : "bg-orange-50 text-orange-600"
                                 )}
                               >
                                 {tag}
@@ -485,7 +485,7 @@ export default function PremiumPage() {
                         )}
 
                         {/* 底部信息 */}
-                        <div className="flex items-center justify-between pt-4 border-t mb-3">
+                        <div className="flex items-center justify-between pt-4 border-t border-stone-200/30 mb-3">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1">
                               <Star className={cn(
@@ -494,7 +494,7 @@ export default function PremiumPage() {
                               )} />
                               <span className={cn(
                                 "text-sm font-semibold",
-                                isDark ? "text-white" : "text-slate-800"
+                                isDark ? "text-stone-100" : "text-stone-800"
                               )}>
                                 {course.rating}
                               </span>
@@ -513,10 +513,10 @@ export default function PremiumPage() {
                         <Button
                           onClick={() => router.push(`/course/${course.id}`)}
                           className={cn(
-                            "w-full h-10 rounded-lg text-sm font-bold transition-all duration-200 cursor-pointer",
+                            "w-full h-10 rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer",
                             isDark
-                              ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white shadow-lg shadow-indigo-500/20"
-                              : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/10"
+                              ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-lg shadow-orange-500/20"
+                              : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/15"
                           )}>
                           查看详情
                         </Button>
@@ -535,14 +535,14 @@ export default function PremiumPage() {
                     disabled={page <= 1}
                     className={cn(
                       "px-6 rounded-xl",
-                      isDark ? "border-white/10 text-slate-300" : ""
+                      isDark ? "border-white/10 text-stone-300" : ""
                     )}
                   >
                     上一页
                   </Button>
                   <span className={cn(
                     "text-sm font-medium",
-                    isDark ? "text-slate-400" : "text-slate-500"
+                    isDark ? "text-stone-400" : "text-stone-500"
                   )}>
                     第 {page} / {totalPages} 页
                   </span>
@@ -552,7 +552,7 @@ export default function PremiumPage() {
                     disabled={page >= totalPages}
                     className={cn(
                       "px-6 rounded-xl",
-                      isDark ? "border-white/10 text-slate-300" : ""
+                      isDark ? "border-white/10 text-stone-300" : ""
                     )}
                   >
                     下一页
@@ -566,7 +566,7 @@ export default function PremiumPage() {
         {/* Footer */}
         <footer className={cn(
           "mt-20 pt-8 border-t text-center",
-          isDark ? "border-white/5 text-slate-500" : "border-slate-200 text-slate-400"
+          isDark ? "border-white/5 text-stone-500" : "border-stone-200 text-stone-400"
         )}>
           <p className="text-sm">
             © 2024 NexusAI. Built with passion for AI learning.

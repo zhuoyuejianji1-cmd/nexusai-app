@@ -192,13 +192,18 @@ async function callWechatPayJSAPI(order: {
   const signatureStr = `${method}\n${new URL(url).pathname}\n${timestamp}\n${nonce}\n${bodyStr}\n`
 
   // 使用商户私钥进行签名
-  const privateKey = process.env.WECHAT_MERCHANT_PRIVATE_KEY || ''
+  const privateKey = getPrivateKey()
+  if (!privateKey) {
+    throw new Error('商户私钥未配置')
+  }
   const { createSign } = await import('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
   const signature = sign.sign(privateKey, 'base64')
 
-  const authorization = `WECHATPAY2-SHA256-RSA2048 mchid="${process.env.WECHAT_MCHID}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${process.env.WECHAT_MERCHANT_CERT_SERIAL}",signature="${signature}"`
+  const mchid = process.env.WECHAT_MCHID || ''
+  const serialNo = process.env.WECHAT_MERCHANT_CERT_SERIAL || ''
+  const authorization = `WECHATPAY2-SHA256-RSA2048 mchid="${mchid}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${serialNo}",signature="${signature}"`
 
   const response = await fetch(url, {
     method: 'POST',
@@ -238,7 +243,7 @@ function generateMiniProgramPaymentParams(prepayId: string, signType: string = '
   const signatureStr = `${process.env.WECHAT_APPID}\n${timeStamp}\n${nonceStr}\n${packageStr}\n`
 
   // 使用商户私钥签名
-  const privateKey = process.env.WECHAT_MERCHANT_PRIVATE_KEY || ''
+  const privateKey = getPrivateKey()
   const { createSign } = require('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
@@ -298,13 +303,14 @@ export async function createJSAPIPayment(order: Order, openid: string): Promise<
 // 是否为Mock模式
 // 小程序审核期间始终用Mock模式
 function isMockMode(): boolean {
-  return true
-  /* 小程序上线后取消注释以下代码启用真实支付
-  return !process.env.WECHAT_MCHID 
-    || !process.env.WECHAT_APPID 
-    || !process.env.WECHAT_MERCHANT_PRIVATE_KEY 
-    || process.env.WECHAT_MERCHANT_PRIVATE_KEY.length < 100
-  */
+  // 真实支付条件：所有必要环境变量已配置
+  const hasAllVars = process.env.WECHAT_MCHID
+    && process.env.WECHAT_APPID
+    && process.env.WECHAT_API_V3_KEY
+    && process.env.WECHAT_MERCHANT_CERT_SERIAL
+    && process.env.WECHAT_MERCHANT_PRIVATE_KEY
+    && process.env.WECHAT_MERCHANT_PRIVATE_KEY.length > 100
+  return !hasAllVars
 }
 
 // 调用微信支付Native下单API (V3)
@@ -340,13 +346,15 @@ async function callWechatPayNative(order: {
   const signatureStr = `${method}\n${new URL(url).pathname}\n${timestamp}\n${nonce}\n${bodyStr}\n`
 
   // 使用商户私钥进行签名
-  const privateKey = process.env.WECHAT_MERCHANT_PRIVATE_KEY || ''
+  const privateKey = getPrivateKey()
   const { createSign } = await import('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
   const signature = sign.sign(privateKey, 'base64')
 
-  const authorization = `WECHATPAY2-SHA256-RSA2048 mchid="${process.env.WECHAT_MCHID}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${process.env.WECHAT_MERCHANT_CERT_SERIAL}",signature="${signature}"`
+  const mchid = process.env.WECHAT_MCHID || ''
+  const serialNo = process.env.WECHAT_MERCHANT_CERT_SERIAL || ''
+  const authorization = `WECHATPAY2-SHA256-RSA2048 mchid="${mchid}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${serialNo}",signature="${signature}"`
 
   const response = await fetch(url, {
     method: 'POST',
@@ -366,6 +374,11 @@ async function callWechatPayNative(order: {
   }
 
   return { codeUrl: result.code_url }
+}
+
+// 处理环境变量中的私钥（Vercel env 中 \n 是字面量，需转成真实换行）
+function getPrivateKey(): string {
+  return (process.env.WECHAT_MERCHANT_PRIVATE_KEY || '').replace(/\\n/g, '\n')
 }
 
 // 按UTF-8字节数截断字符串（微信支付description要求≤127字节）

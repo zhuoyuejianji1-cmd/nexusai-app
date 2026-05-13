@@ -148,31 +148,35 @@ export default function HomePage() {
       {/* Hero */}
       <section>
         <div className={cn(
-          "relative overflow-hidden rounded-3xl",
-          isDark ? "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] border border-white/5" : "bg-gradient-to-br from-white via-indigo-50/50 to-purple-50/50 border border-slate-200/80 shadow-xl"
+          "relative overflow-hidden rounded-[2rem]",
+          isDark 
+            ? "bg-gradient-to-br from-[#2a1f1a] via-[#1f1a16] to-[#2a2018] border border-white/5" 
+            : "bg-gradient-to-br from-orange-50 via-amber-50/60 to-yellow-50/40 border border-orange-200/30 shadow-warm"
         )}>
           <div className="absolute inset-0 overflow-hidden">
-            <div className={cn("absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl", isDark ? "bg-indigo-500/10" : "bg-indigo-200/50")} />
-            <div className={cn("absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl", isDark ? "bg-purple-500/10" : "bg-purple-200/50")} />
+            <div className={cn("absolute -top-40 -right-40 w-96 h-96 rounded-full blur-3xl", isDark ? "bg-orange-500/8" : "bg-orange-200/40")} />
+            <div className={cn("absolute -bottom-40 -left-40 w-96 h-96 rounded-full blur-3xl", isDark ? "bg-amber-500/8" : "bg-amber-200/30")} />
+            <div className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full blur-3xl", isDark ? "bg-yellow-500/5" : "bg-yellow-100/40")} />
           </div>
-          <div className="relative px-8 py-10 flex flex-col items-center text-center">
-            <div className="flex items-center gap-4 mb-6">
-              <div className={cn("flex items-center justify-center h-16 w-16 rounded-xl", isDark ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-500/30" : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-xl")}>
+          <div className="relative px-10 py-12 flex flex-col items-center text-center">
+            <div className="flex items-center gap-4 mb-8">
+              <div className={cn("flex items-center justify-center h-16 w-16 rounded-2xl shadow-lg", isDark ? "bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 shadow-orange-500/20" : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-orange-500/15")}>
                 <Sparkles className="h-8 w-8 text-white" />
               </div>
-              <div>
-                <h1 className={cn("font-heading text-4xl font-black", isDark ? "bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent" : "bg-gradient-to-r from-slate-900 via-indigo-600 to-purple-600 bg-clip-text text-transparent")}>
+              <div className="text-left">
+                <h1 className={cn("font-heading text-4xl font-black", isDark ? "text-stone-100" : "text-stone-800")}>
                   NexusAI
                 </h1>
-                <p className={cn("text-xs font-medium tracking-wider uppercase", isDark ? "text-slate-500" : "text-slate-400")}>AI Learning Community</p>
+                <p className={cn("text-xs font-medium tracking-wider uppercase mt-1", isDark ? "text-stone-500" : "text-stone-400")}>AI Learning Community</p>
               </div>
             </div>
-            <h2 className={cn("text-xl font-semibold mb-3", isDark ? "text-white/90" : "text-slate-700")}>探索 AI · 分享知识 · 连接未来</h2>
-            <div className={cn("flex items-center gap-6 p-4 rounded-xl", isDark ? "bg-white/5 border border-white/10" : "bg-white/80 border border-slate-200/50")}>
+            <h2 className={cn("text-2xl font-semibold mb-3", isDark ? "text-stone-200" : "text-stone-700")}>探索 AI · 分享知识 · 连接未来</h2>
+            <p className={cn("text-sm mb-8 max-w-md", isDark ? "text-stone-400" : "text-stone-500")}>加入最温暖的 AI 学习社区，与千万学习者一起成长</p>
+            <div className={cn("flex items-center gap-8 p-5 rounded-2xl", isDark ? "bg-white/5 border border-white/8" : "bg-white/70 border border-orange-200/30 shadow-sm")}>
               {[{ value: '10,000+', label: '精品资源' }, { value: '500+', label: 'AI工具' }, { value: '1M+', label: '学习者' }].map((stat, i) => (
-                <div key={i} className={cn("text-center px-6", i < 2 && (isDark ? "border-r border-white/10" : "border-r border-slate-200"))}>
-                  <div className={cn("font-heading text-2xl font-bold", isDark ? "text-white" : "text-slate-900")}>{stat.value}</div>
-                  <div className={cn("text-xs mt-0.5 font-medium", isDark ? "text-slate-400" : "text-slate-500")}>{stat.label}</div>
+                <div key={i} className={cn("text-center px-6", i < 2 && (isDark ? "border-r border-white/10" : "border-r border-orange-200/30"))}>
+                  <div className={cn("font-heading text-2xl font-bold", isDark ? "text-stone-100" : "text-stone-800")}>{stat.value}</div>
+                  <div className={cn("text-xs mt-1 font-medium", isDark ? "text-stone-500" : "text-stone-500")}>{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -182,11 +186,11 @@ export default function HomePage() {
 
       {/* 分类导航 */}
       <section>
-        <h2 className={cn("font-heading text-lg font-bold mb-4 flex items-center gap-2", isDark ? "text-white" : "text-slate-800")}>
-          <Layers className={cn("h-5 w-5", isDark ? "text-indigo-400" : "text-indigo-600")} />
+        <h2 className={cn("font-heading text-lg font-bold mb-5 flex items-center gap-2", isDark ? "text-stone-100" : "text-stone-800")}>
+          <Layers className={cn("h-5 w-5", isDark ? "text-orange-400" : "text-orange-500")} />
           发现 AI 资源
         </h2>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-4">
           {resourceCategories.slice(0, 8).map((cat) => {
             const colors = colorMap[cat.id] || colorMap['default'];
             const Icon = iconMap[cat.icon] || Sparkles;
@@ -195,15 +199,15 @@ export default function HomePage() {
                 key={cat.id}
                 onClick={() => { setSelectedCategory(cat.id); setActiveTab('resources'); }}
                 className={cn(
-                  "p-4 rounded-xl transition-all duration-200 text-left",
-                  isDark ? "bg-[#12121a] hover:bg-[#1a1a2e] border border-white/5 hover:border-indigo-500/30" : "bg-white hover:shadow-md border border-slate-200/50 hover:border-indigo-200"
+                  "p-5 rounded-2xl transition-all duration-300 text-left hover-warm",
+                  isDark ? "bg-[#1c1917] hover:bg-[#2a2420] border border-white/5 hover:border-orange-500/20" : "bg-white border border-stone-200/40 hover:border-orange-200/60"
                 )}
               >
-                <div className={cn("flex items-center justify-center h-10 w-10 rounded-lg mb-3 bg-gradient-to-br " + colors.gradient)}>
+                <div className={cn("flex items-center justify-center h-11 w-11 rounded-xl mb-3 bg-gradient-to-br " + colors.gradient)}>
                   <Icon className="h-5 w-5 text-white" />
                 </div>
-                <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-white" : "text-slate-800")}>{cat.name}</h3>
-                <p className={cn("text-xs line-clamp-1", isDark ? "text-slate-500" : "text-slate-400")}>{cat.description}</p>
+                <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-stone-100" : "text-stone-800")}>{cat.name}</h3>
+                <p className={cn("text-xs line-clamp-1", isDark ? "text-stone-500" : "text-stone-500")}>{cat.description}</p>
               </button>
             );
           })}
@@ -212,33 +216,33 @@ export default function HomePage() {
 
       {/* 精品课程入口 */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className={cn("font-heading text-lg font-bold flex items-center gap-2", isDark ? "text-white" : "text-slate-800")}>
-            <Crown className={cn("h-5 w-5", isDark ? "text-amber-400" : "text-amber-600")} />
+        <div className="flex items-center justify-between mb-5">
+          <h2 className={cn("font-heading text-lg font-bold flex items-center gap-2", isDark ? "text-stone-100" : "text-stone-800")}>
+            <Crown className={cn("h-5 w-5", isDark ? "text-amber-400" : "text-amber-500")} />
             精品课程
           </h2>
-          <Link href="/premium" className={cn("text-sm font-medium flex items-center gap-1 group", isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-indigo-600")}>
-            查看全部 <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+          <Link href="/premium" className={cn("text-sm font-medium flex items-center gap-1 group", isDark ? "text-stone-400 hover:text-stone-200" : "text-stone-500 hover:text-orange-600")}>
+            查看全部 <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         </div>
         <Link href="/premium" className="block group">
           <div className={cn(
-            "rounded-xl p-6 transition-all duration-200",
-            isDark ? "bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40" : "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/50 hover:border-amber-300"
+            "rounded-2xl p-7 transition-all duration-300 hover-warm",
+            isDark ? "bg-gradient-to-br from-amber-500/8 to-orange-500/8 border border-amber-500/15 hover:border-amber-500/30" : "bg-gradient-to-br from-amber-50/80 to-orange-50/60 border border-amber-200/30 hover:border-amber-300/50"
           )}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={cn("flex items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500")}>
+              <div className="flex items-center gap-5">
+                <div className={cn("flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-orange-500/15")}>
                   <Crown className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <h3 className={cn("font-heading font-bold text-base mb-1", isDark ? "text-white" : "text-slate-800")}>5000+ 精品课程</h3>
-                  <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>AI、副业、编程、设计... 持续更新中</p>
+                  <h3 className={cn("font-heading font-bold text-base mb-1", isDark ? "text-stone-100" : "text-stone-800")}>5000+ 精品课程</h3>
+                  <p className={cn("text-xs", isDark ? "text-stone-400" : "text-stone-500")}>AI、副业、编程、设计... 持续更新中</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className={cn("text-xs font-medium", isDark ? "text-amber-400" : "text-amber-600")}>浏览课程</span>
-                <ChevronRight className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-amber-600")} />
+                <span className={cn("text-sm font-medium", isDark ? "text-amber-400" : "text-orange-600")}>浏览课程</span>
+                <ChevronRight className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-orange-600")} />
               </div>
             </div>
           </div>
@@ -247,49 +251,51 @@ export default function HomePage() {
 
       {/* 热榜 + 动态 */}
       <section className="grid grid-cols-2 gap-6">
-        <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-          <div className={cn("h-1", isDark ? "bg-gradient-to-r from-amber-500 to-red-500" : "bg-gradient-to-r from-amber-400 to-red-400")} />
-          <CardHeader className="pb-2">
+        <Card className={cn("rounded-2xl overflow-hidden", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+          <div className={cn("h-1.5", isDark ? "bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400" : "bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400")} />
+          <CardHeader className="pb-3 pt-5">
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-amber-600")} />
-              <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>AI 热榜</span>
+              <TrendingUp className={cn("h-4 w-4", isDark ? "text-orange-400" : "text-orange-500")} />
+              <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>AI 热榜</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {hotList.map((item) => (
-              <div key={item.rank} className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-white/5 cursor-pointer">
+              <div key={item.rank} className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-orange-500/5 cursor-pointer transition-colors duration-200">
                 <span className={cn(
                   'flex items-center justify-center h-6 w-6 rounded-lg text-xs font-bold',
-                  item.rank === 1 ? (isDark ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white' : 'bg-gradient-to-br from-amber-400 to-orange-500 text-white')
-                    : isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-200 text-slate-500'
+                  item.rank === 1 ? 'bg-gradient-to-br from-orange-400 to-amber-500 text-white shadow-sm'
+                    : item.rank === 2 ? 'bg-gradient-to-br from-amber-400 to-yellow-400 text-white shadow-sm'
+                    : item.rank === 3 ? 'bg-gradient-to-br from-yellow-400 to-orange-300 text-white shadow-sm'
+                    : isDark ? 'bg-stone-700 text-stone-400' : 'bg-stone-200 text-stone-500'
                 )}>{item.rank}</span>
-                <span className={cn("flex-1 text-sm truncate", isDark ? "text-slate-300" : "text-slate-700")}>{item.title}</span>
-                <span className={cn("text-xs", isDark ? "text-red-400" : "text-red-500")}>{Math.round(item.heat/1000)}k</span>
+                <span className={cn("flex-1 text-sm truncate", isDark ? "text-stone-300" : "text-stone-700")}>{item.title}</span>
+                <span className={cn("text-xs font-medium", isDark ? "text-orange-400" : "text-orange-500")}>{Math.round(item.heat/1000)}k</span>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-          <div className={cn("h-1", isDark ? "bg-gradient-to-r from-indigo-500 to-pink-500" : "bg-gradient-to-r from-indigo-400 to-pink-400")} />
-          <CardHeader className="pb-2">
+        <Card className={cn("rounded-2xl overflow-hidden", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+          <div className={cn("h-1.5", isDark ? "bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400" : "bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400")} />
+          <CardHeader className="pb-3 pt-5">
             <CardTitle className="flex items-center gap-2">
-              <Hash className={cn("h-4 w-4", isDark ? "text-indigo-400" : "text-indigo-600")} />
-              <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>最新动态</span>
+              <Hash className={cn("h-4 w-4", isDark ? "text-orange-400" : "text-orange-500")} />
+              <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>最新动态</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {posts.map((post, i) => (
-              <div key={i} className="flex items-start gap-3 py-2 px-2 rounded-lg hover:bg-white/5">
-                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold", isDark ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" : "bg-gradient-to-br from-indigo-400 to-purple-400 text-white")}>
+              <div key={i} className="flex items-start gap-3 py-2.5 px-3 rounded-xl hover:bg-orange-500/5 transition-colors duration-200">
+                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold", isDark ? "bg-gradient-to-br from-orange-400 to-amber-500 text-white" : "bg-gradient-to-br from-orange-400 to-amber-400 text-white")}>
                   {post.name[0]}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={cn("text-sm font-medium", isDark ? "text-white" : "text-slate-800")}>{post.name}</span>
-                    <span className={cn("text-xs", isDark ? "text-slate-500" : "text-slate-400")}>{post.time}</span>
+                    <span className={cn("text-sm font-medium", isDark ? "text-stone-200" : "text-stone-800")}>{post.name}</span>
+                    <span className={cn("text-xs", isDark ? "text-stone-500" : "text-stone-400")}>{post.time}</span>
                   </div>
-                  <p className={cn("text-xs line-clamp-1 mt-0.5", isDark ? "text-slate-400" : "text-slate-500")}>{post.content}</p>
+                  <p className={cn("text-xs line-clamp-1 mt-0.5", isDark ? "text-stone-400" : "text-stone-500")}>{post.content}</p>
                 </div>
               </div>
             ))}
@@ -304,53 +310,54 @@ export default function HomePage() {
     <div className="space-y-6">
       {/* Banner */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl",
-        isDark ? "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600" : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"
+        "relative overflow-hidden rounded-3xl",
+        isDark ? "bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-600" : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500"
       )}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-white/5 rounded-full blur-3xl" />
         </div>
-        <div className="relative px-6 py-6 flex items-center justify-between">
+        <div className="relative px-8 py-8 flex items-center justify-between">
           <div>
-            <h1 className={cn("font-heading text-2xl font-bold text-white mb-1")}>AI 资源库</h1>
-            <p className={cn("text-white/70 text-sm")}>精选 {resources.length}+ 优质资源，持续更新</p>
+            <h1 className={cn("font-heading text-3xl font-bold text-white mb-2")}>AI 资源库</h1>
+            <p className={cn("text-white/80 text-sm")}>精选 {resources.length}+ 优质资源，持续更新</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <div className="text-center px-4">
               <div className={cn("text-2xl font-bold text-white")}>{resources.length}+</div>
-              <div className={cn("text-xs text-white/60")}>资源总数</div>
+              <div className={cn("text-xs text-white/70")}>资源总数</div>
             </div>
             <div className="text-center px-4 border-l border-white/20">
               <div className={cn("text-2xl font-bold text-white")}>{resourceCategories.length}</div>
-              <div className={cn("text-xs text-white/60")}>分类</div>
+              <div className={cn("text-xs text-white/70")}>分类</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* 搜索和筛选 */}
-      <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-        <CardContent className="p-4">
+      <Card className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+        <CardContent className="p-5">
           <div className="flex gap-4 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <input
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="搜索 AI 资源..."
                 className={cn(
-                  "w-full h-10 pl-10 pr-4 rounded-xl border text-sm",
-                  isDark ? "bg-white/5 border-white/10 text-white placeholder:text-slate-500" : "bg-slate-50 border-slate-200 text-slate-800"
+                  "w-full h-11 pl-10 pr-4 rounded-xl border text-sm transition-all duration-300",
+                  isDark ? "bg-white/5 border-white/10 text-white placeholder:text-stone-500 focus:border-orange-500/40" : "bg-stone-50 border-stone-200 text-stone-800 placeholder:text-stone-400 focus:border-orange-300 focus:bg-white"
                 )}
               />
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setSelectedCategory(null)} className={cn(
-              "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-              !selectedCategory ? "bg-indigo-500 text-white" : isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"
+              "px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300",
+              !selectedCategory ? "bg-orange-500 text-white shadow-sm" : isDark ? "bg-white/5 text-stone-400 hover:bg-white/10" : "bg-stone-100 text-stone-600 hover:bg-stone-200"
             )}>全部</button>
             {resourceCategories.slice(0, 10).map((cat) => {
               const Icon = iconMap[cat.icon] || Sparkles;
@@ -359,8 +366,8 @@ export default function HomePage() {
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                    selectedCategory === cat.id ? "bg-indigo-500 text-white" : isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"
+                    "flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300",
+                    selectedCategory === cat.id ? "bg-orange-500 text-white shadow-sm" : isDark ? "bg-white/5 text-stone-400 hover:bg-white/10" : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                   )}
                 >
                   <Icon className="h-3 w-3" />
@@ -380,18 +387,18 @@ export default function HomePage() {
           const Icon = iconMap[category?.icon || 'sparkles'] || Sparkles;
           return (
             <div key={resource.id} className={cn(
-              "rounded-xl p-4 transition-all duration-200 cursor-pointer group",
-              isDark ? "bg-[#12121a] hover:bg-[#1a1a2e] border border-white/5 hover:border-indigo-500/30" : "bg-white hover:shadow-md border border-slate-200/50"
+              "rounded-2xl p-5 transition-all duration-300 cursor-pointer group hover-warm",
+              isDark ? "bg-[#1c1917] hover:bg-[#2a2420] border border-white/5 hover:border-orange-500/20" : "bg-white border border-stone-200/40 hover:border-orange-200/50"
             )}>
-              <div className={cn("flex items-center justify-center h-10 w-10 rounded-lg mb-3 bg-gradient-to-br " + colors.gradient)}>
+              <div className={cn("flex items-center justify-center h-11 w-11 rounded-xl mb-3 bg-gradient-to-br " + colors.gradient)}>
                 <Icon className="h-5 w-5 text-white" />
               </div>
-              <h3 className={cn("text-sm font-semibold line-clamp-1 mb-1", isDark ? "text-white" : "text-slate-800")}>{resource.title}</h3>
-              <p className={cn("text-xs line-clamp-1 mb-2", isDark ? "text-slate-500" : "text-slate-400")}>{resource.description}</p>
+              <h3 className={cn("text-sm font-semibold line-clamp-1 mb-1", isDark ? "text-stone-100" : "text-stone-800")}>{resource.title}</h3>
+              <p className={cn("text-xs line-clamp-1 mb-3", isDark ? "text-stone-500" : "text-stone-500")}>{resource.description}</p>
               <div className="flex items-center gap-2">
                 <Star className={cn("h-3 w-3", isDark ? "text-amber-400" : "text-amber-500")} />
-                <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{resource.rating}</span>
-                {resource.hot && <Badge className={cn("px-1.5 py-0.5 rounded text-[10px]", isDark ? "bg-red-500/20 text-red-400 border-0" : "bg-red-100 text-red-500 border-0")}>热门</Badge>}
+                <span className={cn("text-xs", isDark ? "text-stone-400" : "text-stone-500")}>{resource.rating}</span>
+                {resource.hot && <Badge className={cn("px-2 py-0.5 rounded-md text-[10px]", isDark ? "bg-orange-500/20 text-orange-400 border-0" : "bg-orange-100 text-orange-600 border-0")}>热门</Badge>}
               </div>
             </div>
           );
@@ -405,64 +412,67 @@ export default function HomePage() {
     <div className="space-y-6">
       {/* Banner */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl",
-        isDark ? "bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600" : "bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500"
+        "relative overflow-hidden rounded-3xl",
+        isDark ? "bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-600" : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500"
       )}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
         </div>
-        <div className="relative px-6 py-6 flex items-center justify-between">
+        <div className="relative px-8 py-8 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <GraduationCap className="h-6 w-6 text-white" />
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/20">
+                <GraduationCap className="h-5 w-5 text-white" />
+              </div>
               <h1 className={cn("font-heading text-2xl font-bold text-white")}>学习中心</h1>
             </div>
-            <p className={cn("text-white/70 text-sm")}>系统化学习 AI 技能，完成每日任务获得积分</p>
+            <p className={cn("text-white/80 text-sm")}>系统化学习 AI 技能，完成每日任务获得积分</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-center px-4">
               <div className={cn("text-2xl font-bold text-white")}>23</div>
-              <div className={cn("text-xs text-white/60")}>学习天数</div>
+              <div className={cn("text-xs text-white/70")}>学习天数</div>
             </div>
             <div className="text-center px-4 border-l border-white/20">
               <div className={cn("text-2xl font-bold text-white")}>1,250</div>
-              <div className={cn("text-xs text-white/60")}>积分</div>
+              <div className={cn("text-xs text-white/70")}>积分</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* 今日任务 */}
-      <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-        <CardHeader className="pb-2">
+      <Card className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+        <CardHeader className="pb-3 pt-5">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className={cn("h-4 w-4", isDark ? "text-emerald-400" : "text-emerald-600")} />
-              <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>今日任务</span>
+              <Target className={cn("h-4 w-4", isDark ? "text-orange-400" : "text-orange-500")} />
+              <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>今日任务</span>
             </div>
-            <Badge className={cn("text-xs", isDark ? "bg-emerald-500/20 text-emerald-400 border-0" : "bg-emerald-100 text-emerald-600 border-0")}>
+            <Badge className={cn("text-xs", isDark ? "bg-orange-500/20 text-orange-400 border-0" : "bg-orange-100 text-orange-600 border-0")}>
               2/3 完成
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-3 gap-4 pt-0">
           {tasks.map((task) => (
             <div key={task.id} className={cn(
-              "p-4 rounded-xl",
-              isDark ? "bg-[#18181b]" : "bg-slate-50"
+              "p-5 rounded-2xl",
+              isDark ? "bg-[#2a2420]" : "bg-stone-50/80"
             )}>
               <div className={cn(
-                "flex items-center justify-center h-10 w-10 rounded-lg mb-3",
-                task.completed ? (isDark ? "bg-emerald-500/20" : "bg-emerald-100") : (isDark ? "bg-indigo-500/20" : "bg-indigo-100")
+                "flex items-center justify-center h-10 w-10 rounded-xl mb-3",
+                task.completed ? (isDark ? "bg-orange-500/20" : "bg-orange-100") : (isDark ? "bg-amber-500/20" : "bg-amber-100")
               )}>
-                {task.completed ? <CheckCircle2 className={cn("h-5 w-5", isDark ? "text-emerald-400" : "text-emerald-600")} /> : <BookOpen className={cn("h-5 w-5", isDark ? "text-indigo-400" : "text-indigo-600")} />}
+                {task.completed ? <CheckCircle2 className={cn("h-5 w-5", isDark ? "text-orange-400" : "text-orange-600")} /> : <BookOpen className={cn("h-5 w-5", isDark ? "text-amber-400" : "text-amber-600")} />}
               </div>
-              <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-white" : "text-slate-800")}>{task.title}</h3>
-              <p className={cn("text-xs mb-3", isDark ? "text-slate-500" : "text-slate-400")}>{task.desc}</p>
-              <Progress value={task.progress} className={cn("h-1.5 mb-2", isDark ? "[&>div]:bg-emerald-500" : "")} />
+              <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-stone-100" : "text-stone-800")}>{task.title}</h3>
+              <p className={cn("text-xs mb-3", isDark ? "text-stone-500" : "text-stone-500")}>{task.desc}</p>
+              <Progress value={task.progress} className={cn("h-1.5 mb-2", isDark ? "[&>div]:bg-orange-500" : "")} />
               <div className="flex items-center justify-between">
                 <span className={cn("text-xs font-medium", isDark ? "text-amber-400" : "text-amber-600")}>+{task.xp} XP</span>
-                <Badge className={cn("text-xs", task.completed ? (isDark ? "bg-emerald-500/20 text-emerald-400 border-0" : "bg-emerald-100 text-emerald-600 border-0") : (isDark ? "bg-indigo-500/20 text-indigo-400 border-0" : "bg-indigo-100 text-indigo-600 border-0"))}>
+                <Badge className={cn("text-xs", task.completed ? (isDark ? "bg-orange-500/20 text-orange-400 border-0" : "bg-orange-100 text-orange-600 border-0") : (isDark ? "bg-amber-500/20 text-amber-400 border-0" : "bg-amber-100 text-amber-600 border-0"))}>
                   {task.completed ? '已完成' : '进行中'}
                 </Badge>
               </div>
@@ -472,26 +482,26 @@ export default function HomePage() {
       </Card>
 
       {/* 学习路径 */}
-      <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-        <CardHeader className="pb-2">
+      <Card className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+        <CardHeader className="pb-3 pt-5">
           <CardTitle className="flex items-center gap-2">
-            <TrendUp className={cn("h-4 w-4", isDark ? "text-blue-400" : "text-blue-600")} />
-            <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>成长路径</span>
+            <TrendUp className={cn("h-4 w-4", isDark ? "text-orange-400" : "text-orange-500")} />
+            <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>成长路径</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-3 gap-4 pt-0">
           {learningPaths.map((path) => (
             <div key={path.id} className={cn(
-              "p-4 rounded-xl",
-              isDark ? "bg-[#18181b]" : "bg-slate-50"
+              "p-5 rounded-2xl",
+              isDark ? "bg-[#2a2420]" : "bg-stone-50/80"
             )}>
-              <div className={cn("h-10 w-10 rounded-lg mb-3 bg-gradient-to-br " + path.gradient)} />
-              <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-white" : "text-slate-800")}>{path.title}</h3>
-              <p className={cn("text-xs mb-3", isDark ? "text-slate-500" : "text-slate-400")}>{path.desc}</p>
-              <Progress value={path.progress} className={cn("h-1.5 mb-2", isDark ? "[&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-teal-500" : "")} />
+              <div className={cn("h-10 w-10 rounded-xl mb-3 bg-gradient-to-br " + path.gradient)} />
+              <h3 className={cn("text-sm font-semibold mb-1", isDark ? "text-stone-100" : "text-stone-800")}>{path.title}</h3>
+              <p className={cn("text-xs mb-3", isDark ? "text-stone-500" : "text-stone-500")}>{path.desc}</p>
+              <Progress value={path.progress} className={cn("h-1.5 mb-2", isDark ? "[&>div]:bg-gradient-to-r [&>div]:from-orange-500 [&>div]:to-amber-500" : "")} />
               <div className="flex items-center justify-between">
-                <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{path.completed}/{path.courses} 课程</span>
-                <Badge className={cn("text-xs", isDark ? "bg-white/10 text-white border-0" : "bg-slate-200 text-slate-600 border-0")}>{path.progress}%</Badge>
+                <span className={cn("text-xs", isDark ? "text-stone-400" : "text-stone-500")}>{path.completed}/{path.courses} 课程</span>
+                <Badge className={cn("text-xs", isDark ? "bg-white/8 text-stone-300 border-0" : "bg-stone-200 text-stone-600 border-0")}>{path.progress}%</Badge>
               </div>
             </div>
           ))}
@@ -499,27 +509,27 @@ export default function HomePage() {
       </Card>
 
       {/* 徽章墙 */}
-      <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-        <CardHeader className="pb-2">
+      <Card className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+        <CardHeader className="pb-3 pt-5">
           <CardTitle className="flex items-center gap-2">
-            <Award className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-amber-600")} />
-            <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>我的徽章</span>
+            <Award className={cn("h-4 w-4", isDark ? "text-amber-400" : "text-amber-500")} />
+            <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>我的徽章</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <div className="grid grid-cols-4 gap-4">
             {badges.map((badge) => (
               <div key={badge.id} className={cn(
-                "flex flex-col items-center p-4 rounded-xl",
-                isDark ? badge.earned ? "bg-[#18181b]" : "bg-[#0a0a0f] opacity-50" : badge.earned ? "bg-slate-50" : "bg-slate-100 opacity-50"
+                "flex flex-col items-center p-5 rounded-2xl",
+                isDark ? badge.earned ? "bg-[#2a2420]" : "bg-[#1c1917] opacity-50" : badge.earned ? "bg-stone-50/80" : "bg-stone-100 opacity-50"
               )}>
                 <div className={cn(
                   "flex items-center justify-center h-12 w-12 rounded-xl mb-2",
-                  badge.earned ? "bg-gradient-to-br " + badge.gradient : (isDark ? "bg-slate-800" : "bg-slate-200")
+                  badge.earned ? "bg-gradient-to-br " + badge.gradient : (isDark ? "bg-stone-800" : "bg-stone-200")
                 )}>
-                  <badge.icon className={cn("h-6 w-6", badge.earned ? "text-white" : (isDark ? "text-slate-600" : "text-slate-400"))} />
+                  <badge.icon className={cn("h-6 w-6", badge.earned ? "text-white" : (isDark ? "text-stone-600" : "text-stone-400"))} />
                 </div>
-                <span className={cn("text-xs font-medium", isDark ? "text-white" : "text-slate-700")}>{badge.name}</span>
+                <span className={cn("text-xs font-medium", isDark ? "text-stone-100" : "text-stone-700")}>{badge.name}</span>
               </div>
             ))}
           </div>
@@ -533,29 +543,30 @@ export default function HomePage() {
     <div className="space-y-6">
       {/* 用户信息 */}
       <Card className={cn(
-        "overflow-hidden",
-        isDark ? "bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border border-white/5" : "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600"
+        "overflow-hidden rounded-3xl",
+        isDark ? "bg-gradient-to-br from-[#2a1f1a] via-[#1f1a16] to-[#2a2018] border border-white/5" : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500"
       )}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
         </div>
-        <CardContent className="relative px-6 py-6">
+        <CardContent className="relative px-8 py-8">
           <div className="flex items-center gap-6">
-            <div className={cn("flex items-center justify-center h-20 w-20 rounded-2xl text-2xl font-bold", isDark ? "bg-gradient-to-br from-indigo-500 to-purple-500" : "bg-white/20")}>
+            <div className={cn("flex items-center justify-center h-20 w-20 rounded-2xl text-2xl font-bold shadow-lg", isDark ? "bg-gradient-to-br from-orange-400 to-amber-500 shadow-orange-500/20" : "bg-white/20")}>
               {user?.nickname?.[0] || '?'}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className={cn("font-heading text-xl font-bold text-white")}>{user?.nickname || 'AI探索者'}</h1>
-                {user?.is_vip && <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0">VIP</Badge>}
+                {user?.is_vip && <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-md">VIP</Badge>}
               </div>
               <div className="flex items-center gap-4 mb-3">
-                <span className={cn("text-sm text-white/70")}>Lv.{user?.level || 8}</span>
+                <span className={cn("text-sm text-white/80")}>Lv.{user?.level || 8}</span>
                 <div className="flex items-center gap-2">
                   <div className={cn("w-24 h-2 rounded-full overflow-hidden", isDark ? "bg-white/20" : "bg-white/30")}>
                     <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full" style={{ width: `${((user?.exp || 750)/(user?.expToNext || 1000))*100}%` }} />
                   </div>
-                  <span className={cn("text-xs text-white/60")}>{user?.exp || 750}/{user?.expToNext || 1000}</span>
+                  <span className={cn("text-xs text-white/70")}>{user?.exp || 750}/{user?.expToNext || 1000}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
@@ -563,7 +574,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <Button className={cn("h-10 px-5 rounded-xl bg-white/10 hover:bg-white/20 text-white border-0")}>
+            <Button className={cn("h-10 px-5 rounded-xl bg-white/15 hover:bg-white/25 text-white border-0 transition-all duration-300")}>
               <Edit3 className="h-4 w-4 mr-2" />
               编辑资料
             </Button>
@@ -574,19 +585,19 @@ export default function HomePage() {
       {/* 统计 */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: '动态', value: user?.stats?.posts ?? 42, icon: FileText, color: 'text-blue-500' },
-          { label: '获赞', value: user?.stats?.likes ?? 328, icon: Heart, color: 'text-pink-500' },
+          { label: '动态', value: user?.stats?.posts ?? 42, icon: FileText, color: 'text-orange-500' },
+          { label: '获赞', value: user?.stats?.likes ?? 328, icon: Heart, color: 'text-rose-500' },
           { label: '收藏', value: user?.stats?.favorites ?? 15, icon: Bookmark, color: 'text-amber-500' },
           { label: '评论', value: user?.stats?.comments ?? 89, icon: MessageCircle, color: 'text-emerald-500' },
         ].map((stat, i) => (
-          <Card key={i} className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className={cn("flex items-center justify-center h-10 w-10 rounded-lg", isDark ? "bg-white/5" : "bg-slate-100")}>
+          <Card key={i} className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className={cn("flex items-center justify-center h-10 w-10 rounded-xl", isDark ? "bg-white/5" : "bg-stone-100"))}>
                 <stat.icon className={cn("h-5 w-5", stat.color)} />
               </div>
               <div>
-                <div className={cn("text-xl font-bold", isDark ? "text-white" : "text-slate-800")}>{stat.value}</div>
-                <div className={cn("text-xs", isDark ? "text-slate-500" : "text-slate-400")}>{stat.label}</div>
+                <div className={cn("text-xl font-bold", isDark ? "text-stone-100" : "text-stone-800")}>{stat.value}</div>
+                <div className={cn("text-xs", isDark ? "text-stone-500" : "text-stone-500")}>{stat.label}</div>
               </div>
             </CardContent>
           </Card>
@@ -594,32 +605,32 @@ export default function HomePage() {
       </div>
 
       {/* 我的动态 */}
-      <Card className={cn(isDark ? "bg-[#12121a] border-white/5" : "bg-white border-slate-200/80")}>
-        <CardHeader className="pb-2">
+      <Card className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
+        <CardHeader className="pb-3 pt-5">
           <CardTitle className="flex items-center gap-2">
-            <FileText className={cn("h-4 w-4", isDark ? "text-indigo-400" : "text-indigo-600")} />
-            <span className={cn("font-heading font-bold", isDark ? "text-white" : "text-slate-800")}>我的动态</span>
+            <FileText className={cn("h-4 w-4", isDark ? "text-orange-400" : "text-orange-500")} />
+            <span className={cn("font-heading font-bold", isDark ? "text-stone-100" : "text-stone-800")}>我的动态</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 pt-0">
           {[
             { content: '完成了今天的 AI 学习任务，感觉收获满满！特别是关于 Prompt Engineering 的部分。', time: '2小时前', likes: 42, comments: 8 },
             { content: '尝试用 Midjourney 生成了一套品牌视觉设计，效果超出预期！', time: '1天前', likes: 128, comments: 23 },
           ].map((post, i) => (
             <div key={i} className={cn(
-              "p-4 rounded-xl",
-              isDark ? "bg-[#18181b]" : "bg-slate-50"
+              "p-5 rounded-2xl",
+              isDark ? "bg-[#2a2420]" : "bg-stone-50/80"
             )}>
-              <p className={cn("text-sm mb-3", isDark ? "text-slate-200" : "text-slate-700")}>{post.content}</p>
+              <p className={cn("text-sm mb-3", isDark ? "text-stone-300" : "text-stone-700")}>{post.content}</p>
               <div className="flex items-center gap-4">
-                <span className={cn("text-xs", isDark ? "text-slate-500" : "text-slate-400")}>{post.time}</span>
+                <span className={cn("text-xs", isDark ? "text-stone-500" : "text-stone-400")}>{post.time}</span>
                 <div className="flex items-center gap-1">
-                  <Heart className={cn("h-3 w-3", isDark ? "text-slate-400" : "text-slate-500")} />
-                  <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{post.likes}</span>
+                  <Heart className={cn("h-3 w-3", isDark ? "text-stone-500" : "text-stone-400")} />
+                  <span className={cn("text-xs", isDark ? "text-stone-500" : "text-stone-400")}>{post.likes}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <MessageCircle className={cn("h-3 w-3", isDark ? "text-slate-400" : "text-slate-500")} />
-                  <span className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{post.comments}</span>
+                  <MessageCircle className={cn("h-3 w-3", isDark ? "text-stone-500" : "text-stone-400")} />
+                  <span className={cn("text-xs", isDark ? "text-stone-500" : "text-stone-400")}>{post.comments}</span>
                 </div>
               </div>
             </div>
@@ -630,11 +641,11 @@ export default function HomePage() {
   );
 
   return (
-    <div className={cn("min-h-screen transition-colors duration-500", isDark ? "bg-[#0a0a0f] text-white" : "bg-[#fafbfc] text-slate-900")}>
+    <div className={cn("min-h-screen transition-colors duration-500", isDark ? "bg-[#171412] text-stone-100" : "bg-[#fefdfb] text-stone-900")}>
       {isDark && (
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-[120px]" />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-orange-500/12 via-amber-500/8 to-transparent rounded-full blur-[120px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
         </div>
       )}
       

@@ -100,25 +100,25 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
         ? "bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5" 
         : "bg-white/80 backdrop-blur-xl border-b border-slate-200/80"
     )}>
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <button 
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2 group"
+          className="flex items-center gap-3 group"
         >
           <div className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-300",
+            "flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-300",
             isDark 
-              ? "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20" 
-              : "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/10"
+              ? "bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 shadow-lg shadow-orange-500/20" 
+              : "bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-lg shadow-orange-500/15"
           )}>
-            <Zap className="h-4 w-4 text-white" />
+            <Zap className="h-5 w-5 text-white" />
           </div>
           <span className={cn(
-            "font-heading text-lg font-bold tracking-tight transition-all duration-300",
+            "font-heading text-xl font-bold tracking-tight transition-all duration-300",
             isDark 
-              ? "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" 
-              : "bg-gradient-to-r from-slate-900 via-indigo-600 to-purple-600 bg-clip-text text-transparent"
+              ? "text-stone-100" 
+              : "text-stone-800"
           )}>
             NexusAI
           </span>
@@ -131,19 +131,19 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
               key={link.id}
               onClick={() => handleNavClick(link.id)}
               className={cn(
-                'relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
+                'relative px-5 py-2.5 text-sm font-medium transition-all duration-300 rounded-xl',
                 activeTab === link.id
                   ? isDark
-                    ? 'text-white bg-white/10'
-                    : 'text-indigo-600 bg-indigo-50'
+                    ? 'text-amber-400 bg-white/8'
+                    : 'text-orange-600 bg-orange-50/80'
                   : isDark
-                    ? 'text-slate-400 hover:text-white hover:bg-white/5'
-                    : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+                    ? 'text-stone-400 hover:text-stone-200 hover:bg-white/5'
+                    : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100/80'
               )}
             >
               {link.label}
               {activeTab === link.id && (
-                <span className="absolute inset-x-2 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+                <span className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400" />
               )}
             </button>
           ))}
@@ -154,15 +154,15 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
           {/* Search */}
           <div className="hidden sm:flex items-center">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <Input
                 type="search"
                 placeholder="搜索..."
                 className={cn(
-                  "pl-10 pr-4 h-9 w-48 rounded-lg border text-sm transition-all duration-200",
+                  "pl-10 pr-4 h-10 w-52 rounded-xl border text-sm transition-all duration-300",
                   isDark 
-                    ? "bg-white/5 border-white/10 focus:bg-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500/50" 
-                    : "bg-slate-50 border-slate-200 focus:bg-white text-slate-800 placeholder:text-slate-400 focus:border-indigo-300"
+                    ? "bg-white/5 border-white/10 focus:bg-white/10 text-white placeholder:text-stone-500 focus:border-orange-500/40" 
+                    : "bg-stone-100/80 border-stone-200/60 focus:bg-white text-stone-800 placeholder:text-stone-400 focus:border-orange-300/60"
                 )}
               />
             </div>
@@ -174,8 +174,8 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
             size="icon"
             onClick={toggleTheme}
             className={cn(
-              "h-9 w-9 rounded-lg transition-all duration-200",
-              isDark ? "hover:bg-white/10 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-indigo-600"
+              "h-10 w-10 rounded-xl transition-all duration-300",
+              isDark ? "hover:bg-white/10 text-stone-400 hover:text-amber-400" : "hover:bg-stone-100 text-stone-500 hover:text-orange-500"
             )}
           >
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -188,56 +188,56 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                 variant="ghost" 
                 size="icon" 
                 className={cn(
-                  "relative h-9 w-9 rounded-lg transition-all duration-200",
-                  isDark ? "hover:bg-white/10" : "hover:bg-slate-100"
+                  "relative h-10 w-10 rounded-xl transition-all duration-300",
+                  isDark ? "hover:bg-white/10" : "hover:bg-stone-100"
                 )}
               >
                 <div className={cn(
-                  "flex items-center justify-center rounded-lg text-sm font-semibold",
-                  isDark ? "bg-gradient-to-br from-indigo-500 to-purple-500 text-white" : "bg-gradient-to-br from-indigo-500 to-purple-500 text-white"
+                  "flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold",
+                  isDark ? "bg-gradient-to-br from-orange-400 to-amber-500 text-white" : "bg-gradient-to-br from-orange-500 to-amber-500 text-white"
                 )}>
-                  {user?.nickname?.[0]?.toUpperCase() || '登录'}
+                  {user?.nickname?.[0]?.toUpperCase() || '登'}
                 </div>
                 {user?.is_vip && (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center h-3.5 w-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold shadow">👑</span>
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center h-4 w-4 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-[8px] text-white font-bold shadow-md">👑</span>
                 )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
               align="end" 
               className={cn(
-                "w-56 p-2 rounded-xl",
+                "w-56 p-2 rounded-2xl",
                 isDark 
-                  ? "bg-[#12121a] border border-white/10 backdrop-blur-xl" 
-                  : "bg-white border border-slate-200 shadow-xl"
+                  ? "bg-[#1c1917] border border-white/8 backdrop-blur-xl" 
+                  : "bg-white border border-stone-200/60 shadow-warm"
               )}
             >
               <div className={cn(
-                "px-3 py-2 rounded-lg mb-1",
-                isDark ? "bg-white/5" : "bg-slate-50"
+                "px-3 py-2.5 rounded-xl mb-1",
+                isDark ? "bg-white/5" : "bg-stone-50/80"
               )}>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold" style={{color: isDark ? '#fff' : '#1e293b'}}>{user?.nickname || '游客用户'}</p>
+                  <p className="text-sm font-semibold" style={{color: isDark ? '#fff' : '#1c1917'}}>{user?.nickname || '游客用户'}</p>
                   {user?.is_vip && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white">VIP</span>
+                    <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-gradient-to-r from-amber-400 to-orange-500 text-white">VIP</span>
                   )}
                 </div>
-                <p className={cn("text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
+                <p className={cn("text-xs mt-0.5", isDark ? "text-stone-400" : "text-stone-500")}>{user ? `积分: ${user.points || 0}` : '登录解锁更多功能'}</p>
               </div>
-              <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
+              <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-stone-200/60 -mx-2 my-2"} />
               {user ? (
                 <>
                   <DropdownMenuItem 
                     onClick={() => { setShowUserMenu(false); router.push('/profile'); }}
                     className={cn(
-                      "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors",
-                      isDark ? "text-slate-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600 focus:bg-slate-50"
+                      "cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors",
+                      isDark ? "text-stone-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-stone-700 hover:bg-stone-50 hover:text-orange-600 focus:bg-stone-50"
                     )}
                   >
                     <User className="mr-2 h-4 w-4" />
                     我的主页
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-slate-200 -mx-2 my-2"} />
+                  <DropdownMenuSeparator className={isDark ? "bg-white/5 -mx-2 my-2" : "bg-stone-200/60 -mx-2 my-2"} />
                   <DropdownMenuItem 
                     onClick={async () => {
                       await fetch('/api/auth/logout', { method: 'POST' });
@@ -246,7 +246,7 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                       window.location.reload();
                     }}
                     className={cn(
-                      "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
+                      "cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors text-red-400 hover:bg-red-500/10 focus:bg-red-500/10"
                     )}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -257,8 +257,8 @@ export function Navbar({ onTabChange, theme: themeProp, onThemeToggle }: NavbarP
                 <DropdownMenuItem 
                   onClick={() => { setShowUserMenu(false); router.push('/login'); }}
                   className={cn(
-                    "cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors",
-                    isDark ? "text-slate-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-slate-700 hover:bg-slate-50 hover:text-indigo-600 focus:bg-slate-50"
+                    "cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors",
+                    isDark ? "text-stone-300 hover:bg-white/5 hover:text-white focus:bg-white/5" : "text-stone-700 hover:bg-stone-50 hover:text-orange-600 focus:bg-stone-50"
                   )}
                 >
                   <User className="mr-2 h-4 w-4" />
