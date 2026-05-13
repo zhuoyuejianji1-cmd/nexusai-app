@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getVipStatus, setVipManual } from '@/lib/redis';
+import { getVipStatus, setVip } from '@/lib/redis';
 
 // GET /api/user/vip?openid=xxx - 查询会员状态
 export async function GET(request: NextRequest) {
@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     const vip = expireDate
-      ? await setVipManual(openid, expireDate)
-      : await setVipManual(openid, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      ? await setVip(openid, expireDate)
+      : await setVip(openid, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
 
     return NextResponse.json({ success: true, vip })
   } catch (err) {

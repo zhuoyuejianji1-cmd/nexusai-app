@@ -592,7 +592,7 @@ export default function HomePage() {
         ].map((stat, i) => (
           <Card key={i} className={cn("rounded-2xl", isDark ? "bg-[#1c1917] border-white/5" : "bg-white border-stone-200/40 shadow-warm")}>
             <CardContent className="p-5 flex items-center gap-4">
-              <div className={cn("flex items-center justify-center h-10 w-10 rounded-xl", isDark ? "bg-white/5" : "bg-stone-100"))}>
+              <div className={cn("flex items-center justify-center h-10 w-10 rounded-xl", isDark ? "bg-white/5" : "bg-stone-100")}>
                 <stat.icon className={cn("h-5 w-5", stat.color)} />
               </div>
               <div>
