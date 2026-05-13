@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus } from '@/lib/redis';
 
+export const runtime = 'nodejs';
+
 // 解析 token，支持 Cookie 和 Bearer 两种方式
 function parseToken(request: NextRequest): any {
   // 1. 尝试 Bearer token (小程序)
@@ -8,7 +10,7 @@ function parseToken(request: NextRequest): any {
   if (authHeader?.startsWith('Bearer ')) {
     try {
       const token = authHeader.slice(7);
-      const data = JSON.parse(Buffer.from(token, 'base64').toString());
+      const data = JSON.parse(atob(token));
       if (data.exp < Date.now()) return null;
       return data;
     } catch {
@@ -20,7 +22,7 @@ function parseToken(request: NextRequest): any {
   const authToken = request.cookies.get('auth_token');
   if (authToken) {
     try {
-      const data = JSON.parse(Buffer.from(authToken.value, 'base64').toString());
+      const data = JSON.parse(atob(authToken.value));
       if (data.exp < Date.now()) return null;
       return data;
     } catch {
@@ -61,6 +63,7 @@ export async function GET(request: NextRequest) {
           id: tokenData.openid,
           openid: tokenData.openid,
           nickname: tokenData.nickname || '微信用户',
+          avatar: tokenData.avatar || null,
           is_vip: isValid,
           vip_expire: vip.expire || null,
           vip_since: vip.since || null,

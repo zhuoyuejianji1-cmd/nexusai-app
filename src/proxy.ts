@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+export const runtime = 'nodejs';
+
 // 需要登录才能访问的路由
 const protectedRoutes = ['/learn', '/profile', '/resources/premium'];
 // 付费资源的前缀
@@ -34,7 +36,7 @@ export function proxy(request: NextRequest) {
     
     // 验证 token（实际应该解密验证）
     try {
-      const tokenData = JSON.parse(Buffer.from(authToken.value, 'base64').toString());
+      const tokenData = JSON.parse(atob(authToken.value));
       
       // 检查 token 是否过期
       if (tokenData.exp < Date.now()) {

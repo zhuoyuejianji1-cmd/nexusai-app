@@ -4,6 +4,8 @@ import { getProduct } from '@/lib/payment';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 
+export const runtime = 'nodejs';
+
 // 加载课程数据
 function loadCourses(): any[] {
   try {
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
     if (authHeader?.startsWith('Bearer ')) {
       try {
         const token = authHeader.slice(7);
-        const tokenData = JSON.parse(Buffer.from(token, 'base64').toString());
+        const tokenData = JSON.parse(atob(token));
         userId = tokenData.openid || tokenData.userId;
       } catch {
         // token 解析失败
@@ -39,7 +41,7 @@ export async function GET(request: NextRequest) {
       try {
         const authToken = request.cookies.get('auth_token');
         if (authToken) {
-          const tokenData = JSON.parse(Buffer.from(authToken.value, 'base64').toString());
+          const tokenData = JSON.parse(atob(authToken.value));
           userId = tokenData.userId;
         }
       } catch {

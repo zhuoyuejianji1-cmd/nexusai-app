@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCode } from '@/lib/code-store';
-// import { db } from '@/storage/database';
-// import { users, verification_codes } from '@/storage/database/shared/schema';
+
+export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,11 +55,11 @@ export async function POST(request: NextRequest) {
     };
 
     // 创建 session token（后续应使用 JWT 签名）
-    const token = Buffer.from(JSON.stringify({
+    const token = btoa(JSON.stringify({
       userId: mockUser.id,
       email: mockUser.email,
       exp: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7天有效期
-    })).toString('base64');
+    }));
 
     const response = NextResponse.json({
       success: true,

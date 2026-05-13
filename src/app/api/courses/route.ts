@@ -3,6 +3,8 @@ import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import { getVipStatus } from '@/lib/redis';
 
+export const runtime = 'nodejs';
+
 export interface Course {
   id: string;
   title: string;
@@ -92,14 +94,14 @@ function getOpenId(request: NextRequest): string | null {
   const authHeader = request.headers.get('Authorization');
   if (authHeader?.startsWith('Bearer ')) {
     try {
-      const data = JSON.parse(Buffer.from(authHeader.slice(7), 'base64').toString());
+      const data = JSON.parse(atob(authHeader.slice(7)));
       return data.openid || null;
     } catch { /* 忽略 */ }
   }
   try {
     const authToken = request.cookies.get('auth_token');
     if (authToken) {
-      const data = JSON.parse(Buffer.from(authToken.value, 'base64').toString());
+      const data = JSON.parse(atob(authToken.value));
       return data.openid || null;
     }
   } catch { /* 忽略 */ }

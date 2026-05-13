@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
+
 // POST /api/auth/wx-login - 微信小程序登录
-// 接收临时 code，调用微信接口换取 openid + session_key，返回 token
+// 接收临时 code + 可选的 nickname/avatarUrl，调用微信接口换取 openid + session_key，返回 token
 export async function POST(request: NextRequest) {
   try {
-    const { code } = await request.json();
+    const { code, nickname, avatarUrl } = await request.json();
 
     if (!code) {
       return NextResponse.json(
@@ -49,15 +51,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 生成用户 token（base64 编码，包含 openid 和过期时间）
+    // 生成用户 token（base64 编码，包含 openid、昵称、头像和过期时间）
     const tokenData = {
       openid,
       userId: openid,
-      nickname: '微信用户',
+      nickname: nickname || '微信用户',
+      avatar: avatarUrl || null,
       exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 天过期
     };
 
-    const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
+    const token = btoa(JSON.stringify(tokenData));
 
     // 返回 token 和用户信息
     return NextResponse.json({
@@ -65,8 +68,8 @@ export async function POST(request: NextRequest) {
       token,
       user: {
         openid,
-        nickname: '微信用户',
-        avatar: null,
+        nickname: nickname || '微信用户',
+        avatar: avatarUrl || null,
         is_vip: false,
       },
     });
