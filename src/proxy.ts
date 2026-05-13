@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export const runtime = 'nodejs';
-
 // 需要登录才能访问的路由
 const protectedRoutes = ['/learn', '/profile', '/resources/premium'];
 // 付费资源的前缀
