@@ -10,6 +10,8 @@
 //   WECHAT_PLATFORM_CERT_PUBLIC_KEY=微信平台公钥(PEM)
 // 不设环境变量时自动使用Mock模式
 
+import { createSign, createVerify } from 'crypto'
+
 export interface Product {
   id: string
   name: string
@@ -196,7 +198,6 @@ async function callWechatPayJSAPI(order: {
   if (!privateKey) {
     throw new Error('商户私钥未配置')
   }
-  const { createSign } = await import('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
   const signature = sign.sign(privateKey, 'base64')
@@ -211,7 +212,7 @@ async function callWechatPayJSAPI(order: {
       'Authorization': authorization,
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'User-Agent': '资料库Pro/1.0'
+      'User-Agent': 'NexusAI/1.0'
     },
     body: bodyStr
   })
@@ -244,7 +245,6 @@ function generateMiniProgramPaymentParams(prepayId: string, signType: string = '
 
   // 使用商户私钥签名
   const privateKey = getPrivateKey()
-  const { createSign } = require('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
   const paySign = sign.sign(privateKey, 'base64')
@@ -347,7 +347,6 @@ async function callWechatPayNative(order: {
 
   // 使用商户私钥进行签名
   const privateKey = getPrivateKey()
-  const { createSign } = await import('crypto')
   const sign = createSign('RSA-SHA256')
   sign.update(signatureStr)
   const signature = sign.sign(privateKey, 'base64')
@@ -449,7 +448,6 @@ export async function verifyWechatNotify(body: string, headers: Record<string, s
 
   // 生产模式: 验证微信签名
   try {
-    const { createVerify } = await import('crypto')
     const wechatpaySerial = headers['wechatpay-serial']
     const wechatpaySignature = headers['wechatpay-signature']
     const wechatpayTimestamp = headers['wechatpay-timestamp']
