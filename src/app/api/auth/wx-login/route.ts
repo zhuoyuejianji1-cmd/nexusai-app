@@ -74,10 +74,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-  } catch (error) {
-    console.error('微信登录错误:', error);
+  } catch (error: any) {
+    console.error('微信登录错误 - name:', error?.name, 'message:', error?.message, 'stack:', error?.stack?.slice(0, 500));
     return NextResponse.json(
-      { error: '服务器错误' },
+      { error: '服务器错误: ' + (error?.message || '未知错误') },
       { status: 500 }
     );
   }
