@@ -10,7 +10,7 @@ export interface VipInfo {
 const REST_URL = process.env.UPSTASH_REDIS_REST_URL || ''
 const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || ''
 
-function isConfigured(): boolean {
+export function isConfigured(): boolean {
   return !!REST_URL && !!TOKEN
 }
 
