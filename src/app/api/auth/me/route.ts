@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus } from '@/lib/redis';
+import { generateUserId } from '@/lib/user';
 
 export const runtime = 'nodejs';
 
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
         user: {
           ...baseUser,
           id: tokenData.openid,
-          userId: tokenData.userId,
+          userId: tokenData.userId || generateUserId(tokenData.openid),
           openid: tokenData.openid,
           nickname: tokenData.nickname || '微信用户',
           avatar: tokenData.avatar || null,
