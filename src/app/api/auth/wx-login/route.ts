@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 天过期
     };
 
-    const token = btoa(JSON.stringify(tokenData));
+    const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
 
     // 返回 token 和用户信息
     return NextResponse.json({

@@ -10,7 +10,7 @@ function parseToken(request: NextRequest): any {
   if (authHeader?.startsWith('Bearer ')) {
     try {
       const token = authHeader.slice(7);
-      const data = JSON.parse(atob(token));
+      const data = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
       if (data.exp < Date.now()) return null;
       return data;
     } catch {
@@ -22,7 +22,7 @@ function parseToken(request: NextRequest): any {
   const authToken = request.cookies.get('auth_token');
   if (authToken) {
     try {
-      const data = JSON.parse(atob(authToken.value));
+      const data = JSON.parse(Buffer.from(authToken.value, 'base64').toString('utf-8'));
       if (data.exp < Date.now()) return null;
       return data;
     } catch {

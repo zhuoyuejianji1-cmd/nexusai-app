@@ -34,7 +34,7 @@ export function proxy(request: NextRequest) {
     
     // 验证 token（实际应该解密验证）
     try {
-      const tokenData = JSON.parse(atob(authToken.value));
+      const tokenData = JSON.parse(Buffer.from(authToken.value, 'base64').toString('utf-8'));
       
       // 检查 token 是否过期
       if (tokenData.exp < Date.now()) {
