@@ -61,6 +61,7 @@ function cleanCourse(c: Course) {
   // 如需设置免费课，在 courses.json 中给对应课程加 "isVipOnly": false
   const isVipOnly = c.isVipOnly !== false; // 默认 true，全部会员专享
   const price = isVipOnly ? 0 : (c.price || 0);
+  const singlePrice = isVipOnly ? 990 : 0; // VIP课程单买价 9.9元
   
   return {
     id: c.id,
@@ -76,6 +77,7 @@ function cleanCourse(c: Course) {
     tags: c.tags || [],
     isPremium: isVipOnly,
     price: price,
+    singlePrice: singlePrice,
     originalPrice: 0,
     type: isVipOnly ? 'vip' : 'free',  // vip=会员专享, free=免费课
     updatedAt: c.updatedAt || '',

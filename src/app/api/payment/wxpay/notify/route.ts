@@ -38,11 +38,10 @@ export async function POST(request: NextRequest) {
     console.log(`订单 ${outTradeNo} 支付成功，微信交易号: ${transactionId}, 金额: ${totalFee}分`);
 
     // 如果是VIP会员商品，激活VIP
-    const vipProductIds = ['vip_monthly', 'vip_yearly', 'vip_forever'];
+    const vipProductIds = ['vip_yearly', 'vip_forever'];
     if (vipProductIds.includes(order.productId) && order.userId) {
       const now = new Date();
-      if (order.productId === 'vip_monthly') now.setMonth(now.getMonth() + 1);
-      else if (order.productId === 'vip_yearly') now.setFullYear(now.getFullYear() + 1);
+      if (order.productId === 'vip_yearly') now.setFullYear(now.getFullYear() + 1);
       else now.setFullYear(now.getFullYear() + 50);
       const expireDate = now.toISOString().split('T')[0];
       await setVip(order.userId, expireDate);
