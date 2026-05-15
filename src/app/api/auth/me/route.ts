@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
         user: {
           ...baseUser,
           id: tokenData.openid,
+          userId: tokenData.userId,
           openid: tokenData.openid,
           nickname: tokenData.nickname || '微信用户',
           avatar: tokenData.avatar || null,
