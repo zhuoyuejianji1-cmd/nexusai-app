@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus } from '@/lib/redis';
+import { getOrCreateUser } from '@/lib/user';
 
 export const runtime = 'nodejs';
 
@@ -50,11 +51,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 获取或创建用户（生成6位数ID）
+    const userObj = getOrCreateUser(openid, nickname, avatarUrl);
+    const userId = userObj.userId;
+
     // 查询 VIP 状态
     let isVip = false;
     let vipExpire = '';
     try {
-      const vip = await getVipStatus(openid);
+      const vip = await getVipStatus(userId);
       const now = new Date().toISOString().split('T')[0];
       isVip = vip.isVip && vip.expire >= now;
       vipExpire = vip.expire || '';
@@ -62,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     const tokenData = {
       openid,
-      userId: openid,
+      userId,
       nickname: nickname || '微信用户',
       avatar: avatarUrl || null,
       is_vip: isVip,
@@ -77,6 +82,7 @@ export async function POST(request: NextRequest) {
       token,
       user: {
         openid,
+        userId,
         nickname: nickname || '微信用户',
         avatar: avatarUrl || null,
         is_vip: isVip,

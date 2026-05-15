@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       try {
         const token = authHeader.slice(7);
         const tokenData = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
-        userId = tokenData.openid || tokenData.userId;
+        userId = tokenData.userId || tokenData.openid;
       } catch {
         // token 解析失败
       }
