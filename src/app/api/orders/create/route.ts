@@ -50,27 +50,6 @@ export async function POST(request: NextRequest) {
     step = 'create_order';
     const order = createOrder(product, { userId, email });
 
-    // VIP会员商品
-    const vipId = (openid || userId) as string
-    if (vipId && (productId === 'vip_monthly' || productId === 'vip_yearly' || productId === 'vip_forever')) {
-      step = 'set_vip';
-      let expireDate = ''
-      const now = new Date()
-      if (productId === 'vip_monthly') now.setMonth(now.getMonth() + 1)
-      else if (productId === 'vip_yearly') now.setFullYear(now.getFullYear() + 1)
-      else now.setFullYear(now.getFullYear() + 50)
-      expireDate = now.toISOString().split('T')[0]
-      await setVip(vipId, expireDate)
-      order.status = 'paid'
-      order.paidAt = Date.now()
-      step = 'return_vip';
-      return NextResponse.json({
-        success: true, vipActivated: true,
-        order: { id: order.id, outTradeNo: order.outTradeNo, productName: order.productName, totalFee: order.totalFee, status: 'paid', createdAt: order.createdAt, paidAt: order.paidAt },
-        expireDate,
-      })
-    }
-
     // 免费订单
     if (order.totalFee === 0) {
       order.status = 'paid'; order.paidAt = Date.now();

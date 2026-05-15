@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getVipStatus } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 
 // POST /api/auth/wx-login - 微信小程序登录
-// 接收临时 code + 可选的 nickname/avatarUrl，调用微信接口换取 openid + session_key，返回 token
 export async function POST(request: NextRequest) {
   try {
     const { code, nickname, avatarUrl } = await request.json();
@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 调用微信 jscode2session 接口
     const wxRes = await fetch(
       `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`,
       { method: 'GET' }
@@ -51,18 +50,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 生成用户 token（base64 编码，包含 openid、昵称、头像和过期时间）
+    // 查询 VIP 状态
+    let isVip = false;
+    let vipExpire = '';
+    try {
+      const vip = await getVipStatus(openid);
+      const now = new Date().toISOString().split('T')[0];
+      isVip = vip.isVip && vip.expire >= now;
+      vipExpire = vip.expire || '';
+    } catch { /* Redis不可用则降级 */ }
+
     const tokenData = {
       openid,
       userId: openid,
       nickname: nickname || '微信用户',
       avatar: avatarUrl || null,
-      exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 天过期
+      is_vip: isVip,
+      vip_expire: vipExpire,
+      exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
     };
 
     const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
 
-    // 返回 token 和用户信息
     return NextResponse.json({
       success: true,
       token,
@@ -70,7 +79,8 @@ export async function POST(request: NextRequest) {
         openid,
         nickname: nickname || '微信用户',
         avatar: avatarUrl || null,
-        is_vip: false,
+        is_vip: isVip,
+        vip_expire: vipExpire,
       },
     });
 
