@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProduct, createOrder, createPayment, createJSAPIPayment } from '@/lib/payment';
+import { getProduct, createOrder, createPayment, createJSAPIPayment, saveOrderToRedis } from '@/lib/payment';
 import { setVip } from '@/lib/redis';
 
 // 显式声明 Node.js runtime（避免 Vercel 默认走 Edge）
@@ -48,11 +48,12 @@ export async function POST(request: NextRequest) {
     }
 
     step = 'create_order';
-    const order = createOrder(product, { userId, email });
+    const order = await createOrder(product, { userId, email });
 
-    // 免费订单
+    // 免费订单 — 直接标记已支付，持久化到 Redis
     if (order.totalFee === 0) {
       order.status = 'paid'; order.paidAt = Date.now();
+      saveOrderToRedis(order).catch(e => console.error('[Redis] 免费订单持久化失败:', e));
       step = 'return_free';
       return NextResponse.json({
         success: true, freeOrder: true,

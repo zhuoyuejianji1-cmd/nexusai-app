@@ -10,7 +10,7 @@
 //   WECHAT_PLATFORM_CERT_PUBLIC_KEY=微信平台公钥(PEM)
 // 不设环境变量时自动使用Mock模式
 
-import { createSign, createVerify } from 'crypto'
+import { createSign, createVerify, createDecipheriv, X509Certificate } from 'crypto'
 
 export interface Product {
   id: string
@@ -33,9 +33,64 @@ export interface Order {
   email?: string
 }
 
-// 内存订单存储 (serverless环境每次冷启动会重置, 但开发够用)
+// 内存订单存储（一级缓存，Redis持久化为二级兜底）
 const orders = new Map<string, Order>()
 const outTradeNoIndex = new Map<string, Order>()
+
+// ====== Redis 订单持久化（防止 Vercel 冷启动丢单） ======
+const ORDER_REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || ''
+const ORDER_REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || ''
+const ORDER_TTL_SECONDS = 30 * 24 * 60 * 60 // 30天
+
+function redisAvailable(): boolean {
+  return !!ORDER_REDIS_URL && !!ORDER_REDIS_TOKEN
+}
+
+async function redisCmd(command: string, ...args: string[]): Promise<any> {
+  if (!redisAvailable()) return null
+  try {
+    const res = await fetch(ORDER_REDIS_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${ORDER_REDIS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([command, ...args]),
+    })
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function saveOrderToRedis(order: Order): Promise<void> {
+  if (!redisAvailable()) return
+  const key = `order:${order.outTradeNo}`
+  const idKey = `order_id:${order.id}`
+  const data = JSON.stringify(order)
+  await redisCmd('SET', key, data, 'EX', String(ORDER_TTL_SECONDS))
+  await redisCmd('SET', idKey, order.outTradeNo, 'EX', String(ORDER_TTL_SECONDS))
+}
+
+async function loadOrderByOutTradeNoFromRedis(outTradeNo: string): Promise<Order | null> {
+  if (!redisAvailable()) return null
+  const data = await redisCmd('GET', `order:${outTradeNo}`)
+  if (!data || data === null) return null
+  try { return JSON.parse(data) } catch { return null }
+}
+
+async function loadOrderByIdFromRedis(orderId: string): Promise<Order | null> {
+  if (!redisAvailable()) return null
+  const outTradeNo = await redisCmd('GET', `order_id:${orderId}`)
+  if (!outTradeNo || outTradeNo === null) return null
+  return loadOrderByOutTradeNoFromRedis(outTradeNo as string)
+}
+
+async function updateOrderInRedis(order: Order): Promise<void> {
+  if (!redisAvailable()) return
+  const key = `order:${order.outTradeNo}`
+  await redisCmd('SET', key, JSON.stringify(order), 'EX', String(ORDER_TTL_SECONDS))
+}
 
 // 生成商户订单号: yyyyMMddHHmmss + 6位随机数
 function generateOutTradeNo(): string {
@@ -55,8 +110,8 @@ function generateOrderId(): string {
   return 'ord_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6)
 }
 
-// 创建订单
-export function createOrder(product: Product, options?: { userId?: string; email?: string }): Order {
+// 创建订单（内存 + Redis 双写）
+export async function createOrder(product: Product, options?: { userId?: string; email?: string }): Promise<Order> {
   const order: Order = {
     id: generateOrderId(),
     outTradeNo: generateOutTradeNo(),
@@ -70,31 +125,69 @@ export function createOrder(product: Product, options?: { userId?: string; email
   }
   orders.set(order.id, order)
   outTradeNoIndex.set(order.outTradeNo, order)
+  // 持久化到 Redis（后台写入，不阻塞返回）
+  saveOrderToRedis(order).catch(e => console.error('[Redis] 保存订单失败:', e))
   return order
 }
 
-// 根据订单ID获取订单
-export function getOrder(orderId: string): Order | undefined {
-  return orders.get(orderId)
+// 根据订单ID获取订单（内存 → Redis 两级兜底）
+export async function getOrder(orderId: string): Promise<Order | undefined> {
+  const mem = orders.get(orderId)
+  if (mem) return mem
+  const redis = await loadOrderByIdFromRedis(orderId)
+  if (redis) {
+    orders.set(redis.id, redis)
+    outTradeNoIndex.set(redis.outTradeNo, redis)
+    return redis
+  }
+  return undefined
 }
 
-// 根据商户订单号获取订单
-export function getOrderByOutTradeNo(outTradeNo: string): Order | undefined {
-  return outTradeNoIndex.get(outTradeNo)
+// 根据商户订单号获取订单（内存 → Redis 两级兜底）
+export async function getOrderByOutTradeNo(outTradeNo: string): Promise<Order | undefined> {
+  const mem = outTradeNoIndex.get(outTradeNo)
+  if (mem) return mem
+  const redis = await loadOrderByOutTradeNoFromRedis(outTradeNo)
+  if (redis) {
+    orders.set(redis.id, redis)
+    outTradeNoIndex.set(redis.outTradeNo, redis)
+    return redis
+  }
+  return undefined
 }
 
-// 更新订单状态
-export function updateOrderStatus(orderId: string, status: Order['status'], extras?: Partial<Order>): Order | undefined {
+// 更新订单状态（内存 + Redis 双写）
+export async function updateOrderStatus(orderId: string, status: Order['status'], extras?: Partial<Order>): Promise<Order | undefined> {
   const order = orders.get(orderId)
   if (!order) return undefined
   order.status = status
   if (extras) Object.assign(order, extras)
   if (status === 'paid') order.paidAt = Date.now()
+  // 同步更新 Redis
+  updateOrderInRedis(order).catch(e => console.error('[Redis] 更新订单状态失败:', e))
   return order
 }
 
-// 获取所有订单
-export function getAllOrders(): Order[] {
+// 获取所有订单（内存 + Redis 合并）
+export async function getAllOrders(): Promise<Order[]> {
+  // 从 Redis 补全内存中没有的订单
+  if (redisAvailable()) {
+    try {
+      const keys = await redisCmd('KEYS', 'order:*')
+      if (Array.isArray(keys)) {
+        for (const key of keys) {
+          const outTradeNo = (key as string).replace('order:', '')
+          if (!outTradeNoIndex.has(outTradeNo)) {
+            const redisOrder = await loadOrderByOutTradeNoFromRedis(outTradeNo)
+            if (redisOrder) {
+              orders.set(redisOrder.id, redisOrder)
+              outTradeNoIndex.set(redisOrder.outTradeNo, redisOrder)
+            }
+          }
+        }
+      }
+    } catch { /* Redis 不可用时忽略 */ }
+  }
   return Array.from(orders.values()).sort((a, b) => b.createdAt - a.createdAt)
 }
 
@@ -413,10 +506,124 @@ export async function createPayment(order: Order): Promise<{ codeUrl: string }> 
 }
 
 // Mock模式: 模拟支付完成 (供开发时手动调用)
-export function mockPayOrder(outTradeNo: string): Order | undefined {
-  const order = getOrderByOutTradeNo(outTradeNo)
+export async function mockPayOrder(outTradeNo: string): Promise<Order | undefined> {
+  const order = await getOrderByOutTradeNo(outTradeNo)
   if (!order || order.status !== 'pending') return undefined
   return updateOrderStatus(order.id, 'paid', { paidAt: Date.now() })
+}
+
+// ====== AES-256-GCM 解密（微信支付回调 resource 解密） ======
+
+// 使用 API v3 密钥解密 AES-256-GCM 加密数据
+// 密钥长度32字节，nonce12字节，认证标签在密文末尾16字节
+function decryptAES256GCM(ciphertext: string, nonce: string, associatedData: string): string {
+  const apiV3Key = process.env.WECHAT_API_V3_KEY
+  if (!apiV3Key) throw new Error('WECHAT_API_V3_KEY 未配置')
+
+  const key = Buffer.from(apiV3Key, 'utf-8')
+  const nonceBuffer = Buffer.from(nonce, 'utf-8')
+  const cipherBuffer = Buffer.from(ciphertext, 'base64')
+
+  // AEAD_AES_256_GCM: 认证标签附加在密文末尾16字节
+  const authTag = cipherBuffer.subarray(cipherBuffer.length - 16)
+  const encryptedData = cipherBuffer.subarray(0, cipherBuffer.length - 16)
+
+  const decipher = createDecipheriv('aes-256-gcm', key, nonceBuffer)
+  decipher.setAAD(Buffer.from(associatedData, 'utf-8'))
+  decipher.setAuthTag(authTag)
+
+  let decrypted = decipher.update(encryptedData, undefined, 'utf-8')
+  decrypted += decipher.final('utf-8')
+  return decrypted
+}
+
+// ====== 微信平台证书管理 ======
+
+interface PlatformCert {
+  serialNo: string
+  publicKeyPem: string
+  effectiveTime: string
+  expireTime: string
+}
+
+let platformCertsCache: PlatformCert[] = []
+let lastCertFetchTime = 0
+
+// 是否需要刷新证书缓存（空缓存或超过24小时）
+function shouldRefreshCerts(): boolean {
+  return platformCertsCache.length === 0 || Date.now() - lastCertFetchTime > 24 * 60 * 60 * 1000
+}
+
+// 从微信 API 下载平台证书（使用商户证书认证）
+// 返回的证书本身是 AES-256-GCM 加密的，需用 API v3 密钥解密
+async function refreshPlatformCerts(): Promise<void> {
+  if (!shouldRefreshCerts()) return
+
+  const mchid = process.env.WECHAT_MCHID
+  const serialNo = process.env.WECHAT_MERCHANT_CERT_SERIAL
+  const privateKey = getPrivateKey()
+
+  if (!mchid || !serialNo || !privateKey) {
+    console.warn('[平台证书] 商户信息不完整，跳过自动获取')
+    return
+  }
+
+  try {
+    const url = 'https://api.mch.weixin.qq.com/v3/certificates'
+    const method = 'GET'
+    const nonce = Math.random().toString(36).substring(2, 16)
+    const timestamp = Math.floor(Date.now() / 1000).toString()
+    const signatureStr = `${method}\n${new URL(url).pathname}\n${timestamp}\n${nonce}\n\n`
+
+    const sign = createSign('RSA-SHA256')
+    sign.update(signatureStr)
+    const signature = sign.sign(privateKey, 'base64')
+    const authHeader = `WECHATPAY2-SHA256-RSA2048 mchid="${mchid}",nonce_str="${nonce}",timestamp="${timestamp}",serial_no="${serialNo}",signature="${signature}"`
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Authorization': authHeader, 'Accept': 'application/json' },
+    })
+
+    if (!res.ok) {
+      console.error('[平台证书] API请求失败:', res.status, await res.text())
+      return
+    }
+
+    const result = (await res.json()) as any
+    const items: any[] = result.data || []
+
+    platformCertsCache = items.map((item: any) => {
+      const enc = item.encrypt_certificate
+      const certPem = decryptAES256GCM(enc.ciphertext, enc.nonce, enc.associated_data)
+      const x509 = new X509Certificate(certPem)
+      const publicKeyPem = x509.publicKey.export({ type: 'spki', format: 'pem' }) as string
+      return {
+        serialNo: item.serial_no,
+        publicKeyPem,
+        effectiveTime: item.effective_time,
+        expireTime: item.expire_time,
+      }
+    })
+
+    lastCertFetchTime = Date.now()
+    console.log(`[平台证书] 已获取 ${platformCertsCache.length} 个证书`)
+  } catch (err) {
+    console.error('[平台证书] 获取失败:', err)
+  }
+}
+
+// 根据序列号获取平台证书公钥
+// 优先级: 环境变量 WECHAT_PLATFORM_CERT_PUBLIC_KEY > 自动获取缓存
+async function getPlatformPublicKey(serialNo: string): Promise<string | null> {
+  // 1. 环境变量中指定的公钥（手动配置）
+  const envKey = process.env.WECHAT_PLATFORM_CERT_PUBLIC_KEY
+  if (envKey) return envKey
+
+  // 2. 自动获取并缓存
+  await refreshPlatformCerts()
+  const cert = platformCertsCache.find((c) => c.serialNo === serialNo)
+  return cert?.publicKeyPem || null
 }
 
 // 验证微信支付回调签名
@@ -453,31 +660,58 @@ export async function verifyWechatNotify(body: string, headers: Record<string, s
     const wechatpayNonce = headers['wechatpay-nonce']
 
     if (!wechatpaySerial || !wechatpaySignature || !wechatpayTimestamp || !wechatpayNonce) {
+      console.error('[支付回调] 缺少微信签名头')
+      return { valid: false }
+    }
+
+    // 1. 用微信平台公钥验证回调签名
+    const platformPublicKey = await getPlatformPublicKey(wechatpaySerial)
+    if (!platformPublicKey) {
+      console.error('[支付回调] 无法获取微信平台公钥')
       return { valid: false }
     }
 
     const signatureStr = `${wechatpayTimestamp}\n${wechatpayNonce}\n${body}\n`
-    const platformPublicKey = process.env.WECHAT_PLATFORM_CERT_PUBLIC_KEY || ''
-
     const verify = createVerify('RSA-SHA256')
     verify.update(signatureStr)
     const valid = verify.verify(platformPublicKey, wechatpaySignature, 'base64')
+    if (!valid) {
+      console.error('[支付回调] 签名验证失败')
+      return { valid: false }
+    }
 
-    if (!valid) return { valid: false }
+    // 2. 解析回调 body
+    const parsed = JSON.parse(body)
+    const resource = parsed.resource
+    if (!resource?.ciphertext || !resource?.nonce) {
+      console.error('[支付回调] resource 字段不完整')
+      return { valid: false }
+    }
 
-    const data = JSON.parse(body)
-    const resource = data.resource
-    // 需要解密resource中的密文 (AES-GCM)
-    // 简化处理: 直接解析
+    // 3. 解密 AES-256-GCM 加密的 resource
+    let decrypted: any
+    try {
+      const plaintext = decryptAES256GCM(
+        resource.ciphertext,
+        resource.nonce,
+        resource.associated_data || ''
+      )
+      decrypted = JSON.parse(plaintext)
+    } catch (err) {
+      console.error('[支付回调] resource 解密失败:', err)
+      return { valid: false }
+    }
+
     return {
       valid: true,
       data: {
-        outTradeNo: resource?.out_trade_no || '',
-        transactionId: resource?.transaction_id || '',
-        totalFee: resource?.amount?.total || 0
+        outTradeNo: decrypted.out_trade_no || '',
+        transactionId: decrypted.transaction_id || '',
+        totalFee: decrypted.amount?.total || 0
       }
     }
-  } catch {
+  } catch (err) {
+    console.error('[支付回调] 处理失败:', err)
     return { valid: false }
   }
 }

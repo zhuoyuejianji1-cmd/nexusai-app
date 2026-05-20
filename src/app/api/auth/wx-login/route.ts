@@ -51,25 +51,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 获取或创建用户（生成6位数ID）
-    const userObj = getOrCreateUser(openid, nickname, avatarUrl);
-    const userId = userObj.userId;
+    // 获取或创建用户（数据库优先，自动持久化）
+    const userObj = await getOrCreateUser(openid, nickname, avatarUrl);
 
-    // 查询 VIP 状态
-    let isVip = false;
-    let vipExpire = '';
-    try {
-      const vip = await getVipStatus(userId);
-      const now = new Date().toISOString().split('T')[0];
-      isVip = vip.isVip && vip.expire >= now;
-      vipExpire = vip.expire || '';
-    } catch { /* Redis不可用则降级 */ }
+    // 优先使用数据库中的VIP状态，Redis作为补充
+    let isVip = userObj.is_vip;
+    let vipExpire = userObj.vip_expire;
+
+    // 如果数据库没有VIP，再查Redis（兼容之前Redis里的老数据）
+    if (!isVip) {
+      try {
+        const vip = await getVipStatus(openid);
+        const now = new Date().toISOString().split('T')[0];
+        if (vip.isVip && vip.expire >= now) {
+          isVip = true;
+          vipExpire = vip.expire;
+          // 回写数据库，把Redis里的VIP状态同步到数据库
+          const { setUserVip } = await import('@/lib/user');
+          await setUserVip(openid, true, vipExpire);
+        }
+      } catch { /* Redis不可用则降级 */ }
+    }
 
     const tokenData = {
       openid,
-      userId,
-      nickname: nickname || '微信用户',
-      avatar: avatarUrl || null,
+      userId: userObj.userId,
+      nickname: userObj.nickname,
+      avatar: userObj.avatar,
       is_vip: isVip,
       vip_expire: vipExpire,
       exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
@@ -82,9 +90,9 @@ export async function POST(request: NextRequest) {
       token,
       user: {
         openid,
-        userId,
-        nickname: nickname || '微信用户',
-        avatar: avatarUrl || null,
+        userId: userObj.userId,
+        nickname: userObj.nickname,
+        avatar: userObj.avatar,
         is_vip: isVip,
         vip_expire: vipExpire,
       },

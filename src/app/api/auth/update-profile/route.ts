@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { updateUserNickname, updateUserAvatar } from '@/lib/user';
 
 export const runtime = 'nodejs';
 
-// 解析 token
 function parseToken(request: NextRequest): any {
   const authHeader = request.headers.get('Authorization');
   if (authHeader?.startsWith('Bearer ')) {
@@ -33,6 +33,15 @@ export async function POST(request: NextRequest) {
     }
 
     const { nickname, avatarUrl } = await request.json();
+    const openid = tokenData.openid;
+
+    // 同步更新数据库
+    if (nickname && nickname !== '微信用户') {
+      await updateUserNickname(openid, nickname);
+    }
+    if (avatarUrl) {
+      await updateUserAvatar(openid, avatarUrl);
+    }
 
     // 生成新 token（包含更新的信息）
     const newTokenData = {

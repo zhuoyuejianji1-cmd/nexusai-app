@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: [], total: 0 });
     }
 
-    // 获取所有已支付订单
-    const allOrders = getAllOrders().filter(
+    // 获取所有已支付订单（含Redis兜底）
+    const allOrders = (await getAllOrders()).filter(
       (o) => o.status === 'paid' && (o.userId === userId || o.email === userId)
     );
 

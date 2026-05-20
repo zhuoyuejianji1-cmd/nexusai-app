@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOrderByOutTradeNo, updateOrderStatus, verifyWechatNotify } from '@/lib/payment';
 import { setVip } from '@/lib/redis';
+import { setUserVip } from '@/lib/user';
 
 // POST /api/payment/wxpay/notify - 微信支付回调通知
 export async function POST(request: NextRequest) {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const { outTradeNo, transactionId, totalFee } = result.data;
 
-    const order = getOrderByOutTradeNo(outTradeNo);
+    const order = await getOrderByOutTradeNo(outTradeNo);
     if (!order) {
       console.error(`订单 ${outTradeNo} 不存在`);
       return NextResponse.json(
@@ -33,18 +34,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    updateOrderStatus(order.id, 'paid', { paidAt: Date.now() });
+    await updateOrderStatus(order.id, 'paid', { paidAt: Date.now() });
 
     console.log(`订单 ${outTradeNo} 支付成功，微信交易号: ${transactionId}, 金额: ${totalFee}分`);
 
-    // 如果是VIP会员商品，激活VIP
-    const vipProductIds = ['vip_yearly', 'vip_forever'];
+    // 如果是VIP会员商品，激活VIP（Redis + 数据库双写）
+    const vipProductIds = ['vip_monthly', 'vip_yearly', 'vip_forever'];
     if (vipProductIds.includes(order.productId) && order.userId) {
       const now = new Date();
-      if (order.productId === 'vip_yearly') now.setFullYear(now.getFullYear() + 1);
+      if (order.productId === 'vip_monthly') now.setMonth(now.getMonth() + 1);
+      else if (order.productId === 'vip_yearly') now.setFullYear(now.getFullYear() + 1);
       else now.setFullYear(now.getFullYear() + 50);
       const expireDate = now.toISOString().split('T')[0];
+
+      // 写入Redis（快速查询）
       await setVip(order.userId, expireDate);
+      // 写入数据库（持久化保存）
+      await setUserVip(order.userId, true, expireDate);
+
       console.log(`VIP已激活: userId=${order.userId}, 产品=${order.productId}, 到期=${expireDate}`);
     }
 

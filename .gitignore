@@ -51,3 +51,4 @@ Dau.7z
 .turbo/
 
 .vercel
+.env*.local

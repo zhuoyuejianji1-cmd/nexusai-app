@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus, isConfigured } from '@/lib/redis';
-import { createOrder } from '@/lib/payment';
+import { createOrder, saveOrderToRedis } from '@/lib/payment';
+import { getUserByOpenid } from '@/lib/user';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 
@@ -52,17 +53,32 @@ export async function POST(request: NextRequest) {
     if (coursePrice > 0) {
       let vipValid = false;
       const redisOk = isConfigured();
+      
+      // 1. 先查 Redis（快速）
       if (redisOk) {
         try {
           const vip = await getVipStatus(userId);
           const now = new Date().toISOString().split('T')[0];
           vipValid = vip.isVip && vip.expire >= now;
-        } catch {
-          vipValid = tokenIsVip;
-        }
-      } else {
-        vipValid = true; // 降级：免费模式
+        } catch { /* Redis 异常继续往下 */ }
       }
+      
+      // 2. Redis 没查到或不可用，查用户数据兜底
+      if (!vipValid) {
+        try {
+          const dbUser = await getUserByOpenid(userId);
+          if (dbUser?.is_vip) {
+            const now = new Date().toISOString().split('T')[0];
+            vipValid = dbUser.vip_expire >= now;
+          }
+        } catch { /* DB 异常继续往下 */ }
+      }
+      
+      // 3. 最后兜底：信任 token 中的 VIP 标识（但仅当另两个都不可用时）
+      if (!vipValid && !redisOk) {
+        vipValid = tokenIsVip;
+      }
+      
       if (!vipValid) {
         return NextResponse.json({ error: '需要VIP会员才能激活课程' }, { status: 403 });
       }
@@ -71,11 +87,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '课程暂无下载资源' }, { status: 404 });
     }
 
-    // 创建免费订单记录（标记该课程已被该用户激活）
+    // 创建免费订单记录（标记该课程已被该用户激活），持久化到 Redis
     const product = { id: courseId, name: courseTitle, price: 0 };
-    const order = createOrder(product, { userId });
+    const order = await createOrder(product, { userId });
     order.status = 'paid';
     order.paidAt = Date.now();
+    saveOrderToRedis(order).catch(e => console.error('[Redis] 激活订单持久化失败:', e));
 
     return NextResponse.json({
       success: true,

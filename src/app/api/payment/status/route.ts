@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const order = orderId ? getOrder(orderId) : null;
+    const order = orderId ? await getOrder(orderId) : null;
 
     if (!order) {
       return NextResponse.json(
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const order = mockPayOrder(out_trade_no);
+    const order = await mockPayOrder(out_trade_no);
     if (!order) {
       return NextResponse.json(
         { error: '订单不存在或状态不允许' },

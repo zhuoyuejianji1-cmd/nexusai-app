@@ -113,6 +113,17 @@ function getOpenId(request: NextRequest): string | null {
 export async function GET(request: NextRequest) {
   try {
     const allCourses = loadCourses();
+    
+    // 排序：免费课永远在最前（保持文件顺序），VIP课按 updatedAt 最新在前
+    allCourses.sort((a, b) => {
+      const aIsFree = a.isVipOnly === false;
+      const bIsFree = b.isVipOnly === false;
+      if (aIsFree && !bIsFree) return -1;
+      if (!aIsFree && bIsFree) return 1;
+      if (aIsFree && bIsFree) return 0; // 免费课保持原顺序
+      return (b.updatedAt || '').localeCompare(a.updatedAt || ''); // VIP课最新在前
+    });
+
     // 检查当前用户VIP状态
     let isVipUser = false;
     const openid = getOpenId(request);
