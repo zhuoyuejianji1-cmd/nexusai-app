@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrder, mockPayOrder } from '@/lib/payment';
+import { getOrder, getOrderByOutTradeNo, mockPayOrder, type Order } from '@/lib/payment';
+import { setVip } from '@/lib/redis';
+import { setUserVip } from '@/lib/user';
+
+async function activateVipForOrder(order: Order) {
+  if (!order.userId) return null;
+  const vipProductIds = ['vip_monthly', 'vip_yearly', 'vip_forever'];
+  if (!vipProductIds.includes(order.productId)) return null;
+
+  const expire = new Date();
+  if (order.productId === 'vip_monthly') expire.setMonth(expire.getMonth() + 1);
+  else if (order.productId === 'vip_yearly') expire.setFullYear(expire.getFullYear() + 1);
+  else expire.setFullYear(expire.getFullYear() + 50);
+
+  const expireDate = expire.toISOString().split('T')[0];
+  await setVip(order.userId, expireDate);
+  await setUserVip(order.userId, true, expireDate);
+  return expireDate;
+}
 
 // GET /api/payment/status?id=xxx - 查询订单支付状态
 export async function GET(request: NextRequest) {
@@ -15,7 +33,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const order = orderId ? await getOrder(orderId) : null;
+    const order = orderId ? await getOrder(orderId) : outTradeNo ? await getOrderByOutTradeNo(outTradeNo) : null;
 
     if (!order) {
       return NextResponse.json(
@@ -66,6 +84,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const expireDate = await activateVipForOrder(order);
+
     console.log(`[Mock] 订单 ${out_trade_no} 模拟支付成功`);
 
     return NextResponse.json({
@@ -77,6 +97,8 @@ export async function POST(request: NextRequest) {
         status: order.status,
         paidAt: order.paidAt,
       },
+      vipActivated: Boolean(expireDate),
+      expireDate,
     });
   } catch (err) {
     console.error('模拟支付失败:', err);

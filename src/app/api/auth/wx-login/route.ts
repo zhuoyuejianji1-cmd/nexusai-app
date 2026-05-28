@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus } from '@/lib/redis';
-import { getOrCreateUser } from '@/lib/user';
+import { getOrCreateUser, setUserVip } from '@/lib/user';
+import { buildWxUserPayload } from '@/lib/wx-user-payload';
 
 export const runtime = 'nodejs';
 
-// POST /api/auth/wx-login - 微信小程序登录
 export async function POST(request: NextRequest) {
   try {
     const { code, nickname, avatarUrl } = await request.json();
 
     if (!code) {
-      return NextResponse.json(
-        { error: '缺少临时 code' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '缺少临时 code' }, { status: 400 });
     }
 
     const appid = process.env.WECHAT_APPID;
@@ -21,17 +18,13 @@ export async function POST(request: NextRequest) {
 
     if (!appid || !secret) {
       console.error('微信登录配置缺失: WECHAT_APPID 或 WECHAT_APP_SECRET 未设置');
-      return NextResponse.json(
-        { error: '服务器配置错误' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: '服务器配置错误' }, { status: 500 });
     }
 
     const wxRes = await fetch(
       `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`,
       { method: 'GET' }
     );
-
     const wxData = await wxRes.json();
 
     if (wxData.errcode) {
@@ -42,62 +35,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { openid, session_key } = wxData;
-
+    const { openid } = wxData;
     if (!openid) {
-      return NextResponse.json(
-        { error: '获取 openid 失败' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '获取 openid 失败' }, { status: 400 });
     }
 
-    // 获取或创建用户（数据库优先，自动持久化）
     const userObj = await getOrCreateUser(openid, nickname, avatarUrl);
-
-    // 优先使用数据库中的VIP状态，Redis作为补充
+    let vip = await getVipStatus(openid);
+    const now = new Date().toISOString().split('T')[0];
     let isVip = userObj.is_vip;
     let vipExpire = userObj.vip_expire;
 
-    // 如果数据库没有VIP，再查Redis（兼容之前Redis里的老数据）
-    if (!isVip) {
-      try {
-        const vip = await getVipStatus(openid);
-        const now = new Date().toISOString().split('T')[0];
-        if (vip.isVip && vip.expire >= now) {
-          isVip = true;
-          vipExpire = vip.expire;
-          // 回写数据库，把Redis里的VIP状态同步到数据库
-          const { setUserVip } = await import('@/lib/user');
-          await setUserVip(openid, true, vipExpire);
-        }
-      } catch { /* Redis不可用则降级 */ }
+    if (!isVip && vip.isVip && vip.expire >= now) {
+      isVip = true;
+      vipExpire = vip.expire;
+      await setUserVip(openid, true, vipExpire);
     }
 
-    const tokenData = {
-      openid,
-      userId: userObj.userId,
-      nickname: userObj.nickname,
-      avatar: userObj.avatar,
-      is_vip: isVip,
-      vip_expire: vipExpire,
-      exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
-    };
+    if (isVip && (!vip.isVip || !vip.expire)) {
+      vip = { isVip: true, expire: vipExpire, since: vip.since || '' };
+    }
 
-    const token = Buffer.from(JSON.stringify(tokenData)).toString('base64');
+    const payload = buildWxUserPayload({
+      tokenData: {
+        openid,
+        is_vip: isVip,
+        vip_expire: vipExpire,
+        exp: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      },
+      storedUser: { ...userObj, is_vip: isVip, vip_expire: vipExpire },
+      vip,
+    });
+
+    const token = Buffer.from(JSON.stringify(payload.tokenData)).toString('base64');
 
     return NextResponse.json({
       success: true,
       token,
-      user: {
-        openid,
-        userId: userObj.userId,
-        nickname: userObj.nickname,
-        avatar: userObj.avatar,
-        is_vip: isVip,
-        vip_expire: vipExpire,
-      },
+      user: payload.user,
     });
-
   } catch (error: any) {
     console.error('微信登录错误 - name:', error?.name, 'message:', error?.message, 'stack:', error?.stack?.slice(0, 500));
     return NextResponse.json(

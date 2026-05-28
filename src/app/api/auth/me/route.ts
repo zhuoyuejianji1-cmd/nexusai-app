@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVipStatus } from '@/lib/redis';
-import { generateUserId } from '@/lib/user';
+import { getUserByOpenid } from '@/lib/user';
+import { buildWxUserPayload } from '@/lib/wx-user-payload';
 
 export const runtime = 'nodejs';
 
-// 解析 token，支持 Cookie 和 Bearer 两种方式
 function parseToken(request: NextRequest): any {
-  // 1. 尝试 Bearer token (小程序)
   const authHeader = request.headers.get('Authorization');
   if (authHeader?.startsWith('Bearer ')) {
     try {
@@ -19,7 +18,6 @@ function parseToken(request: NextRequest): any {
     }
   }
 
-  // 2. 尝试 Cookie (网页)
   const authToken = request.cookies.get('auth_token');
   if (authToken) {
     try {
@@ -42,48 +40,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ user: null });
     }
 
-    // 默认用户信息
-    const baseUser = {
-      id: '',
-      nickname: '用户',
-      avatar: null,
-      is_vip: false,
-      vip_expire: null,
-      points: 0,
-    };
-
-    // 微信小程序用户
     if (tokenData.openid) {
-      const vip = await getVipStatus(tokenData.openid);
-      const now = new Date().toISOString().split('T')[0];
-      const isValid = vip.isVip && vip.expire >= now;
+      const [storedUser, vip] = await Promise.all([
+        getUserByOpenid(tokenData.openid),
+        getVipStatus(tokenData.openid),
+      ]);
+      const payload = buildWxUserPayload({ tokenData, storedUser, vip });
 
       return NextResponse.json({
         user: {
-          ...baseUser,
-          id: tokenData.openid,
-          userId: tokenData.userId || generateUserId(tokenData.openid),
-          openid: tokenData.openid,
-          nickname: tokenData.nickname || '微信用户',
-          avatar: tokenData.avatar || null,
-          is_vip: isValid,
-          vip_expire: vip.expire || null,
-          vip_since: vip.since || null,
+          id: payload.user.openid,
+          points: 0,
+          ...payload.user,
         },
       });
     }
 
-    // Web 端邮箱用户
     return NextResponse.json({
       user: {
-        ...baseUser,
         id: tokenData.userId,
         email: tokenData.email,
         nickname: tokenData.email?.split('@')[0] || '用户',
+        avatar: null,
+        is_vip: false,
+        vip_expire: null,
         points: 100,
       },
     });
-
   } catch (error) {
     console.error('获取用户信息错误:', error);
     return NextResponse.json({ user: null });

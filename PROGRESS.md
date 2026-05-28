@@ -145,3 +145,13 @@
 3. 从"待完成"任务中选择一个开始
 4. 完成后更新本文件
 5. 如有架构变更，更新 `ARCHITECTURE.md`
+
+---
+
+## 2026-05-23 小程序头像/ID/加载状态优化
+
+- 修复微信小程序用户资料返回结构，统一 `/api/auth/wx-login`、`/api/auth/me`、`/api/auth/update-profile`、`/api/auth/upload-avatar` 的 `user` 字段。
+- 新增 `src/lib/wx-user-payload.ts`，集中生成小程序用户 `openid/userId/nickname/avatar/is_vip/vip_expire` 和 token payload。
+- 优化 `yys-uni-app/src` 用户缓存归一化，头像上传后同步 token 和 user，保证小程序 ID 与头像不被缓存覆盖。
+- 修复课程页触底加载状态：分页加载时立即显示“正在加载下一页”，失败显示重试，到底显示总数。
+- 验证通过：`pnpm ts-check`、`pnpm build:mp-weixin`、新增用户资料回归测试。

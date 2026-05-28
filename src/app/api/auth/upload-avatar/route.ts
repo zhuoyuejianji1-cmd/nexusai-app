@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
-import { updateUserAvatar } from '@/lib/user';
+import { getVipStatus } from '@/lib/redis';
+import { getUserByOpenid, updateUserAvatar } from '@/lib/user';
+import { buildWxUserPayload } from '@/lib/wx-user-payload';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +16,9 @@ function parseToken(request: NextRequest): any {
       const data = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
       if (data.exp < Date.now()) return null;
       return data;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
   return null;
 }
@@ -22,8 +26,8 @@ function parseToken(request: NextRequest): any {
 export async function POST(request: NextRequest) {
   try {
     const tokenData = parseToken(request);
-    if (!tokenData) {
-      return NextResponse.json({ error: '请先登录' }, { status: 401 });
+    if (!tokenData?.openid) {
+      return NextResponse.json({ error: '请先登录微信小程序账号' }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -42,9 +46,10 @@ export async function POST(request: NextRequest) {
     }
 
     const ext = file.type.split('/')[1] || 'jpg';
-    const fileName = `${tokenData.userId}_${Date.now()}.${ext}`;
-
+    const safeUserId = tokenData.userId || tokenData.openid;
+    const fileName = `${safeUserId}_${Date.now()}.${ext}`;
     const avatarsDir = path.join(process.cwd(), 'public', 'avatars');
+
     if (!existsSync(avatarsDir)) {
       await mkdir(avatarsDir, { recursive: true });
     }
@@ -58,27 +63,24 @@ export async function POST(request: NextRequest) {
     const protocol = request.headers.get('x-forwarded-proto') || 'https';
     const avatarUrl = host ? `${protocol}://${host}${relativePath}` : relativePath;
 
-    // 同步更新数据库中的头像
-    if (tokenData.openid) {
-      await updateUserAvatar(tokenData.openid, avatarUrl);
-    }
+    await updateUserAvatar(tokenData.openid, avatarUrl);
 
-    const newTokenData = {
-      ...tokenData,
-      avatar: avatarUrl,
-    };
-
-    const token = Buffer.from(JSON.stringify(newTokenData)).toString('base64');
+    const [storedUser, vip] = await Promise.all([
+      getUserByOpenid(tokenData.openid),
+      getVipStatus(tokenData.openid),
+    ]);
+    const payload = buildWxUserPayload({
+      tokenData: { ...tokenData, avatar: avatarUrl },
+      storedUser: storedUser ? { ...storedUser, avatar: avatarUrl } : null,
+      vip,
+    });
+    const token = Buffer.from(JSON.stringify(payload.tokenData)).toString('base64');
 
     return NextResponse.json({
       success: true,
       avatarUrl,
       token,
-      user: {
-        openid: newTokenData.openid,
-        nickname: newTokenData.nickname,
-        avatar: avatarUrl,
-      },
+      user: payload.user,
     });
   } catch (error) {
     console.error('头像上传错误:', error);

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateUserNickname, updateUserAvatar } from '@/lib/user';
+import { getVipStatus } from '@/lib/redis';
+import { getUserByOpenid, updateUserAvatar, updateUserNickname } from '@/lib/user';
+import { buildWxUserPayload } from '@/lib/wx-user-payload';
 
 export const runtime = 'nodejs';
 
@@ -11,31 +13,35 @@ function parseToken(request: NextRequest): any {
       const data = JSON.parse(Buffer.from(token, 'base64').toString('utf-8'));
       if (data.exp < Date.now()) return null;
       return data;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
+
   const authToken = request.cookies.get('auth_token');
   if (authToken) {
     try {
       const data = JSON.parse(Buffer.from(authToken.value, 'base64').toString('utf-8'));
       if (data.exp < Date.now()) return null;
       return data;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
+
   return null;
 }
 
-// POST /api/auth/update-profile - 更新用户昵称和头像
 export async function POST(request: NextRequest) {
   try {
     const tokenData = parseToken(request);
-    if (!tokenData) {
-      return NextResponse.json({ error: '请先登录' }, { status: 401 });
+    if (!tokenData?.openid) {
+      return NextResponse.json({ error: '请先登录微信小程序账号' }, { status: 401 });
     }
 
     const { nickname, avatarUrl } = await request.json();
     const openid = tokenData.openid;
 
-    // 同步更新数据库
     if (nickname && nickname !== '微信用户') {
       await updateUserNickname(openid, nickname);
     }
@@ -43,23 +49,28 @@ export async function POST(request: NextRequest) {
       await updateUserAvatar(openid, avatarUrl);
     }
 
-    // 生成新 token（包含更新的信息）
-    const newTokenData = {
-      ...tokenData,
-      nickname: nickname || tokenData.nickname || '微信用户',
-      avatar: avatarUrl || tokenData.avatar || null,
-    };
+    const [storedUser, vip] = await Promise.all([
+      getUserByOpenid(openid),
+      getVipStatus(openid),
+    ]);
 
-    const token = Buffer.from(JSON.stringify(newTokenData)).toString('base64');
+    const payload = buildWxUserPayload({
+      tokenData: {
+        ...tokenData,
+        nickname: nickname || tokenData.nickname,
+        avatar: avatarUrl || tokenData.avatar,
+      },
+      storedUser: storedUser
+        ? { ...storedUser, nickname: nickname || storedUser.nickname, avatar: avatarUrl || storedUser.avatar }
+        : null,
+      vip,
+    });
+    const token = Buffer.from(JSON.stringify(payload.tokenData)).toString('base64');
 
     return NextResponse.json({
       success: true,
       token,
-      user: {
-        openid: newTokenData.openid,
-        nickname: newTokenData.nickname,
-        avatar: newTokenData.avatar,
-      },
+      user: payload.user,
     });
   } catch (error) {
     console.error('更新资料错误:', error);

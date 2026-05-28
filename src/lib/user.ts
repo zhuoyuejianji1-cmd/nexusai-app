@@ -38,7 +38,9 @@ async function redisCmd(command: string, ...args: string[]): Promise<any> {
       },
       body: JSON.stringify([command, ...args]),
     });
-    return await res.json();
+    const data = await res.json();
+    if (data && typeof data === 'object' && 'result' in data) return data.result;
+    return data;
   } catch {
     return null;
   }
